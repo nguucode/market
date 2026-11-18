@@ -3,7 +3,8 @@ import type { Order, ReturnRequest } from '@/domain/types'
 import { activeSteps, allowedSolutions, deadlineCopy, emptyDraft, nextStep, prevStep, resolveStep, returnTimeline, stepError, validPhoto, validTrackingCode, type Draft } from './logic'
 
 const DAY = 86_400_000
-const NOW = new Date(2026, 10, 18, 10, 0).getTime()
+/** 10:00 on 18/11/2026 in Vietnam (UTC+7), so the test passes in any runner timezone. */
+const NOW = Date.UTC(2026, 10, 18, 3, 0)
 
 test('step guard sends the buyer back to the first incomplete step', () => {
   const d = emptyDraft()

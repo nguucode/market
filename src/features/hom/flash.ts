@@ -1,10 +1,11 @@
+import { vnStartOfDay } from '@/domain/time'
 // Flash-sale slot logic shared by the Home band (US-HOM-003) and the flash sale page (US-PRM-001). Pure.
 import type { FlashItem, FlashSlot } from '@/domain/types'
 import { fmtTime } from '@/features/ntf/time'
 
-const startOfDay = (ms: number) => new Date(ms).setHours(0, 0, 0, 0)
+const startOfDay = vnStartOfDay // Vietnam calendar day, whatever the browser timezone
 /** Start of the day after tomorrow: slots shown are today + tomorrow only. */
-const horizon = (now: number) => { const d = new Date(startOfDay(now)); d.setDate(d.getDate() + 2); return d.getTime() }
+const horizon = (now: number) => startOfDay(now) + 2 * 86_400_000
 
 /** Slots not yet ended that start before the end of tomorrow, by start time. */
 export function visibleSlots(slots: FlashSlot[], now: number): FlashSlot[] {

@@ -1,12 +1,16 @@
 import type { Order } from '@/domain/types'
 import { seedWorld } from '@/mock/seed'
 import {
+
   buyAgainToast, calendarDaysLeft, cancelMode, canRequestReturn, dmy, dmyhm, invoiceAvailable, orderEvents, ordersInTab, ordersSharingPayment, parseTab,
   paymentRows, primaryAction, refundCopy, refundInfo, reviewBannerText, reviewPrompt, statusSentence, tabCounts, timeLeft, visibleActions, whoCancelled,
 } from './logic'
 
+/** A wall-clock time in Vietnam (UTC+7), so tests pass in any runner timezone. */
+const vnt = (y: number, mo: number, d: number, h = 0, mi = 0) => Date.UTC(y, mo, d, h, mi) - 7 * 3_600_000
+
 const DAY = 86_400_000
-const NOW = new Date(2026, 10, 18, 14, 5).getTime()
+const NOW = vnt(2026, 10, 18, 14, 5)
 const base: Order = {
   id: 'MK1', paymentId: 'P1', shopId: 'A', status: 'to_confirm',
   lines: [
@@ -54,7 +58,7 @@ test('card primary action follows the shared table', () => {
 })
 
 test('status sentences', () => {
-  expect(statusSentence(o({ status: 'delivered', at: { delivered: new Date(2026, 10, 18).getTime() } }))).toBe('Đơn hàng sẽ tự động hoàn thành vào 03/12/2026.')
+  expect(statusSentence(o({ status: 'delivered', at: { delivered: vnt(2026, 10, 18) } }))).toBe('Đơn hàng sẽ tự động hoàn thành vào 03/12/2026.')
   expect(statusSentence(o({ status: 'shipping' }))).toBe('Đơn hàng đang trên đường đến bạn.')
   expect(statusSentence(o({ status: 'to_ship' }))).toMatch(/^Shop đang chuẩn bị hàng. Dự kiến giao 21\/11 – 23\/11.$/)
   expect(statusSentence(o({ status: 'cancelled', cancelledBy: 'buyer', cancelReason: 'Tôi không có nhu cầu mua nữa' }))).toBe('Bạn đã hủy · Lý do: Tôi không có nhu cầu mua nữa')

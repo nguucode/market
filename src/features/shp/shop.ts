@@ -1,3 +1,4 @@
+import { dmy } from '@/domain/time'
 // Pure shop-page logic: US-SHP-001..004.
 import type { Product, Review, Shop, Voucher } from '@/domain/types'
 import { variantText, type World } from '@/mock/seed'
@@ -41,8 +42,7 @@ export function voucherButtonState(v: Voucher, saved: boolean, usedCount: number
   return saved ? 'saved' : 'save'
 }
 
-const pad = (n: number) => String(n).padStart(2, '0')
-export const fmtDate = (ms: number) => { const d = new Date(ms); return `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()}` }
+export const fmtDate = dmy
 export function expiryText(endsAt: number, t: number) {
   const h = (endsAt - t) / 3_600_000
   return h < 24 ? `Hết hạn sau ${Math.max(1, Math.ceil(h))} giờ` : `HSD: ${fmtDate(endsAt)}`

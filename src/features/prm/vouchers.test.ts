@@ -2,8 +2,11 @@ import { describe, expect, test } from 'vitest'
 import type { SavedVoucher, Voucher } from '@/domain/types'
 import { claimFailText, describeVoucher, hubList, pickHomeVouchers, usesLeftLine, applyTarget, voucherCapLine, voucherExpiry, voucherOffer, voucherTileState } from './vouchers'
 
+/** A wall-clock time in Vietnam (UTC+7), so tests pass in any runner timezone. */
+const vnt = (y: number, mo: number, d: number, h = 0, mi = 0) => Date.UTC(y, mo, d, h, mi) - 7 * 3_600_000
+
 const H = 3_600_000, D = 24 * H
-const now = new Date(2026, 10, 18, 10, 0).getTime()
+const now = vnt(2026, 10, 18, 10, 0)
 const v = (o: Partial<Voucher> & { id: string }): Voucher => ({
   code: o.id, scope: 'platform', kind: 'amount', value: 30_000, minSpend: 0, startsAt: now - D, endsAt: now + 10 * D, totalQuota: 100, usedCount: 0, perBuyerLimit: 1, ...o,
 })
@@ -37,7 +40,7 @@ describe('tile copy', () => {
     expect(voucherCapLine(v({ id: 'a', scope: 'shipping', maxPerShop: 25_000 }))).toBe('Tối đa 25.000₫ mỗi shop · Không cần đơn tối thiểu')
   })
   test('expiry', () => {
-    expect(voucherExpiry(v({ id: 'a', endsAt: new Date(2026, 10, 30, 23, 59).getTime() }), now)).toBe('HSD: 30/11/2026')
+    expect(voucherExpiry(v({ id: 'a', endsAt: vnt(2026, 10, 30, 23, 59) }), now)).toBe('HSD: 30/11/2026')
     expect(voucherExpiry(v({ id: 'a', endsAt: now + 2 * H }), now)).toBe('Hết hạn sau 2 giờ')
     expect(voucherExpiry(v({ id: 'a', startsAt: now + 3 * H }), now)).toBe('Bắt đầu sau 3 giờ')
   })

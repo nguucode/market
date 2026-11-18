@@ -1,7 +1,10 @@
 import { describe, expect, test } from 'vitest'
 import { fmtDate, fmtTime, relativeTime } from './time'
 
-const now = new Date(2026, 10, 18, 14, 5).getTime()
+/** A wall-clock time in Vietnam (UTC+7), so tests pass in any runner timezone. */
+const vnt = (y: number, mo: number, d: number, h = 0, mi = 0) => Date.UTC(y, mo, d, h, mi) - 7 * 3_600_000
+
+const now = vnt(2026, 10, 18, 14, 5)
 describe('relativeTime', () => {
   test('under a minute (and future skew) reads Vừa xong', () => {
     expect(relativeTime(now - 59_000, now)).toBe('Vừa xong')
@@ -18,7 +21,7 @@ describe('relativeTime', () => {
   })
 })
 test('fmtDate and fmtTime pad', () => {
-  const t = new Date(2026, 0, 3, 9, 7).getTime()
+  const t = vnt(2026, 0, 3, 9, 7)
   expect(fmtDate(t)).toBe('03/01/2026')
   expect(fmtTime(t)).toBe('09:07')
 })

@@ -39,7 +39,7 @@ describe('shop', () => {
   })
   it('formats expiry', () => {
     expect(expiryText(t + 2 * 3_600_000 - 1000, t)).toBe('Hết hạn sau 2 giờ')
-    expect(expiryText(new Date(2026, 10, 30).getTime(), new Date(2026, 10, 1).getTime())).toBe('HSD: 30/11/2026')
+    expect(expiryText(Date.UTC(2026, 10, 30, 5), Date.UTC(2026, 10, 1, 5))).toBe('HSD: 30/11/2026')
   })
   it('joins reviews newest first and summarises them', () => {
     const list = shopReviews(w, shop.id)

@@ -2,9 +2,12 @@ import { describe, expect, test } from 'vitest'
 import type { FlashItem, FlashSlot } from '@/domain/types'
 import { almostGone, flashSlotState, formatCountdown, orderFlashItems, resolveSelectedSlot, slotStatus, startLabel, visibleSlots } from './flash'
 
+/** A wall-clock time in Vietnam (UTC+7), so tests pass in any runner timezone. */
+const vnt = (y: number, mo: number, d: number, h = 0, mi = 0) => Date.UTC(y, mo, d, h, mi) - 7 * 3_600_000
+
 const H = 3_600_000
-const now = new Date(2026, 10, 18, 13, 0).getTime()
-const at = (d: number, h: number) => new Date(2026, 10, 18 + d, h).getTime()
+const now = vnt(2026, 10, 18, 13, 0)
+const at = (d: number, h: number) => vnt(2026, 10, 18 + d, h)
 const slot = (id: string, a: number, b: number): FlashSlot => ({ id, startsAt: a, endsAt: b, items: [] })
 const slots = [
   slot('tomorrow2', at(1, 3), at(1, 6)),
