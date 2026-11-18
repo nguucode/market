@@ -1,7 +1,7 @@
 // US-FND-007: borderless image-led card, 4:5 image, one label, one-line name, lowest price.
 import { Heart } from 'lucide-react'
 import { Link } from 'react-router'
-import { cardLabel, priceView } from '@/app/catalog'
+import { cardLabel, priceView, spreadSiblings } from '@/app/catalog'
 import { toggleFavorite, useNow, useWorld } from '@/app/store'
 import { compactCount } from '@/domain/money'
 import type { Product } from '@/domain/types'
@@ -47,7 +47,8 @@ export function ProductCard({ product: p, eager, className, showShopLocation }: 
   )
 }
 
-export function ProductGrid({ products, eagerFirst = 0 }: { products: Product[]; eagerFirst?: number }) {
+export function ProductGrid({ products: raw, eagerFirst = 0 }: { products: Product[]; eagerFirst?: number }) {
+  const products = spreadSiblings(raw, (p) => p)
   return (
     <ul className="grid grid-cols-2 gap-x-3 gap-y-6 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5" role="list">
       {products.map((p, i) => <li key={p.id}><ProductCard product={p} eager={i < eagerFirst} /></li>)}
@@ -56,7 +57,8 @@ export function ProductGrid({ products, eagerFirst = 0 }: { products: Product[];
 }
 
 /** Horizontal rail with peek on the app layout. */
-export function ProductRail({ products, label }: { products: Product[]; label: string }) {
+export function ProductRail({ products: raw, label }: { products: Product[]; label: string }) {
+  const products = spreadSiblings(raw, (p) => p)
   return (
     <ul aria-label={label} className="no-scrollbar -mx-4 flex snap-x gap-3 overflow-x-auto px-4 lg:mx-0 lg:grid lg:grid-cols-5 lg:overflow-visible lg:px-0" role="list">
       {products.map((p) => <li key={p.id} className="w-[42%] shrink-0 snap-start md:w-[28%] lg:w-auto"><ProductCard product={p} /></li>)}

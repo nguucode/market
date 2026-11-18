@@ -50,7 +50,24 @@ export function leavesUnder(w: World, id: string): string[] {
 }
 export const activeProducts = (w: World) => w.products.filter((p) => p.status === 'active')
 
+/** Listings of the same source product share their photo set; this is their family key. */
+export const siblingKey = (p: Product) => [...p.images].sort().join('|')
+/**
+ * Keeps listings of the same source product out of the same row of `row` cards (competing shops read as
+ * duplication when they sit side by side). Stable: an item moves down only as far as needed.
+ */
+export function spreadSiblings<T>(items: T[], productOf: (x: T) => Product, row = 5): T[] {
+  const out: T[] = []
+  const waiting = [...items]
+  while (waiting.length) {
+    const rowStart = out.length - (out.length % row)
+    const inRow = new Set(out.slice(rowStart).map((x) => siblingKey(productOf(x))))
+    const i = waiting.findIndex((x) => !inRow.has(siblingKey(productOf(x))))
+    out.push(waiting.splice(i === -1 ? 0 : i, 1)[0])
+  }
+  return out
+}
+
 /** Diacritic-insensitive normaliser for search: "dam" matches "Đầm". */
 export const fold = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/đ/g, 'd').replace(/Đ/g, 'D').toLowerCase()
 
-export const CATEGORY_IMAGE: Record<string, number> = {} // reserved: level-1 tiles pick a product image at runtime

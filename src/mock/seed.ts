@@ -11,7 +11,7 @@ import type {
 } from '@/domain/types'
 
 /** Bump whenever seed logic changes, so saved demo state from an older seed is discarded. */
-export const SEED_VERSION = 3
+export const SEED_VERSION = 4
 
 export type World = {
   buyer: Buyer
@@ -253,7 +253,8 @@ export function seedWorld(now: number): World {
     if (rnd() > 0.6 || src.images.length < 2) continue
     const pool = shopsByGroup(level1Of(src.categoryId)).filter((s) => s.id !== bySrc[src.src].shopId)
     if (!pool.length) continue
-    addProduct({ ...src, images: [...src.images.slice(1), src.images[0]] }, pick(pool), { name: `${src.name} ${pick(['loại 1', 'cao cấp', 'mẫu mới', 'bản tiêu chuẩn', 'giá tốt'])}`, priceFactor: 0.88 + rnd() * 0.24 })
+    const copy = addProduct({ ...src, images: [...src.images.slice(1), src.images[0]] }, pick(pool), { name: `${src.name} ${pick(['loại 1', 'cao cấp', 'mẫu mới', 'bản tiêu chuẩn', 'giá tốt'])}`, priceFactor: 0.88 + rnd() * 0.24 })
+    copy.soldCount = Math.floor(bySrc[src.src].soldCount * (0.05 + rnd() * 0.35)) // a competing listing sells less than the original
   }
 
   // ── Hand-made edge cases (mock-data.md) ──

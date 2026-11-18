@@ -1,3 +1,4 @@
+import { spreadSiblings } from '@/app/catalog'
 // Pure search, filter, sort and suggest logic: US-DSC-002..006. All state lives in the URL query.
 import { categoryById, fold, leavesUnder, priceView } from '@/app/catalog'
 import { compactVnd } from '@/domain/money'
@@ -196,7 +197,7 @@ export function searchProducts(w: World, rows: Row[], p: SearchParams): Row[] {
   const qn = normalizeVi(p.q ?? '')
   const scores = new Map<string, number>()
   const hits = applyFilters(w, rows, p).filter((r) => { const s = matchScore(r, qn); if (s) scores.set(r.p.id, s); return s > 0 })
-  return sortRows(hits, p.sort ?? 'relevance', scores)
+  return spreadSiblings(sortRows(hits, p.sort ?? 'relevance', scores), (r) => r.p)
 }
 export const queryRows = (rows: Row[], q?: string) => { const qn = normalizeVi(q ?? ''); return rows.filter((r) => matchScore(r, qn) > 0) }
 
