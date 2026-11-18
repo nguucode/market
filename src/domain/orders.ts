@@ -59,11 +59,13 @@ export function returnWindowEnds(o: Order) {
   return o.at.delivered ? o.at.delivered + RETURN_WINDOW_DAYS * DAY : undefined
 }
 export function reviewWindowEnds(o: Order) {
-  if (o.status === 'delivered') return o.at.delivered ? o.at.delivered + (AUTO_COMPLETE_DAYS + REVIEW_DAYS_AFTER_COMPLETE) * DAY : undefined
+  // A return keeps the window of the status before it (rules.md#reviews).
+  const s = o.status === 'return_requested' || o.status === 'returned' ? o.statusBeforeReturn : o.status
+  if (s === 'delivered') return o.at.delivered ? o.at.delivered + (AUTO_COMPLETE_DAYS + REVIEW_DAYS_AFTER_COMPLETE) * DAY : undefined
   return o.at.completed ? o.at.completed + REVIEW_DAYS_AFTER_COMPLETE * DAY : undefined
 }
 export const canReview = (o: Order, now: number) =>
-  (o.status === 'delivered' || o.status === 'completed' || (o.status === 'return_requested' && !!o.at.delivered)) &&
+  (o.status === 'delivered' || o.status === 'completed' || ((o.status === 'return_requested' || o.status === 'returned') && !!o.at.delivered)) &&
   (reviewWindowEnds(o) ?? 0) > now &&
   o.lines.some((l) => !l.reviewId)
 
