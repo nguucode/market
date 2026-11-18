@@ -18,7 +18,7 @@ export default function ReviewFlow() {
   const ready = useLoaded([id])
   const o = w.orders.find((x) => x.id === id)
   if (!o) return <NotFound what="đơn hàng" />
-  if (!ready) return <div className="mx-auto max-w-[720px] space-y-4 pb-10" aria-busy="true" aria-label="Đang tải"><Skeleton className="h-8 w-56" /><Skeleton className="h-64 w-full" /></div>
+  if (!ready) return <div className="mx-auto max-w-[720px] space-y-4 pb-10" role="status" aria-busy="true" aria-label="Đang tải"><Skeleton className="h-8 w-56" /><Skeleton className="h-64 w-full" /></div>
   return <ReviewForm o={o} w={w} />
 }
 
@@ -33,11 +33,11 @@ function StarInput({ value, onChange, label, size }: { value: number; onChange: 
         {[1, 2, 3, 4, 5].map((i) => (
           <label key={i} className="cursor-pointer p-0.5">
             <input type="radio" name={name} value={i} checked={value === i} onChange={() => onChange(i)} aria-label={`${i} sao`} className="peer sr-only" />
-            <Star size={size} strokeWidth={1.4} aria-hidden className={cx('rounded-[4px] peer-focus-visible:outline-2 peer-focus-visible:outline-jade', i <= value ? 'fill-ink text-ink' : 'fill-transparent text-line-strong')} />
+            <Star size={size} strokeWidth={1.4} aria-hidden className={cx('rounded-[4px] peer-focus-visible:outline-2 peer-focus-visible:outline-accent', i <= value ? 'fill-accent text-accent' : 'fill-transparent text-line-strong')} />
           </label>
         ))}
       </span>
-      {value > 0 && <span className="text-[14px] font-medium">{STAR_LABEL[value]}</span>}
+      {value > 0 && <span className="text-[14px] font-medium text-accent-ink">{STAR_LABEL[value]}</span>}
     </fieldset>
   )
 }
@@ -45,7 +45,7 @@ function StarInput({ value, onChange, label, size }: { value: number; onChange: 
 function LineHead({ line }: { line: OrderLine }) {
   return (
     <div className="flex gap-3">
-      <Img src={line.image} alt="" className="size-14 shrink-0 rounded-[8px]" />
+      <Img src={line.image} alt="" className="size-14 shrink-0 rounded-[var(--radius-control)]" />
       <div className="min-w-0">
         <p className="line-clamp-2 text-[14px] leading-snug" title={line.name}>{line.name}</p>
         {line.variantText && <p className="mt-0.5 text-[12px] text-muted">Phân loại: {line.variantText}</p>}
@@ -67,7 +67,7 @@ function ReviewBlock({ line, d, set, starSize }: { line: OrderLine; d: ReviewDra
         </div>
       )}
       <div>
-        <button type="button" aria-expanded={detail} onClick={() => setDetail((v) => !v)} className="inline-flex min-h-11 items-center gap-1.5 text-[14px] font-medium text-ink-2">
+        <button type="button" aria-expanded={detail} onClick={() => setDetail((v) => !v)} className="inline-flex min-h-11 items-center gap-1.5 text-[14px] font-medium text-accent-ink">
           Thêm đánh giá chi tiết<ChevronDown size={16} aria-hidden className={cx('transition-transform', detail && 'rotate-180')} />
         </button>
         {detail && (
@@ -84,7 +84,7 @@ function ReviewBlock({ line, d, set, starSize }: { line: OrderLine; d: ReviewDra
       <div>
         <label htmlFor={textId} className="sr-only">Nhận xét</label>
         <textarea id={textId} rows={4} maxLength={TEXT_MAX} value={d.text} onChange={(e) => set({ text: e.target.value })} placeholder="Hãy chia sẻ cảm nhận của bạn về sản phẩm này nhé"
-          className="w-full resize-y rounded-[10px] bg-surface px-3.5 py-2.5 text-[14px] leading-[1.6] ring-1 ring-line-strong outline-none ring-inset focus:ring-2 focus:ring-jade" />
+          className="w-full resize-y rounded-[var(--radius-control)] bg-surface px-3.5 py-2.5 text-[14px] leading-[1.6] ring-1 ring-line-strong outline-none ring-inset focus:ring-2 focus:ring-accent" />
         <p className="text-right text-[12px] text-muted tabular">{num(d.text.length)}/{num(TEXT_MAX)}</p>
       </div>
       <PhotoPicker photos={d.photos} onChange={(photos) => set({ photos })} />
@@ -97,10 +97,10 @@ function ReadOnlyReview({ line, r, onEdit }: { line: OrderLine; r: Review; onEdi
     <div className="space-y-2.5">
       <LineHead line={line} />
       <div className="flex items-center gap-2"><Stars value={r.rating} size={16} /><span className="text-[13px] text-muted">{STAR_LABEL[r.rating]}{r.editedAt && ' · Đã chỉnh sửa'}</span></div>
-      {r.tags.length > 0 && <p className="text-[13px] text-ink-2">{r.tags.join(' · ')}</p>}
+      {r.tags.length > 0 && <ul className="flex flex-wrap gap-1.5">{r.tags.map((t) => <li key={t} className="rounded-[4px] bg-accent-soft px-2 py-0.5 text-[12px] text-accent-ink">{t}</li>)}</ul>}
       {r.text && <p className="text-[14px] break-words whitespace-pre-line">{r.text}</p>}
-      {r.photos.length > 0 && <div className="flex flex-wrap gap-2">{r.photos.map((p, i) => <img key={i} src={p} alt={`Ảnh ${i + 1}`} className="size-16 rounded-[8px] object-cover" />)}</div>}
-      {r.shopReply && <div className="rounded-[10px] bg-well px-3.5 py-2.5 text-[13px]"><p className="font-semibold">Shop đã phản hồi</p><p className="mt-0.5 text-ink-2">{r.shopReply.text}</p></div>}
+      {r.photos.length > 0 && <div className="flex flex-wrap gap-2">{r.photos.map((p, i) => <img key={i} src={p} alt={`Ảnh ${i + 1}`} className="size-16 rounded-[var(--radius-control)] bg-well object-cover" />)}</div>}
+      {r.shopReply && <div className="rounded-[var(--radius-control)] bg-ground px-3.5 py-2.5 text-[13px]"><p className="font-semibold">Shop đã phản hồi</p><p className="mt-0.5 text-ink-2">{r.shopReply.text}</p></div>}
       {onEdit && <Button variant="secondary" size="sm" onClick={onEdit}>Sửa đánh giá</Button>}
     </div>
   )
@@ -165,16 +165,16 @@ function ReviewForm({ o, w }: { o: Order; w: World }) {
 
   return (
     <div className={cx('mx-auto max-w-[720px]', allDone ? 'pb-10' : 'pb-4')}>
-      {layout === 'web' && <button type="button" onClick={back} className="inline-flex min-h-11 items-center gap-1.5 text-[14px] text-ink-2 hover:text-ink"><ArrowLeft size={16} aria-hidden />Chi tiết đơn hàng</button>}
+      {layout === 'web' && <button type="button" onClick={back} className="inline-flex min-h-11 items-center gap-1.5 text-[14px] text-ink-2 hover:text-accent-ink"><ArrowLeft size={16} aria-hidden />Chi tiết đơn hàng</button>}
       <PageTitle className={layout === 'app' ? 'sr-only' : 'mb-2'}>Đánh giá sản phẩm</PageTitle>
       {prompt.until && windowOpen && <p className="text-[13px] text-muted">Bạn có thể đánh giá đến hết ngày {dmy(prompt.until)}.</p>}
-      <div className="mt-4 divide-y divide-line rounded-[14px] bg-surface px-4 lg:px-6">
-        {open.map((l) => <section key={l.id} aria-label={l.name} className="py-5"><ReviewBlock line={l} d={draftOf(l.id)} set={set(l.id)} starSize={starSize} /></section>)}
+      <div className="mt-3 space-y-2 lg:space-y-3">
+        {open.map((l) => <section key={l.id} aria-label={l.name} className="panel p-3 lg:p-6"><ReviewBlock line={l} d={draftOf(l.id)} set={set(l.id)} starSize={starSize} /></section>)}
         {reviewed.map((l) => {
           const r = reviewOf(l)
           if (!r) return null
           return (
-            <section key={l.id} aria-label={l.name} className="py-5">
+            <section key={l.id} aria-label={l.name} className="panel p-3 lg:p-6">
               {editing[l.id] ? <ReviewBlock line={l} d={draftOf(l.id)} set={set(l.id)} starSize={starSize} />
                 : <ReadOnlyReview line={l} r={r} onEdit={windowOpen && canEditReview(r) ? () => startEdit(l, r) : undefined} />}
             </section>
@@ -183,12 +183,12 @@ function ReviewForm({ o, w }: { o: Order; w: World }) {
       </div>
       {allDone && <p className="mt-4 text-center text-[14px] text-ink-2">Bạn đã đánh giá tất cả sản phẩm trong đơn hàng này.</p>}
       {!allDone && (
-        <div className={cx('sticky bottom-0 z-30 mt-4 bg-ground py-3', layout === 'app' ? '-mx-4 bg-surface px-4 pb-[max(12px,env(safe-area-inset-bottom))] shadow-[var(--shadow-bar)]' : 'border-t border-line')}>
+        <div className={cx('sticky bottom-0 z-30 mt-4 bg-surface py-3 shadow-[var(--shadow-bar)]', layout === 'app' ? '-mx-3 px-3 pb-[max(12px,env(safe-area-inset-bottom))]' : 'rounded-t-[var(--radius-card)] px-6')}>
           {error && <p role="alert" className="mb-2 text-[13px] text-danger">{error}</p>}
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="min-w-0">
               <button type="button" role="switch" aria-checked={anonymous} onClick={() => setAnonymous((v) => !v)} className="inline-flex min-h-11 items-center gap-2.5 text-[14px]">
-                <span aria-hidden className={cx('relative h-6 w-10 rounded-full transition-colors', anonymous ? 'bg-jade' : 'bg-line-strong')}>
+                <span aria-hidden className={cx('relative h-6 w-10 rounded-full transition-colors', anonymous ? 'bg-accent' : 'bg-line-strong')}>
                   <span className={cx('absolute top-0.5 size-5 rounded-full bg-white transition-[left]', anonymous ? 'left-[18px]' : 'left-0.5')} />
                 </span>
                 Đánh giá ẩn danh

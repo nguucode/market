@@ -48,8 +48,8 @@ export default function PaymentPage() {
   const shops = [...new Set(orders.map((o) => w.shops.find((s) => s.id === o.shopId)!.name))]
 
   if (expired) return (
-    <div className="mx-auto max-w-[560px] py-6 text-center">
-      <span className="mx-auto mb-4 flex size-14 items-center justify-center rounded-full bg-well text-ink-2" aria-hidden><Clock size={24} /></span>
+    <div className="panel mx-auto max-w-[560px] px-5 py-10 text-center">
+      <span className="mx-auto mb-4 flex size-14 items-center justify-center rounded-full bg-warn-soft text-warn" aria-hidden><Clock size={24} /></span>
       <PageTitle>Đã hết hạn thanh toán</PageTitle>
       <p className="mt-2 text-[14px] text-ink-2">{orders.length} đơn hàng đã được hệ thống hủy với lý do "Hết hạn thanh toán".</p>
       <div className={cx('mt-6 flex gap-3', web ? 'justify-center' : 'flex-col')}>
@@ -63,35 +63,36 @@ export default function PaymentPage() {
     <div className={cx('mx-auto max-w-[560px] pb-10', !web && 'pb-[calc(96px+env(safe-area-inset-bottom))]')}>
       <PageTitle className={web ? 'mb-4' : 'sr-only'}>Thanh toán đơn hàng</PageTitle>
       {!loaded ? (
-        <div aria-busy="true" aria-label="Đang tải" className="space-y-3"><Skeleton className="h-9 w-48" /><Skeleton className="h-4 w-64" /><Skeleton className="mx-auto mt-6 size-60" /></div>
+        <div role="status" aria-busy="true" aria-label="Đang tải" className="space-y-3"><Skeleton className="h-9 w-48" /><Skeleton className="h-4 w-64" /><Skeleton className="mx-auto mt-6 size-60" /></div>
       ) : (<>
-        <section className="text-center">
-          <p className="tabular text-[32px] leading-tight font-bold">{vnd(p.amount)}</p>
+        <section className="panel px-5 py-6 text-center">
+          <p className="text-[13px] text-ink-2">Số tiền thanh toán</p>
+          <p className="tabular mt-1 text-[32px] leading-tight font-bold text-accent">{vnd(p.amount)}</p>
           <p className="mt-1 text-[14px] text-ink-2">{orders.length} đơn hàng · <span className="break-words">{shops.join(', ')}</span></p>
           <Countdown left={left} />
           <p className="mt-1 text-[13px] text-muted">{PAYMENT_LABEL[p.method]}{p.method === 'wallet' && ` · ${getWallet()}`}</p>
         </section>
 
         {failed && (
-          <div role="alert" className="mt-5 flex items-start gap-2 rounded-[12px] bg-well p-4 text-[14px]">
-            <AlertCircle size={18} aria-hidden className="mt-0.5 shrink-0" />
-            <span><span className="font-semibold">Thanh toán không thành công</span><span className="block text-ink-2">Bạn có thể thử lại trước khi hết thời gian thanh toán.</span></span>
+          <div role="alert" className="mt-3 flex items-start gap-2 rounded-[var(--radius-card)] bg-danger-soft p-4 text-[14px]">
+            <AlertCircle size={18} aria-hidden className="mt-0.5 shrink-0 text-danger" />
+            <span><span className="font-semibold text-danger">Thanh toán không thành công</span><span className="block text-ink-2">Bạn có thể thử lại trước khi hết thời gian thanh toán.</span></span>
           </div>
         )}
 
-        <div className="mt-6 rounded-[16px] bg-surface p-5">
+        <div className="panel mt-3 p-5">
           {p.method === 'vietqr' && <VietQr paymentId={p.id} amount={p.amount} busy={busy} onSubmit={submit} failed={failed} />}
           {p.method === 'wallet' && (
             <div className="space-y-4 text-center">
               <p className="text-[16px] font-semibold">Xác nhận thanh toán bằng {getWallet()}</p>
-              <p className="tabular text-[22px] font-bold">{vnd(p.amount)}</p>
+              <p className="tabular text-[22px] font-bold text-accent">{vnd(p.amount)}</p>
               <Button size="lg" full loading={busy} onClick={submit}>{busy ? 'Đang xử lý…' : failed ? 'Thử lại' : 'Xác nhận'}</Button>
             </div>
           )}
           {p.method === 'card' && <CardForm busy={busy} failed={failed} onSubmit={submit} />}
         </div>
 
-        <div className="mt-5 text-center">
+        <div className="mt-3 text-center">
           <Button variant="ghost" onClick={() => nav('/orders?status=awaiting_payment')}>Thanh toán sau</Button>
         </div>
       </>)}
@@ -104,13 +105,13 @@ function Countdown({ left }: { left: number }) {
   const mins = Math.ceil(left / 60)
   return (
     <>
-      <p className={cx('tabular mt-3 text-[15px] text-ink-2', left < 60 && 'font-bold text-ink')} aria-hidden>Thanh toán trong {mmss(left)}</p>
+      <p className={cx('tabular mt-3 inline-flex items-center gap-1.5 rounded-[var(--radius-control)] px-3 py-1.5 text-[14px]', left < 60 ? 'bg-accent-soft font-bold text-accent-ink' : 'bg-well text-ink-2')} aria-hidden><Clock size={14} aria-hidden />Thanh toán trong {mmss(left)}</p>
       <p className="sr-only" aria-live="polite">Còn {mins} phút để thanh toán</p>
     </>
   )
 }
 
-function CopyRow({ label, value, copy = value }: { label: string; value: string; copy?: string }) {
+function CopyRow({ label, value, copy = value, accent }: { label: string; value: string; copy?: string; accent?: boolean }) {
   const ref = useRef<HTMLSpanElement>(null)
   const [done, setDone] = useState(false)
   const onCopy = async () => {
@@ -119,8 +120,8 @@ function CopyRow({ label, value, copy = value }: { label: string; value: string;
   }
   return (
     <div className="flex items-center justify-between gap-3 py-2">
-      <div className="min-w-0"><p className="text-[12px] text-muted">{label}</p><p className="tabular truncate text-[14px] font-semibold"><span ref={ref}>{value}</span></p></div>
-      <Button size="sm" variant="ghost" onClick={onCopy} aria-label={`Sao chép ${label}`}><Copy size={14} aria-hidden />{done ? 'Đã chép' : 'Sao chép'}</Button>
+      <div className="min-w-0"><p className="text-[12px] text-muted">{label}</p><p className={cx('tabular truncate text-[14px] font-semibold', accent && 'text-accent')}><span ref={ref}>{value}</span></p></div>
+      <Button size="sm" variant="accent" onClick={onCopy} aria-label={`Sao chép ${label}`}><Copy size={14} aria-hidden />{done ? 'Đã chép' : 'Sao chép'}</Button>
     </div>
   )
 }
@@ -130,17 +131,17 @@ function VietQr({ paymentId, amount, busy, failed, onSubmit }: { paymentId: stri
   const content = transferContent(paymentId)
   useEffect(() => {
     // Fictional payload, generated locally; not a real VietQR/EMVCo string.
-    QRCode.toDataURL(`MARKETDEMO|${BANK.number.replace(/\s/g, '')}|${amount}|${content}`, { margin: 1, width: 480, color: { dark: '#241f29', light: '#ffffff' } }).then(setSrc)
+    QRCode.toDataURL(`MARKETDEMO|${BANK.number.replace(/\s/g, '')}|${amount}|${content}`, { margin: 1, width: 480, color: { dark: '#1a1a1a', light: '#ffffff' } }).then(setSrc)
   }, [amount, content])
   return (
     <div>
-      <div className="mx-auto size-60">{src ? <img src={src} alt={`Mã QR chuyển khoản ${vnd(amount)}`} className="size-full" /> : <Skeleton className="size-full" />}</div>
+      <div className="mx-auto size-60 rounded-[var(--radius-control)] p-2 ring-1 ring-line">{src ? <img src={src} alt={`Mã QR chuyển khoản ${vnd(amount)}`} className="size-full" /> : <Skeleton className="size-full" />}</div>
       <p className="mt-2 text-center text-[12px] text-muted">Mã QR mẫu, không dùng để chuyển tiền thật</p>
       <div className="mt-4 divide-y divide-line">
         <div className="py-2"><p className="text-[12px] text-muted">Ngân hàng</p><p className="text-[14px] font-semibold">{BANK.name}</p></div>
         <CopyRow label="Chủ tài khoản" value={BANK.holder} />
         <CopyRow label="Số tài khoản" value={BANK.number} copy={BANK.number.replace(/\s/g, '')} />
-        <CopyRow label="Số tiền" value={vnd(amount)} copy={String(amount)} />
+        <CopyRow label="Số tiền" value={vnd(amount)} copy={String(amount)} accent />
         <CopyRow label="Nội dung chuyển khoản" value={content} />
       </div>
       <Button size="lg" full className="mt-4" loading={busy} onClick={onSubmit}>{busy ? 'Đang xử lý…' : failed ? 'Thử lại' : 'Tôi đã chuyển khoản'}</Button>
@@ -168,7 +169,7 @@ function CardForm({ busy, failed, onSubmit }: { busy: boolean; failed: boolean; 
   )
   return (
     <form className="space-y-4" noValidate onSubmit={(ev) => { ev.preventDefault(); submit() }}>
-      <p className="rounded-[10px] bg-well p-3 text-[13px] text-ink-2">Bản demo chỉ nhận thẻ thử. Không nhập thẻ thật. Thẻ thử: <span className="tabular font-semibold text-ink">{TEST_CARDS.join(', ')}</span></p>
+      <p className="rounded-[var(--radius-control)] bg-warn-soft p-3 text-[13px] text-ink-2">Bản demo chỉ nhận thẻ thử. Không nhập thẻ thật. Thẻ thử: <span className="tabular font-semibold text-ink">{TEST_CARDS.join(', ')}</span></p>
       <Field label="Số thẻ" htmlFor="card-number" error={e.number}>{input('number', { inputMode: 'numeric', autoComplete: 'off', placeholder: '4111 1111 1111 1111' }, formatCard)}</Field>
       <Field label="Tên chủ thẻ" htmlFor="card-name" error={e.name}>{input('name', { autoComplete: 'off' }, (s) => s.toUpperCase())}</Field>
       <div className="grid grid-cols-2 gap-3">

@@ -1,6 +1,6 @@
 // US-SHP-001..004: /s/:handle with ?tab=shop|products|categories|reviews|about.
 import { BadgeCheck, ChevronRight, MapPin, Search, X } from 'lucide-react'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState, type ReactNode } from 'react'
 import { Link, useParams, useSearchParams } from 'react-router'
 import { useLayout } from '@/app/layout'
 import { saveVoucher, savedUse, shopByHandle, toggleFollow, useNow, useWorld } from '@/app/store'
@@ -39,7 +39,7 @@ export default function ShopPage() {
     <div className="pb-10">
       {ready ? <ShopHeader shop={shop} productCount={rows.length} /> : <HeaderSkeleton />}
       <Tabs label="Mục của Shop" value={tab} onChange={setTab} items={SHOP_TABS.map((id) => ({ id, label: TAB_LABEL[id] }))}
-        className={cx('sticky z-30 mb-6 bg-ground', layout === 'web' ? 'top-[112px]' : '-mx-4 top-14 px-2')} />
+        className={cx('sticky z-30 mb-3 bg-surface', layout === 'web' ? 'top-[116px] rounded-[var(--radius-card)] border-b-0! px-3' : '-mx-3 top-14 px-1')} />
       <div role="tabpanel" aria-label={TAB_LABEL[tab]}>
         {tab === 'shop' && <ShopHome shop={shop} rows={rows} />}
         {tab === 'products' && <ProductsTab shop={shop} rows={rows} />}
@@ -54,7 +54,7 @@ export default function ShopPage() {
 /* ── Header (US-SHP-001) ──────────────────────────────────────────── */
 
 function HeaderSkeleton() {
-  return <div className="mb-4 space-y-3" aria-busy="true" aria-label="Đang tải"><Skeleton className="h-[140px] w-full lg:h-[240px]" /><Skeleton className="h-8 w-1/2" /><Skeleton className="h-4 w-3/4" /></div>
+  return <div className="panel mb-3 space-y-3 p-3 lg:p-5" role="status" aria-busy="true" aria-label="Đang tải"><Skeleton className="h-[120px] w-full lg:h-[160px]" /><Skeleton className="h-8 w-1/2" /><Skeleton className="h-4 w-3/4" /></div>
 }
 
 function FollowButton({ shop }: { shop: Shop }) {
@@ -70,7 +70,7 @@ function FollowButton({ shop }: { shop: Shop }) {
     }
   }
   return (
-    <Button variant={following ? 'secondary' : 'primary'} size="sm" aria-pressed={following} onClick={flip} className="shrink-0">
+    <Button variant={following ? 'accent' : 'secondary'} size="sm" aria-pressed={following} onClick={flip} className="shrink-0">
       {following ? 'Đang theo dõi' : 'Theo dõi'}
     </Button>
   )
@@ -79,46 +79,57 @@ function FollowButton({ shop }: { shop: Shop }) {
 function ShopHeader({ shop, productCount }: { shop: Shop; productCount: number }) {
   const layout = useLayout()
   const rating = <RatingText value={shop.rating} count={compactCount(shop.ratingCount)} />
-  const followers = `${compactCount(shop.followers)} người theo dõi`
-  const facts = [shop.provinceName, rating, followers, `${groupDigits(productCount)} sản phẩm`, `Tỉ lệ phản hồi ${shop.responseRate}%`, `Phản hồi ${shop.responseTime}`, `Tham gia ${fmtDate(shop.joinedAt)}`]
+  const stat = (label: string, value: ReactNode, cls?: string) => (
+    <div key={label} className={cls}><dt className="text-[12px] text-muted">{label}</dt><dd className="tabular mt-0.5 text-[14px] font-semibold lg:text-[15px]">{value}</dd></div>
+  )
 
   if (layout === 'app')
     return (
-      <header className="-mx-4 -mt-4 mb-3">
-        <ShopCover shop={shop} n={3} className="h-[132px] gap-1.5 px-4 pt-3" />
-        <div className="flex items-center gap-3 px-4 py-3">
+      <header className="-mx-3 -mt-3 mb-0 bg-surface">
+        <ShopCover shop={shop} n={3} className="h-[120px] gap-1.5 px-3 pt-3" />
+        <div className="flex items-center gap-3 px-3 py-3">
           <Monogram shop={shop} className="size-14 text-[20px]" />
           <div className="min-w-0 flex-1">
-            <PageTitle className="truncate text-[20px]! leading-tight"><span title={shop.name}>{shop.name}</span></PageTitle>
-            <p className="mt-1 flex items-center gap-2 text-[12px] text-ink-2">
+            <PageTitle className="truncate text-[18px]! leading-tight"><span title={shop.name}>{shop.name}</span></PageTitle>
+            <p className="mt-1 flex items-center gap-2 text-[12px] text-muted">
               {shop.isOfficial && <OfficialBadge />}
               <span className="inline-flex items-center gap-1 truncate"><MapPin size={12} aria-hidden />{shop.provinceName}</span>
             </p>
           </div>
           <FollowButton shop={shop} />
         </div>
-        <dl className="grid grid-cols-3 border-b border-line bg-surface py-3 text-center">
-          <div><dt className="text-[11px] text-muted">Đánh giá</dt><dd className="text-[14px] font-semibold">{rating}</dd></div>
-          <div className="border-x border-line"><dt className="text-[11px] text-muted">Người theo dõi</dt><dd className="text-[14px] font-semibold">{compactCount(shop.followers)}</dd></div>
-          <div><dt className="text-[11px] text-muted">Tỉ lệ phản hồi</dt><dd className="text-[14px] font-semibold">{shop.responseRate}%</dd></div>
+        <dl className="grid grid-cols-3 border-t border-line py-2.5 text-center">
+          {stat('Đánh giá', rating)}
+          {stat('Người theo dõi', compactCount(shop.followers), 'border-x border-line')}
+          {stat('Tỉ lệ phản hồi', `${shop.responseRate}%`)}
         </dl>
-        <p className="px-4 pt-2 text-[12px] text-muted">{[`${groupDigits(productCount)} sản phẩm`, `Phản hồi ${shop.responseTime}`, `Tham gia ${fmtDate(shop.joinedAt)}`].join(' · ')}</p>
+        <p className="border-t border-line px-3 py-2 text-[12px] text-muted">{[`${groupDigits(productCount)} sản phẩm`, `Phản hồi ${shop.responseTime}`, `Tham gia ${fmtDate(shop.joinedAt)}`].join(' · ')}</p>
       </header>
     )
 
   return (
-    <header className="mb-4">
-      <ShopCover shop={shop} n={5} className="h-[220px] gap-3" />
-      <div className="flex items-end gap-6 px-6">
-        <Monogram shop={shop} className="-mt-12 size-24 text-[34px] ring-4 ring-ground" />
-        <div className="min-w-0 flex-1 pt-4">
-          <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+    <header className="panel mb-3 overflow-hidden">
+      <ShopCover shop={shop} n={6} className="h-[148px] gap-2 p-2" />
+      <div className="flex items-center gap-5 px-6 pt-1 pb-5">
+        <Monogram shop={shop} className="-mt-6 size-20 self-start text-[28px] ring-4 ring-surface" />
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1">
             <PageTitle className="min-w-0 break-words">{shop.name}</PageTitle>
             {shop.isOfficial && <OfficialBadge />}
           </div>
-          <p className="mt-1.5 text-[14px] text-muted">{facts.map((f, i) => <span key={i} className="inline-block">{i > 0 && <span aria-hidden className="mx-2">·</span>}{f}</span>)}</p>
+          <p className="mt-1 flex flex-wrap items-center gap-x-3 text-[13px] text-muted">
+            <span className="inline-flex items-center gap-1"><MapPin size={13} aria-hidden />{shop.provinceName}</span>
+            <span>Phản hồi {shop.responseTime}</span>
+            <span>Tham gia {fmtDate(shop.joinedAt)}</span>
+          </p>
         </div>
-        <FollowButton shop={shop} />
+        <dl className="flex shrink-0 divide-x divide-line">
+          {[['Đánh giá', rating], ['Người theo dõi', compactCount(shop.followers)], ['Tỉ lệ phản hồi', `${shop.responseRate}%`], ['Sản phẩm', groupDigits(productCount)]].map(([k, v]) => stat(k as string, v, 'px-5 text-center'))}
+        </dl>
+        <div className="flex shrink-0 items-center gap-2">
+          <FollowButton shop={shop} />
+          <ButtonLink to="?tab=products" size="sm">Xem tất cả sản phẩm</ButtonLink>
+        </div>
       </div>
     </header>
   )
@@ -130,7 +141,7 @@ function ShopCover({ shop, n, className }: { shop: Shop; n: number; className?: 
   const picks = w.products.filter((p) => p.shopId === shop.id && p.status === 'active').sort((a, b) => b.soldCount - a.soldCount)
   const seen = new Set<string>()
   const tiles = picks.filter((p) => !seen.has(p.images[0]) && seen.add(p.images[0])).slice(0, n)
-  if (!tiles.length) return <div aria-hidden className={cx('rounded-[8px] bg-well', className)} />
+  if (!tiles.length) return <div aria-hidden className={cx('bg-well', className)} />
   return (
     <div aria-hidden className={cx('grid', className)} style={{ gridTemplateColumns: `repeat(${n}, minmax(0, 1fr))` }}>
       {Array.from({ length: n }, (_, i) => tiles[i]).map((p, i) => p ? <Img key={p.id} full={i < 2} src={p.images[0]} alt="" eager className="h-full rounded-[8px]" /> : <span key={i} className="rounded-[8px] bg-well" />)}
@@ -159,23 +170,28 @@ function VoucherRow({ shop }: { shop: Shop }) {
   const label: Record<string, string> = { save: 'Lưu', saved: 'Đã lưu', sold_out: 'Đã hết lượt', used: 'Đã dùng' }
   const action = (v: Voucher, full?: boolean) => {
     const s = stateOf(v)
-    return <Button size="sm" full={full} variant={s === 'save' ? 'primary' : 'secondary'} disabled={s !== 'save'} loading={busy === v.id} onClick={() => save(v)} aria-label={s === 'save' ? `Lưu voucher ${voucherLabel(v)}` : undefined}>{label[s]}</Button>
+    return <Button size="sm" full={full} variant={s === 'save' ? 'primary' : 'ghost'} className={full ? undefined : 'px-3!'} disabled={s !== 'save'} loading={busy === v.id} onClick={() => save(v)} aria-label={s === 'save' ? `Lưu voucher ${voucherLabel(v)}` : undefined}>{label[s]}</Button>
   }
   return (
-    <section aria-labelledby="shop-vouchers" className="mb-10">
+    <section aria-labelledby="shop-vouchers" className="panel mb-3 p-3 lg:p-5">
       <SectionHead id="shop-vouchers" title="Voucher của Shop" />
-      <ul className="no-scrollbar -mx-4 flex snap-x gap-3 overflow-x-auto px-4 lg:mx-0 lg:px-0">
+      <ul className="no-scrollbar -mx-3 flex snap-x gap-2.5 overflow-x-auto px-3 lg:mx-0 lg:gap-3 lg:px-0">
         {list.map((v) => {
           const out = stateOf(v) === 'sold_out' || stateOf(v) === 'used'
           return (
-            <li key={v.id} className={cx('flex h-[88px] w-[240px] shrink-0 snap-start items-stretch rounded-[12px] bg-well lg:w-[280px]', out && 'opacity-70')}>
-              <button type="button" onClick={() => setDetail(v)} className="min-w-0 flex-1 px-3.5 py-2.5 text-left">
-                <span className="block truncate text-[15px] font-bold text-jade">{v.kind === 'percent' ? `Giảm ${v.value}%` : `Giảm ${compactVnd(v.value)}`}</span>
-                <span className="block truncate text-[12px] text-ink-2">{v.kind === 'percent' && v.maxDiscount ? `Giảm tối đa ${compactVnd(v.maxDiscount)} · ` : ''}Đơn tối thiểu {compactVnd(v.minSpend)}</span>
-                <span className="block truncate text-[12px] text-muted">{expiryText(v.endsAt, t)}</span>
+            <li key={v.id} className={cx('flex h-[84px] w-[288px] shrink-0 snap-start items-stretch overflow-hidden rounded-[var(--radius-control)] bg-surface ring-1 ring-inset ring-accent/25 lg:w-[300px]', out && 'opacity-60')}>
+              <button type="button" onClick={() => setDetail(v)} className="flex min-w-0 flex-1 items-stretch text-left hover:bg-accent-soft/40">
+                <span className="flex w-[72px] shrink-0 flex-col items-center justify-center border-r border-dashed border-accent/40 bg-accent-soft px-1.5 text-center text-accent">
+                  <span className="text-[11px] font-medium text-accent-ink">Giảm </span>
+                  <span className="tabular text-[18px] leading-tight font-bold">{v.kind === 'percent' ? `${v.value}%` : compactVnd(v.value)}</span>
+                </span>
+                <span className="flex min-w-0 flex-1 flex-col justify-center px-2.5">
+                  <span className="block truncate text-[13px] font-medium text-ink">Đơn tối thiểu {compactVnd(v.minSpend)}</span>
+                  {v.kind === 'percent' && v.maxDiscount ? <span className="block truncate text-[12px] text-ink-2">Giảm tối đa {compactVnd(v.maxDiscount)}</span> : null}
+                  <span className="block truncate text-[12px] text-muted">{expiryText(v.endsAt, t)}</span>
+                </span>
               </button>
-              <span aria-hidden className="my-2 border-l border-dashed border-line-strong" />
-              <span className="flex w-[84px] shrink-0 items-center justify-center px-2">{action(v)}</span>
+              <span className="flex w-[64px] shrink-0 items-center justify-center pr-2">{action(v)}</span>
             </li>
           )
         })}
@@ -203,12 +219,12 @@ function ShopHome({ shop, rows }: { shop: Shop; rows: Row[] }) {
       <VoucherRow shop={shop} />
       {!rows.length ? <EmptyState title="Shop chưa có sản phẩm nào" /> : !ready ? <GridSkeleton n={10} /> : (
         <>
-          <section aria-labelledby="shop-best" className="mb-10">
+          <section aria-labelledby="shop-best" className="mt-5 mb-6">
             <SectionHead id="shop-best" title="Bán chạy" />
             <ProductRail products={best} label={`Bán chạy của ${shop.name}`} />
           </section>
           <section aria-labelledby="shop-all">
-            <SectionHead id="shop-all" title="Tất cả sản phẩm" action={<ButtonLink to="?tab=products" variant="secondary" size="sm">Xem tất cả</ButtonLink>} />
+            <SectionHead id="shop-all" title="Tất cả sản phẩm" action={<Link to="?tab=products" className="inline-flex min-h-9 items-center gap-0.5 text-[13px] font-semibold text-accent-ink no-underline hover:underline">Xem tất cả<ChevronRight size={14} aria-hidden /></Link>} />
             <ShopGrid rows={popular} />
           </section>
         </>
@@ -219,7 +235,7 @@ function ShopHome({ shop, rows }: { shop: Shop; rows: Row[] }) {
 
 function ShopGrid({ rows }: { rows: Row[] }) {
   return (
-    <ul role="list" className="grid grid-cols-2 gap-x-3 gap-y-6 md:grid-cols-3 lg:gap-x-6 xl:grid-cols-4">
+    <ul role="list" className="grid grid-cols-2 gap-2 md:grid-cols-3 md:gap-3 lg:grid-cols-4 xl:grid-cols-5">
       {rows.map((r, i) => <li key={r.p.id}><ProductCard product={r.p} eager={i < 4} /></li>)}
     </ul>
   )
@@ -250,16 +266,15 @@ function ProductsTab({ shop, rows }: { shop: Shop; rows: Row[] }) {
   }
 
   const catList = (
-    <nav aria-label="Danh mục của Shop" className="w-[240px] shrink-0">
-      <ul className="max-h-[calc(100dvh-200px)] overflow-y-auto pr-2">
+    <nav aria-label="Danh mục của Shop" className="panel sticky top-[176px] w-[220px] shrink-0 self-start p-2">
+      <ul className="max-h-[calc(100dvh-200px)] space-y-0.5 overflow-y-auto">
         {[{ id: '', name: 'Tất cả sản phẩm', n: rows.length }, ...counts].map((c) => {
           const on = (cat?.id ?? '') === c.id
           return (
             <li key={c.id || 'all'}>
               <button type="button" onClick={() => write({ cat: c.id || undefined })} aria-current={on ? 'true' : undefined}
-                className={cx('relative flex w-full items-start justify-between gap-3 py-2 pr-1 pl-3 text-left text-[14px]', on ? 'font-semibold text-ink' : 'text-ink-2 hover:text-ink')}>
-                {on && <span aria-hidden className="absolute inset-y-2 left-0 w-[2px] rounded-full bg-ink" />}
-                <span className="min-w-0 break-words">{c.name}</span><span className="tabular shrink-0 text-muted">{c.n}</span>
+                className={cx('flex w-full items-start justify-between gap-3 rounded-[var(--radius-control)] px-3 py-2 text-left text-[14px]', on ? 'bg-accent-soft font-semibold text-accent-ink' : 'text-ink-2 hover:bg-well hover:text-ink')}>
+                <span className="min-w-0 break-words">{c.name}</span><span className={cx('tabular shrink-0', on ? 'text-accent-ink' : 'text-muted')}>{c.n}</span>
               </button>
             </li>
           )
@@ -280,20 +295,20 @@ function ProductsTab({ shop, rows }: { shop: Shop; rows: Row[] }) {
   )
 
   return (
-    <div className="flex gap-8">
+    <div className="flex gap-3">
       {layout === 'web' && catList}
       <div className="min-w-0 flex-1">
-        <div className={cx('mb-4 flex items-center gap-2', layout === 'app' && 'sticky top-[100px] z-20 -mx-4 bg-ground/95 px-4 py-2')}>
+        <div className={cx('mb-3 flex items-center gap-3', layout === 'app' ? 'sticky top-[100px] z-20 -mx-3 -mt-3 bg-surface px-3 py-2 shadow-[0_1px_0_var(--color-line)]' : 'panel px-4 py-2.5')}>
           <form role="search" className="relative min-w-0 flex-1 lg:max-w-[420px]" onSubmit={(e) => { e.preventDefault(); const v = text.replace(/\s+/g, ' ').trim().slice(0, 100); write({ q: v || undefined, sort: undefined }) }}>
             <label htmlFor="shop-search" className="sr-only">Tìm trong Shop</label>
             <input id="shop-search" type="search" enterKeyHint="search" value={text} onChange={(e) => setText(e.target.value)} placeholder="Tìm trong Shop"
-              className="h-11 w-full rounded-full bg-surface pr-12 pl-4 text-[14px] ring-1 ring-inset ring-line-strong outline-none focus:ring-2 focus:ring-jade" />
-            <button type="submit" aria-label="Tìm trong Shop" className="absolute top-1 right-1 flex size-9 items-center justify-center rounded-full hover:bg-well"><Search size={17} aria-hidden /></button>
+              className="h-10 w-full rounded-[var(--radius-control)] bg-surface pr-11 pl-3.5 text-[14px] ring-1 ring-inset ring-line-strong outline-none focus:ring-2 focus:ring-accent" />
+            <button type="submit" aria-label="Tìm trong Shop" className="absolute top-0.5 right-0.5 flex size-9 items-center justify-center rounded-[6px] text-muted hover:bg-well hover:text-accent-ink"><Search size={17} aria-hidden /></button>
           </form>
           {layout === 'web' && <span className="flex-1" />}
           <SortControl value={sort} options={options} onChange={(s) => write({ sort: s })} />
         </div>
-        {cat && <div className="mb-4"><Chip selected onClick={() => write({ cat: undefined })} aria-label={`Bỏ lọc ${cat.name}`}>{cat.name}<X size={14} aria-hidden /></Chip></div>}
+        {cat && <div className="mb-3"><Chip selected onClick={() => write({ cat: undefined })} aria-label={`Bỏ lọc ${cat.name}`}>{cat.name}<X size={14} aria-hidden /></Chip></div>}
         {body}
       </div>
     </div>
@@ -305,10 +320,10 @@ function ProductsTab({ shop, rows }: { shop: Shop; rows: Row[] }) {
 function CategoriesTab({ shop, rows }: { shop: Shop; rows: Row[] }) {
   const counts = shopCategoryCounts(rows, shop)
   return (
-    <ul className="max-w-[640px] divide-y divide-line rounded-[12px] bg-surface">
+    <ul className="panel max-w-[640px] divide-y divide-line overflow-hidden">
       {[{ id: '', name: 'Tất cả sản phẩm', n: rows.length }, ...counts].map((c) => (
         <li key={c.id || 'all'}>
-          <Link to={`?tab=products${c.id ? `&cat=${encodeURIComponent(c.id)}` : ''}`} className="flex min-h-12 items-center gap-3 px-4 text-[15px] no-underline hover:bg-well">
+          <Link to={`?tab=products${c.id ? `&cat=${encodeURIComponent(c.id)}` : ''}`} className="flex min-h-12 items-center gap-3 px-4 text-[14px] no-underline hover:bg-well hover:text-accent-ink">
             <span className="min-w-0 flex-1 break-words">{c.name}</span>
             <span className="tabular text-[13px] text-muted">({c.n})</span>
             <ChevronRight size={16} aria-hidden className="text-muted" />
@@ -340,37 +355,37 @@ function ReviewsTab({ shop }: { shop: Shop }) {
   if (!all.length) return <EmptyState title="Shop chưa có đánh giá nào" />
   return (
     <div className="max-w-[760px]">
-      <div className="flex flex-wrap items-center gap-6 rounded-[12px] bg-surface p-5">
+      <div className="panel flex flex-wrap items-center gap-6 p-4 lg:p-5">
         <div>
-          <p className="font-display text-[28px] font-semibold">{sum.avg.toLocaleString('vi-VN')} <span className="text-[16px] font-normal text-muted">trên 5</span></p>
+          <p className="tabular font-display text-[28px]">{sum.avg.toLocaleString('vi-VN')} <span className="text-[16px] font-normal text-muted">trên 5</span></p>
           <Stars value={sum.avg} count={sum.count} />
         </div>
         <ul className="min-w-[200px] flex-1 space-y-1" aria-label="Phân bố số sao">
           {sum.dist.map((d) => (
             <li key={d.star} className="flex items-center gap-2 text-[12px]">
               <span className="w-10 shrink-0 text-muted">{d.star} Sao</span>
-              <span aria-hidden className="h-1.5 flex-1 overflow-hidden rounded-full bg-well"><span className="block h-full bg-ink" style={{ width: `${(d.n / sum.count) * 100}%` }} /></span>
+              <span aria-hidden className="h-1.5 flex-1 overflow-hidden rounded-full bg-well"><span className="block h-full rounded-full bg-accent" style={{ width: `${(d.n / sum.count) * 100}%` }} /></span>
               <span className="tabular w-10 text-right text-muted">{d.n}</span>
             </li>
           ))}
         </ul>
       </div>
-      <div className="no-scrollbar -mx-4 my-4 flex gap-2 overflow-x-auto px-4 lg:mx-0 lg:flex-wrap lg:px-0" role="group" aria-label="Lọc đánh giá">
+      <div className="no-scrollbar -mx-3 my-3 flex gap-2 overflow-x-auto px-3 lg:mx-0 lg:flex-wrap lg:px-0" role="group" aria-label="Lọc đánh giá">
         <Chip selected={!star && !media} onClick={() => set({ star: undefined, media: undefined })}>Tất cả ({sum.count})</Chip>
         {sum.dist.map((d) => <Chip key={d.star} selected={star === d.star} onClick={() => set({ star: star === d.star ? undefined : String(d.star) })}>{d.star} Sao ({d.n})</Chip>)}
         <Chip selected={media} onClick={() => set({ media: media ? undefined : '1' })}>Có hình ảnh ({sum.media})</Chip>
       </div>
-      {!ready ? <div className="space-y-4" aria-busy="true">{[0, 1, 2].map((i) => <Skeleton key={i} className="h-24 w-full" />)}</div> : !list.length ? (
-        <p className="py-8 text-center text-[14px] text-muted">Chưa có đánh giá phù hợp</p>
+      {!ready ? <div className="space-y-3" aria-busy="true">{[0, 1, 2].map((i) => <Skeleton key={i} className="h-24 w-full" />)}</div> : !list.length ? (
+        <p className="panel py-8 text-center text-[14px] text-muted">Chưa có đánh giá phù hợp</p>
       ) : (
         <>
-          <ul className="divide-y divide-line">
+          <ul className="panel divide-y divide-line px-4 lg:px-5">
             {shown.map(({ review: r, product: p, linkable, variant }) => (
-              <li key={r.id} className="py-5">
+              <li key={r.id} className="py-4">
                 <div className="mb-3 flex items-center gap-3">
                   <Img src={p.images[0]} alt="" className="size-12 shrink-0 rounded-[6px]" />
                   <div className="min-w-0">
-                    {linkable ? <Link to={`/p/${p.slug}`} className="line-clamp-1 text-[14px] font-medium no-underline hover:underline">{p.name}</Link> : <span className="line-clamp-1 text-[14px] font-medium">{p.name}</span>}
+                    {linkable ? <Link to={`/p/${p.slug}`} className="line-clamp-1 text-[14px] font-medium no-underline hover:text-accent-ink">{p.name}</Link> : <span className="line-clamp-1 text-[14px] font-medium">{p.name}</span>}
                     {variant && <p className="truncate text-[12px] text-muted">Phân loại: {variant}</p>}
                   </div>
                 </div>
@@ -379,7 +394,7 @@ function ReviewsTab({ shop }: { shop: Shop }) {
                 </div>
                 {r.text && <p className="mt-2 text-[14px] leading-6">{r.text}</p>}
                 {r.photos.length > 0 && <div className="mt-2 flex gap-2">{r.photos.slice(0, 5).map((src, i) => <Img key={i} src={src} alt={`Ảnh đánh giá ${i + 1}`} className="size-16 rounded-[6px]" />)}</div>}
-                {r.shopReply && <div className="mt-3 rounded-[10px] bg-well p-3 text-[13px]"><p className="font-semibold">Phản hồi của Shop</p><p className="mt-1 text-ink-2">{r.shopReply.text}</p></div>}
+                {r.shopReply && <div className="mt-3 rounded-[var(--radius-control)] bg-well p-3 text-[13px]"><p className="font-semibold">Phản hồi của Shop</p><p className="mt-1 text-ink-2">{r.shopReply.text}</p></div>}
               </li>
             ))}
           </ul>
@@ -400,21 +415,21 @@ function AboutTab({ shop, productCount }: { shop: Shop; productCount: number }) 
     ['Tỉ lệ phản hồi', `${shop.responseRate}%`], ['Thời gian phản hồi', `Phản hồi ${shop.responseTime}`],
   ]
   return (
-    <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_400px]">
+    <div className="grid items-start gap-3 lg:grid-cols-[minmax(0,1fr)_400px]">
       {shop.about ? (
-        <section aria-labelledby="about-desc">
-          <h2 id="about-desc" className="mb-3 font-display text-[20px] font-semibold lg:text-[24px]">Giới thiệu</h2>
-          <p className={cx('max-w-[65ch] text-[15px] leading-7 whitespace-pre-line lg:text-[16px]', long && !more && 'line-clamp-[8]')}>{shop.about}</p>
+        <section aria-labelledby="about-desc" className="panel p-4 lg:p-6">
+          <h2 id="about-desc" className="mb-3 font-display text-[18px] lg:text-[20px]">Giới thiệu</h2>
+          <p className={cx('max-w-[65ch] text-[14px] leading-7 whitespace-pre-line text-ink-2 lg:text-[15px]', long && !more && 'line-clamp-[8]')}>{shop.about}</p>
           {long && <Button variant="link" className="mt-2" onClick={() => setMore((v) => !v)} aria-expanded={more}>{more ? 'Thu gọn' : 'Xem thêm'}</Button>}
         </section>
       ) : <span className="hidden lg:block" />}
-      <div className="space-y-4 rounded-[12px] bg-well/60 p-5">
+      <div className="panel space-y-4 p-4 lg:p-5">
         <dl className="space-y-2 text-[14px]">
           {facts.map(([k, v]) => <div key={k} className="flex justify-between gap-4"><dt className="text-muted">{k}</dt><dd className="text-right">{v}</dd></div>)}
         </dl>
         {!shop.codEnabled && <p className="text-[14px] font-medium">Shop không hỗ trợ Thanh toán khi nhận hàng</p>}
         <details open className="border-t border-line pt-4">
-          <summary className="flex cursor-pointer items-center justify-between gap-3 font-display text-[16px] font-semibold">Thông tin người bán<OfficialBadge label="Đã xác thực" /></summary>
+          <summary className="flex cursor-pointer items-center justify-between gap-3 text-[15px] font-bold">Thông tin người bán<OfficialBadge label="Đã xác thực" /></summary>
           <dl className="mt-3 space-y-2.5 text-[14px]">
             <div><dt className="text-muted">Tên doanh nghiệp</dt><dd>{shop.legalName}</dd></div>
             <div><dt className="text-muted">Địa chỉ kinh doanh</dt><dd className="break-words">{shop.businessAddress}</dd></div>
@@ -422,7 +437,7 @@ function AboutTab({ shop, productCount }: { shop: Shop; productCount: number }) 
           </dl>
         </details>
         <section aria-labelledby="about-policy" className="border-t border-line pt-4">
-          <h3 id="about-policy" className="mb-2 font-display text-[16px] font-semibold">Chính sách</h3>
+          <h3 id="about-policy" className="mb-2 text-[15px] font-bold">Chính sách</h3>
           <ul className="space-y-1.5 text-[14px]">
             <li className="flex items-center gap-2"><BadgeCheck size={15} aria-hidden className="shrink-0 text-ink-2" />Trả hàng trong {shop.policies.returnDays} ngày theo chính sách của Market</li>
             {shop.policies.warranty && <li className="flex items-center gap-2"><BadgeCheck size={15} aria-hidden className="shrink-0 text-ink-2" />{shop.policies.warranty}</li>}

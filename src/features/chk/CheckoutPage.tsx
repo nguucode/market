@@ -1,5 +1,5 @@
 // US-CHK-001…006: one-page checkout (rules.md#checkout-disclosures), address, shipping per shop, payment, vouchers, place order.
-import { ChevronRight, CreditCard, MapPin, Ticket, Truck } from 'lucide-react'
+import { ChevronRight, CreditCard, MapPin, Store, Ticket, Truck } from 'lucide-react'
 import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { Link, Navigate, useNavigate } from 'react-router'
 import { useLayout } from '@/app/layout'
@@ -16,7 +16,7 @@ import { addressLine, LABEL_TEXT } from '@/features/acc/account'
 import { AddressFormSheet } from '@/features/acc/AddressForm'
 import { useDropNotes } from '@/features/crt/vouchers'
 import { codState, priceRows, reconcileLines, totalRow, voucherRows, type Row } from './checkout'
-import { AddressSheet, DiffDialog, PaymentSheet, ShippingSheet, Tag, VoucherSheet, type VoucherPick } from './sheets'
+import { AddressSheet, DiffDialog, PaymentOptions, PaymentSheet, ShippingSheet, Tag, VoucherSheet, type VoucherPick } from './sheets'
 import { getWallet, setWallet, type Wallet } from './wallet'
 
 type Overlay = { kind: 'address' } | { kind: 'form'; address?: Address; fromSheet: boolean } | { kind: 'shipping'; shopId: string } | { kind: 'payment' } | { kind: 'voucher' } | null
@@ -129,41 +129,51 @@ function Checkout({ d, onPlaced }: { d: CheckoutDraft; onPlaced: () => void }) {
     ...(q.pricing.platformVoucher ? [{ label: `Voucher Market: ${voucherLabel(q.pricing.platformVoucher)}`, amount: q.pricing.platformDiscount, tone: 'minus' as const }] : []),
     ...(q.pricing.shippingVoucher ? [{ label: `Voucher miễn phí vận chuyển: ${voucherLabel(q.pricing.shippingVoucher)}`, amount: q.pricing.shippingDiscount, tone: 'minus' as const }] : []),
   ]
-  const summary = (
-    <section aria-labelledby="chk-detail" className={cx(!web && 'bg-surface -mx-4 px-4 py-4')}>
-      <h2 id="chk-detail" className="mb-3 text-[16px] font-semibold">Chi tiết thanh toán</h2>
-      <MoneyFold defaultOpen total={q.pricing.total} lines={vLines} split={q.shops.map((s, i) => ({ name: s.shop.name, amount: q.pricing.shops[i].total }))} />
-      <p className="mt-1.5 text-right text-[12px] text-muted">Giá đã bao gồm VAT</p>
-    </section>
-  )
   const consent = (
     <p className="text-[12px] text-muted">Nhấn Đặt hàng đồng nghĩa với việc bạn đồng ý với <Link to="/policies/dieu-khoan" className="font-medium text-ink-2 underline underline-offset-2">Điều khoản của Market</Link></p>
   )
   const onlineNote = online && <p className="text-[12px] text-ink-2">Bạn có {PAYMENT_MINUTES} phút để hoàn tất thanh toán sau khi đặt hàng</p>
   const noAddr = !q.address && <p className="text-[12px] text-ink-2" role="status">Vui lòng thêm địa chỉ nhận hàng</p>
   const placeBtn = (
-    <Button size="lg" full={web} disabled={!loaded || !q.address} loading={placing} onClick={place} className={cx(!web && 'shrink-0')}>
+    <Button size="lg" full={web} disabled={!loaded || !q.address} loading={placing} onClick={place} className={cx(web ? 'h-12 text-[16px]' : 'shrink-0')}>
       {placing ? 'Đang đặt hàng…' : 'Đặt hàng'}
     </Button>
   )
 
-  if (!loaded) return <><PageTitle className={web ? 'mb-5' : 'sr-only'}>Thanh toán</PageTitle><CheckoutSkeleton web={web} /></>
+  const summary = (
+    <section aria-labelledby="chk-detail" className={cx('panel', web ? 'p-5' : 'p-3')}>
+      <h2 id="chk-detail" className="mb-3 text-[16px] font-bold">Chi tiết thanh toán</h2>
+      <MoneyFold defaultOpen total={q.pricing.total} lines={vLines} split={q.shops.map((s, i) => ({ name: s.shop.name, amount: q.pricing.shops[i].total }))} />
+      <p className="mt-1.5 text-right text-[12px] text-muted">Giá đã bao gồm VAT</p>
+      {web && (
+        <div className="mt-4 space-y-3 border-t border-line pt-4">
+          {q.pricing.savings > 0 && <p className="tabular text-right text-[13px] font-medium text-accent-ink">Tiết kiệm {vnd(q.pricing.savings)}</p>}
+          {onlineNote}
+          {consent}
+          {placeBtn}
+          {noAddr}
+        </div>
+      )}
+    </section>
+  )
+
+  if (!loaded) return <><PageTitle className={web ? 'mb-4' : 'sr-only'}>Thanh toán</PageTitle><CheckoutSkeleton web={web} /></>
 
   return (
-    <div inert={placing || undefined} className={cx(!web && 'pb-[calc(140px+env(safe-area-inset-bottom))]')}>
-      <PageTitle className={web ? 'mb-5' : 'sr-only'}>Thanh toán</PageTitle>
-      <div className={cx(web && 'grid grid-cols-[minmax(0,1fr)_380px] items-start gap-10 pb-16')}>
-        <div className={cx('min-w-0', web ? 'divide-y divide-line border-t border-line' : 'space-y-2')}>
+    <div inert={placing || undefined} className={cx(web ? 'pb-16' : 'pb-[calc(140px+env(safe-area-inset-bottom))]')}>
+      <PageTitle className={web ? 'mb-4' : 'sr-only'}>Thanh toán</PageTitle>
+      <div className={cx(web && 'grid grid-cols-[minmax(0,1fr)_380px] items-start gap-4')}>
+        <div className={cx('min-w-0', web ? 'space-y-3' : 'space-y-2')}>
           {/* Address (US-CHK-002) */}
           <Block web={web}>
             {q.address ? (
-              <ChangeRow icon={<MapPin size={18} aria-hidden />} title="Địa chỉ nhận hàng" onClick={() => setOverlay({ kind: 'address' })} action="Thay đổi" web={web}>
-                <span className="flex min-w-0 items-center gap-1.5 text-[14px]"><span className="truncate font-semibold">{q.address.name}</span><span className="text-muted">|</span><span className="tabular shrink-0">{q.address.phone}</span></span>
+              <ChangeRow icon={<MapPin size={18} aria-hidden className="text-accent" />} title="Địa chỉ nhận hàng" onClick={() => setOverlay({ kind: 'address' })} action="Thay đổi" web={web}>
+                <span className="mt-1 flex min-w-0 items-center gap-1.5 text-[14px]"><span className="truncate font-semibold">{q.address.name}</span><span className="text-line-strong">|</span><span className="tabular shrink-0">{q.address.phone}</span></span>
                 <span className="mt-0.5 line-clamp-3 block text-[13px] text-ink-2">{addressLine(q.address)}</span>
-                <span className="mt-1 flex gap-1.5">{q.address.isDefault && <Tag>Mặc định</Tag>}<Tag>{LABEL_TEXT[q.address.label]}</Tag></span>
+                <span className="mt-1.5 flex gap-1.5">{q.address.isDefault && <Tag tone="accent">Mặc định</Tag>}<Tag>{LABEL_TEXT[q.address.label]}</Tag></span>
               </ChangeRow>
             ) : (
-              <ChangeRow icon={<MapPin size={18} aria-hidden />} title="Thêm địa chỉ nhận hàng" onClick={() => setOverlay({ kind: 'form', fromSheet: false })} web={web} />
+              <ChangeRow icon={<MapPin size={18} aria-hidden className="text-accent" />} title="Thêm địa chỉ nhận hàng" onClick={() => setOverlay({ kind: 'form', fromSheet: false })} web={web} />
             )}
           </Block>
 
@@ -174,44 +184,61 @@ function Checkout({ d, onPlaced }: { d: CheckoutDraft; onPlaced: () => void }) {
             const count = s.lines.length
             return (
               <Block key={s.shop.id} web={web} label={s.shop.name}>
-                <h2 className="truncate text-[16px] font-semibold">{s.shop.name}</h2>
-                {!s.shop.codEnabled && <p className="text-[12px] text-muted">Shop không hỗ trợ Thanh toán khi nhận hàng</p>}
-                <ul className="mt-2 divide-y divide-line/70">
-                  {s.lines.map((l) => (
-                    <li key={l.skuId} className="flex gap-3 py-2.5">
-                      <Img src={l.sku.image ?? l.product.images[0]} alt="" className="aspect-[4/5] w-14 shrink-0 rounded-[var(--radius-media)] lg:w-16" />
-                      <div className="min-w-0 flex-1">
-                        <p className="line-clamp-2 text-[14px] leading-5">{l.product.name}</p>
-                        {l.variant && <p className="truncate text-[12px] text-muted">Phân loại: {l.variant}</p>}
-                        <p className="mt-0.5 flex items-baseline gap-2 text-[13px]">
-                          <span className={cx('tabular', l.before && l.before > l.unit ? 'text-jade' : 'text-ink-2')}>{vnd(l.unit)}</span>
-                          {l.before && l.before > l.unit && <s className="tabular text-[12px] text-muted">{vnd(l.before)}</s>}
-                          <span className="tabular text-muted">x{l.qty}</span>
-                        </p>
+                <div className={cx('items-center border-b border-line pb-2.5', web ? cx(LINE_COLS, 'text-[13px] text-muted') : 'flex')}>
+                  <h2 className="flex min-w-0 items-center gap-1.5 text-[15px] font-semibold text-ink"><Store size={16} aria-hidden className="shrink-0 text-ink-2" /><span className="truncate">{s.shop.name}</span></h2>
+                  {web && <><span>Đơn giá</span><span>Số lượng</span><span className="text-right">Thành tiền</span></>}
+                </div>
+                {!s.shop.codEnabled && <p className="pt-2 text-[12px] text-muted">Shop không hỗ trợ Thanh toán khi nhận hàng</p>}
+                <ul className="divide-y divide-line">
+                  {s.lines.map((l) => {
+                    const deal = !!l.before && l.before > l.unit
+                    const unit = <><span className="tabular text-accent">{vnd(l.unit)}</span>{deal && <s className="tabular text-[12px] text-muted">{vnd(l.before!)}</s>}</>
+                    const head = (
+                      <div className="flex min-w-0 gap-3">
+                        <Img src={l.sku.image ?? l.product.images[0]} alt="" className="aspect-square w-16 shrink-0 rounded-[var(--radius-control)]" />
+                        <div className="min-w-0 flex-1">
+                          <p className="line-clamp-2 text-[14px] leading-5">{l.product.name}</p>
+                          {l.variant && <p className="mt-0.5 truncate text-[12px] text-muted">Phân loại: {l.variant}</p>}
+                          {!web && <p className="mt-1 flex items-baseline gap-2 text-[13px]">{unit}<span className="tabular text-muted">x{l.qty}</span></p>}
+                        </div>
+                        {!web && <p className="tabular shrink-0 text-[14px] font-semibold whitespace-nowrap">{vnd(l.amount)}</p>}
                       </div>
-                      <p className="tabular shrink-0 text-[14px] font-semibold whitespace-nowrap">{vnd(l.amount)}</p>
-                    </li>
-                  ))}
+                    )
+                    return web ? (
+                      <li key={l.skuId} className={cx(LINE_COLS, 'items-start py-3')}>
+                        {head}
+                        <p className="flex flex-col text-[14px]">{unit}</p>
+                        <p className="tabular text-[14px] text-ink-2">x{l.qty}</p>
+                        <p className="tabular text-right text-[14px] font-semibold whitespace-nowrap">{vnd(l.amount)}</p>
+                      </li>
+                    ) : <li key={l.skuId} className="py-2.5">{head}</li>
+                  })}
                 </ul>
-                {r.shopVoucher && (
-                  <p className="flex justify-between gap-3 py-1.5 text-[13px]"><span className="min-w-0 text-ink-2">Voucher của Shop: {voucherLabel(r.shopVoucher)}</span><span className="tabular shrink-0 text-jade-ink">{signedVnd(-r.shopDiscount)}</span></p>
-                )}
-                {notes[`shop:${s.shop.id}`] && <p className="py-1 text-[12px] text-ink-2" role="status">{notes[`shop:${s.shop.id}`]}</p>}
-                {r.platformShare > 0 && (
-                  <p className="flex justify-between gap-3 py-1.5 text-[13px]"><span className="text-ink-2">Voucher Market</span><span className="tabular text-jade-ink">{signedVnd(-r.platformShare)}</span></p>
-                )}
-                <ChangeRow icon={<Truck size={18} aria-hidden />} title="Phương thức vận chuyển" onClick={() => setOverlay({ kind: 'shipping', shopId: s.shop.id })} web={web}
-                  aside={<span className="tabular text-right text-[14px]">
-                    {r.shippingDiscount > 0 && <s className="mr-1.5 text-[12px] text-muted">{vnd(r.shippingFee)}</s>}
-                    <span className={cx('font-semibold', r.shippingDiscount > 0 && 'text-jade')}>{vnd(r.shippingFee - r.shippingDiscount)}</span>
-                  </span>}>
-                  <span className="block truncate text-[14px]">{OPTION_LABEL[s.option]} · {s.quote.carrier}</span>
-                  <span className="block text-[12px] text-muted">{etaText(s.quote.eta, t)}</span>
-                </ChangeRow>
-                {fellBack && <p className="pb-1 text-[12px] text-ink-2" role="status">Hỏa tốc chỉ áp dụng khi Shop và địa chỉ nhận cùng tỉnh. Đã chuyển sang Nhanh.</p>}
-                <MessageField shopId={s.shop.id} value={d.messages[s.shop.id] ?? ''} />
-                <p className="mt-2 flex justify-between gap-3 border-t border-line pt-2.5 text-[14px]">
-                  <span>Tổng số tiền ({count} sản phẩm):</span><span className="tabular font-semibold">{vnd(r.total)}</span>
+                <div className={cx('mt-1 rounded-[var(--radius-control)] bg-well/70 px-3 py-1', web && 'grid grid-cols-2 gap-x-6')}>
+                  <div className="min-w-0">
+                    <ChangeRow icon={<Truck size={18} aria-hidden />} title="Phương thức vận chuyển" onClick={() => setOverlay({ kind: 'shipping', shopId: s.shop.id })} web={web}
+                      aside={<span className="tabular text-right text-[14px]">
+                        {r.shippingDiscount > 0 && <s className="mr-1.5 text-[12px] text-muted">{vnd(r.shippingFee)}</s>}
+                        <span className="font-semibold text-accent">{vnd(r.shippingFee - r.shippingDiscount)}</span>
+                      </span>}>
+                      <span className="block truncate text-[14px]">{OPTION_LABEL[s.option]} · {s.quote.carrier}</span>
+                      <span className="block text-[12px] text-muted">{etaText(s.quote.eta, t)}</span>
+                    </ChangeRow>
+                    {fellBack && <p className="pb-1 text-[12px] text-warn" role="status">Hỏa tốc chỉ áp dụng khi Shop và địa chỉ nhận cùng tỉnh. Đã chuyển sang Nhanh.</p>}
+                  </div>
+                  <div className={cx('min-w-0', !web && 'border-t border-line')}>
+                    <MessageField shopId={s.shop.id} value={d.messages[s.shop.id] ?? ''} />
+                    {r.shopVoucher && (
+                      <p className="flex justify-between gap-3 py-1.5 text-[13px]"><span className="flex min-w-0 items-center gap-1.5 text-ink-2"><Ticket size={14} aria-hidden className="shrink-0 text-accent" />Voucher của Shop: {voucherLabel(r.shopVoucher)}</span><span className="tabular shrink-0 text-accent-ink">{signedVnd(-r.shopDiscount)}</span></p>
+                    )}
+                    {notes[`shop:${s.shop.id}`] && <p className="py-1 text-[12px] text-ink-2" role="status">{notes[`shop:${s.shop.id}`]}</p>}
+                    {r.platformShare > 0 && (
+                      <p className="flex justify-between gap-3 py-1.5 text-[13px]"><span className="text-ink-2">Voucher Market</span><span className="tabular text-accent-ink">{signedVnd(-r.platformShare)}</span></p>
+                    )}
+                  </div>
+                </div>
+                <p className="mt-3 flex items-baseline justify-end gap-3 text-[14px]">
+                  <span className="text-ink-2">Tổng số tiền ({count} sản phẩm):</span><span className="tabular text-[18px] font-bold text-accent">{vnd(r.total)}</span>
                 </p>
               </Block>
             )
@@ -219,11 +246,11 @@ function Checkout({ d, onPlaced }: { d: CheckoutDraft; onPlaced: () => void }) {
 
           {/* Vouchers (US-CHK-005) */}
           <Block web={web}>
-            <ChangeRow icon={<Ticket size={18} aria-hidden className="text-jade" />} title="Voucher Market" onClick={() => setOverlay({ kind: 'voucher' })} web={web}>
+            <ChangeRow icon={<Ticket size={18} aria-hidden className="text-accent" />} title="Voucher Market" onClick={() => setOverlay({ kind: 'voucher' })} web={web}>
               {q.pricing.platformVoucher || q.pricing.shippingVoucher ? (
-                <span className="block space-y-0.5 text-[13px]">
-                  {q.pricing.platformVoucher && <span className="block font-medium text-jade-ink">{voucherLabel(q.pricing.platformVoucher)}</span>}
-                  {q.pricing.shippingVoucher && <span className="block font-medium text-jade-ink">{voucherLabel(q.pricing.shippingVoucher)}</span>}
+                <span className="mt-1 flex flex-wrap gap-1.5 text-[13px]">
+                  {q.pricing.platformVoucher && <span className="rounded-[4px] bg-accent-soft px-1.5 py-0.5 font-medium text-accent-ink">{voucherLabel(q.pricing.platformVoucher)}</span>}
+                  {q.pricing.shippingVoucher && <span className="rounded-[4px] bg-accent-soft px-1.5 py-0.5 font-medium text-accent-ink">{voucherLabel(q.pricing.shippingVoucher)}</span>}
                 </span>
               ) : <span className="text-[13px] text-ink-2">Chọn voucher</span>}
             </ChangeRow>
@@ -231,33 +258,34 @@ function Checkout({ d, onPlaced }: { d: CheckoutDraft; onPlaced: () => void }) {
             {notes.shipping && <p className="pb-1 text-[12px] text-ink-2" role="status">{notes.shipping}</p>}
           </Block>
 
-          {/* Payment (US-CHK-004) */}
+          {/* Payment (US-CHK-004): inline radio cards on web, a sheet on app. */}
           <Block web={web}>
-            <ChangeRow icon={<CreditCard size={18} aria-hidden />} title="Phương thức thanh toán" onClick={() => setOverlay({ kind: 'payment' })} web={web}>
-              <span className="block truncate text-[14px]">{methodText}</span>
-              {!cod.ok && <span className="block text-[12px] text-muted">{cod.reason}</span>}
-            </ChangeRow>
+            {web ? (
+              <>
+                <h2 className="mb-3 flex items-center gap-3 text-[15px] font-semibold"><CreditCard size={18} aria-hidden className="text-ink-2" />Phương thức thanh toán</h2>
+                <PaymentOptions method={d.payment} wallet={wallet} cod={cod} hints={hints} onChange={pickPayment} className="grid-cols-2" />
+              </>
+            ) : (
+              <ChangeRow icon={<CreditCard size={18} aria-hidden />} title="Phương thức thanh toán" onClick={() => setOverlay({ kind: 'payment' })} web={web}>
+                <span className="block truncate text-[14px]">{methodText}</span>
+                {!cod.ok && <span className="block text-[12px] text-muted">{cod.reason}</span>}
+              </ChangeRow>
+            )}
           </Block>
 
           {!web && summary}
         </div>
 
         {web ? (
-          <aside aria-label="Đặt hàng" className="sticky top-6 space-y-4 rounded-[16px] bg-surface p-6">
-            {summary}
-            {onlineNote}
-            {consent}
-            {placeBtn}
-            {noAddr}
-          </aside>
+          <aside aria-label="Đặt hàng" className="sticky top-6">{summary}</aside>
         ) : (
-          <div className="fixed inset-x-0 bottom-0 z-30 bg-surface px-4 pt-2 pb-[max(8px,env(safe-area-inset-bottom))] shadow-[var(--shadow-bar)]">
+          <div className="fixed inset-x-0 bottom-0 z-30 bg-surface px-3 pt-2 pb-[max(8px,env(safe-area-inset-bottom))] shadow-[var(--shadow-bar)]">
             <div className="space-y-1 pb-2">{onlineNote}{consent}{noAddr}</div>
             <div className="flex items-center gap-3">
               <div className="min-w-0 flex-1">
                 <p className="text-[12px] text-ink-2">Tổng thanh toán</p>
-                <p className="tabular text-[18px] font-bold">{vnd(q.pricing.total)}</p>
-                {q.pricing.savings > 0 && <p className="tabular text-[12px] font-medium text-jade">Tiết kiệm {vnd(q.pricing.savings)}</p>}
+                <p className="tabular text-[20px] leading-tight font-bold text-accent">{vnd(q.pricing.total)}</p>
+                {q.pricing.savings > 0 && <p className="tabular text-[12px] font-medium text-accent-ink">Tiết kiệm {vnd(q.pricing.savings)}</p>}
               </div>
               {placeBtn}
             </div>
@@ -285,8 +313,11 @@ function Checkout({ d, onPlaced }: { d: CheckoutDraft; onPlaced: () => void }) {
   )
 }
 
+/** Web shop-order columns: product, unit price, quantity, amount. */
+const LINE_COLS = 'grid grid-cols-[minmax(0,1fr)_120px_72px_120px] gap-x-4'
+
 function Block({ web, label, children }: { web: boolean; label?: string; children: ReactNode }) {
-  return <section aria-label={label} className={cx(web ? 'py-4' : '-mx-4 bg-surface px-4 py-3')}>{children}</section>
+  return <section aria-label={label} className={cx('panel', web ? 'px-5 py-4' : 'px-3 py-3')}>{children}</section>
 }
 
 /** Full-width tappable row with a chevron (US-CHK-001 design notes). */
@@ -294,14 +325,14 @@ function ChangeRow({ icon, title, children, aside, action, onClick, web }: {
   icon: ReactNode; title: string; children?: ReactNode; aside?: ReactNode; action?: string; onClick: () => void; web: boolean
 }) {
   return (
-    <button type="button" onClick={onClick} className="-mx-2 flex min-h-11 w-[calc(100%+16px)] items-start gap-3 rounded-[10px] px-2 py-2 text-left hover:bg-well/60">
-      <span className="mt-0.5 shrink-0 text-ink-2">{icon}</span>
+    <button type="button" onClick={onClick} className="-mx-2 flex min-h-11 w-[calc(100%+16px)] items-start gap-3 rounded-[var(--radius-control)] px-2 py-2 text-left hover:bg-well">
+      <span className="mt-px shrink-0 text-ink-2">{icon}</span>
       <span className="min-w-0 flex-1">
-        <span className="block text-[13px] font-medium text-muted">{title}</span>
+        <span className="block text-[15px] font-semibold text-ink">{title}</span>
         {children}
       </span>
       {aside && <span className="shrink-0 self-center">{aside}</span>}
-      {web && action ? <span className="shrink-0 self-center text-[13px] font-semibold text-jade-ink">{action}</span> : <ChevronRight size={18} aria-hidden className="shrink-0 self-center text-muted" />}
+      {web && action ? <span className="shrink-0 self-center text-[13px] font-semibold text-accent-ink">{action}</span> : <ChevronRight size={18} aria-hidden className="shrink-0 self-center text-muted" />}
     </button>
   )
 }
@@ -309,11 +340,11 @@ function ChangeRow({ icon, title, children, aside, action, onClick, web }: {
 function MessageField({ shopId, value }: { shopId: string; value: string }) {
   const id = `msg-${shopId}`
   return (
-    <div className="mt-1 flex items-center gap-3">
+    <div className="flex min-h-11 items-center gap-3 py-1.5">
       <label htmlFor={id} className="shrink-0 text-[13px] text-ink-2">Lời nhắn cho Shop</label>
       <input id={id} maxLength={200} value={value} placeholder="Không bắt buộc" aria-describedby={`${id}-n`}
         onChange={(e) => { const v = e.target.value.slice(0, 200); updateCheckout((dd) => { dd.messages[shopId] = v }) }}
-        className="h-10 min-w-0 flex-1 rounded-[8px] bg-transparent px-2 text-right text-[13px] outline-none ring-line ring-inset focus:bg-surface focus:ring-1" />
+        className="h-9 min-w-0 flex-1 rounded-[var(--radius-control)] bg-surface px-2.5 text-[13px] ring-1 ring-line ring-inset outline-none focus:ring-accent" />
       <span id={`${id}-n`} className="tabular shrink-0 text-[11px] text-muted">{value.length}/200</span>
     </div>
   )
@@ -321,12 +352,12 @@ function MessageField({ shopId, value }: { shopId: string; value: string }) {
 
 function CheckoutSkeleton({ web }: { web: boolean }) {
   return (
-    <div aria-busy="true" aria-label="Đang tải trang thanh toán" className={cx(web && 'grid grid-cols-[minmax(0,1fr)_380px] gap-10')}>
-      <div className="space-y-6 py-4">
-        <div className="space-y-2"><Skeleton className="h-4 w-40" /><Skeleton className="h-4 w-3/4" /></div>
-        <div className="space-y-3"><Skeleton className="h-5 w-48" />{[0, 1].map((i) => <div key={i} className="flex gap-3"><Skeleton className="aspect-[4/5] w-14" /><div className="flex-1 space-y-2"><Skeleton className="h-4 w-4/5" /><Skeleton className="h-4 w-1/3" /></div></div>)}</div>
+    <div aria-busy="true" aria-label="Đang tải trang thanh toán" className={cx(web ? 'grid grid-cols-[minmax(0,1fr)_380px] gap-4' : 'space-y-2')}>
+      <div className="space-y-3">
+        <div className="panel space-y-2 p-5"><Skeleton className="h-4 w-40" /><Skeleton className="h-4 w-3/4" /></div>
+        <div className="panel space-y-3 p-5"><Skeleton className="h-5 w-48" />{[0, 1].map((i) => <div key={i} className="flex gap-3"><Skeleton className="aspect-square w-16" /><div className="flex-1 space-y-2"><Skeleton className="h-4 w-4/5" /><Skeleton className="h-4 w-1/3" /></div></div>)}</div>
       </div>
-      <Skeleton className={web ? 'h-72 rounded-[16px]' : 'h-40'} />
+      <div className="panel p-5"><Skeleton className={web ? 'h-64' : 'h-32'} /></div>
     </div>
   )
 }

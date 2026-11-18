@@ -6,7 +6,7 @@ import { ancestry, childrenOf, leavesUnder } from '@/app/catalog'
 import { useLayout } from '@/app/layout'
 import { useWorld } from '@/app/store'
 import { ProductRail } from '@/components/ProductCard'
-import { ButtonLink, cx, GridSkeleton, Img, PageTitle, useLoaded } from '@/components/ui'
+import { cx, GridSkeleton, Img, PageTitle, SectionHead, useLoaded } from '@/components/ui'
 import NotFound from '@/features/demo/NotFound'
 import { Results, TodayPicks } from './Results'
 import { serializeSearchParams, topSelling } from './search'
@@ -43,15 +43,15 @@ export default function CategoryPage() {
           ))}
         </ol>
       </nav>
-      <PageTitle className="mb-5 break-words">{cat.name}</PageTitle>
+      <PageTitle className="mb-3 break-words">{cat.name}</PageTitle>
 
       {kids.length > 0 && (
-        <ul aria-label="Danh mục con" className={cx('mb-8 gap-4', layout === 'app' ? 'no-scrollbar -mx-4 flex overflow-x-auto px-4' : 'grid grid-cols-8')}>
+        <ul aria-label="Danh mục con" className={cx('panel mb-3', layout === 'app' ? 'no-scrollbar flex gap-3 overflow-x-auto p-3' : 'grid grid-cols-8 gap-x-4 gap-y-5 p-5')}>
           {kids.map((k) => (
             <li key={k.id} className={layout === 'app' ? 'w-[76px] shrink-0' : 'min-w-0'}>
-              <Link to={`/c/${k.slug}`} className="flex flex-col items-center gap-2 text-center no-underline">
-                <Img src={images.get(k.id)} alt="" className="size-16 rounded-full lg:size-24" />
-                <span className="line-clamp-2 text-[12px] leading-4 lg:text-[14px] lg:leading-5">{k.name}</span>
+              <Link to={`/c/${k.slug}`} className="group flex flex-col items-center gap-2 text-center no-underline">
+                <Img src={images.get(k.id)} alt="" className="size-16 rounded-full lg:size-20" />
+                <span className="line-clamp-2 text-[12px] leading-4 text-ink group-hover:text-accent-ink lg:text-[13px] lg:leading-[18px]">{k.name}</span>
               </Link>
             </li>
           ))}
@@ -60,17 +60,14 @@ export default function CategoryPage() {
 
       {!hasProducts ? (
         <>
-          <p className="py-6 text-[15px] text-muted">Danh mục này chưa có sản phẩm.</p>
+          <p className="panel px-5 py-6 text-[14px] text-muted">Danh mục này chưa có sản phẩm.</p>
           <TodayPicks />
         </>
       ) : (
         <>
           {cat.level < 3 && best.length > 0 && (
-            <section aria-labelledby="best-in-cat" className="mb-10">
-              <div className="mb-3 flex items-end justify-between gap-4">
-                <h2 id="best-in-cat" className="font-display text-[20px] font-semibold lg:text-[24px]">Bán chạy</h2>
-                <ButtonLink to={bestsellingUrl} variant="secondary" size="sm">Xem tất cả</ButtonLink>
-              </div>
+            <section aria-labelledby="best-in-cat" className="mt-5 mb-6">
+              <SectionHead id="best-in-cat" title="Bán chạy" action={<Link to={bestsellingUrl} className="inline-flex min-h-9 items-center gap-0.5 text-[13px] font-semibold text-accent-ink no-underline hover:underline">Xem tất cả<ChevronRight size={14} aria-hidden /></Link>} />
               {railReady ? <ProductRail products={best} label={`Bán chạy trong ${cat.name}`} /> : <GridSkeleton n={5} />}
             </section>
           )}

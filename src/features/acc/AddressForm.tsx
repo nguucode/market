@@ -127,7 +127,7 @@ function FormSheet({ initial, onSaved, onClose, actions }: { initial?: Address; 
             <div className="flex min-h-11 items-center justify-between gap-3">
               <span id="addr-default" className="text-[14px]">Đặt làm mặc định</span>
               <button type="button" role="switch" aria-checked={lockDefault || f.isDefault} aria-labelledby="addr-default" disabled={lockDefault} onClick={() => set({ isDefault: !f.isDefault })}
-                className={cx('relative h-7 w-12 shrink-0 rounded-full transition-colors disabled:cursor-not-allowed disabled:opacity-70', lockDefault || f.isDefault ? 'bg-jade' : 'bg-line-strong')}>
+                className={cx('relative h-7 w-12 shrink-0 rounded-full transition-colors disabled:cursor-not-allowed disabled:opacity-70', lockDefault || f.isDefault ? 'bg-accent' : 'bg-line-strong')}>
                 <span className={cx('absolute top-0.5 left-0.5 size-6 rounded-full bg-surface shadow transition-transform', (lockDefault || f.isDefault) && 'translate-x-5')} />
               </button>
             </div>
@@ -161,7 +161,7 @@ function UnitList({ items, current, label, onPick, onBack }: { items?: [number, 
             {shown.map(([code, name]) => (
               <li key={code}>
                 <button type="button" onClick={() => onPick([code, name])} aria-current={code === current || undefined}
-                  className={cx('flex min-h-11 w-full items-center py-2.5 text-left text-[14px] hover:text-jade-ink', code === current && 'font-semibold text-jade-ink')}>{name}</button>
+                  className={cx('flex min-h-11 w-full items-center py-2.5 text-left text-[14px] hover:text-accent-ink', code === current && 'font-semibold text-accent-ink')}>{name}</button>
               </li>
             ))}
           </ul>

@@ -3,7 +3,7 @@ import { BadgeCheck } from 'lucide-react'
 import type { Shop } from '@/domain/types'
 import { cx } from '@/components/ui'
 
-const TONES = ['bg-[#e9dccb] text-[#5a4630]', 'bg-[#d9e6df] text-[#21493d]', 'bg-[#e6dbe4] text-[#4f3550]', 'bg-[#dfe2ec] text-[#333c5a]', 'bg-[#efe1cf] text-[#6b4a1f]', 'bg-[#e0e6d5] text-[#3e4a26]']
+const TONES = ['bg-[#eef0f4] text-[#2f3a52]', 'bg-[#eaf3ef] text-[#1f4a3c]', 'bg-[#f3eef6] text-[#4a3460]', 'bg-[#fdeef1] text-[#8f0d2b]', 'bg-[#fff2e5] text-[#6b3d0e]', 'bg-[#eef3f8] text-[#23415e]']
 export const initials = (name: string) => name.replace(/[^\p{L}\p{N} ]/gu, '').split(/\s+/).filter(Boolean).slice(0, 2).map((x) => x[0]).join('').toUpperCase()
 
 export function Monogram({ shop, className }: { shop: Shop; className?: string }) {
@@ -16,8 +16,8 @@ export function Monogram({ shop, className }: { shop: Shop; className?: string }
 
 export function OfficialBadge({ label = 'Shop chính hãng', className }: { label?: string; className?: string }) {
   return (
-    <span className={cx('inline-flex h-6 shrink-0 items-center gap-1 rounded-full bg-ink px-2.5 text-[11px] font-semibold whitespace-nowrap text-ground', className)}>
-      <BadgeCheck size={13} aria-hidden />{label}
+    <span className={cx('inline-flex h-5 shrink-0 items-center gap-1 rounded-[4px] bg-accent-soft px-1.5 text-[11px] font-semibold whitespace-nowrap text-accent-ink', className)}>
+      <BadgeCheck size={12} aria-hidden />{label}
     </span>
   )
 }

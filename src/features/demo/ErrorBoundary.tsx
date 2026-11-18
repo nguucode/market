@@ -8,6 +8,6 @@ export class ErrorBoundary extends Component<{ children: ReactNode; resetKey?: s
   componentDidUpdate(prev: { resetKey?: string }) { if (prev.resetKey !== this.props.resetKey && this.state.error) this.setState({ error: undefined }) }
   render() {
     if (!this.state.error) return this.props.children
-    return <EmptyState title="Đã có lỗi khi hiển thị màn này" body="Bạn có thể tải lại trang. Dữ liệu mẫu của bạn vẫn được giữ." action={<Button onClick={() => location.reload()}>Tải lại trang</Button>} />
+    return <EmptyState className="panel my-4" title="Đã có lỗi khi hiển thị màn này" body="Bạn có thể tải lại trang. Dữ liệu mẫu của bạn vẫn được giữ." action={<Button onClick={() => location.reload()}>Tải lại trang</Button>} />
   }
 }

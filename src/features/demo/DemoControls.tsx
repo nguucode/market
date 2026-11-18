@@ -14,14 +14,14 @@ const HOUR = 3_600_000
 const DAY = 24 * HOUR
 
 function Group({ title, children }: { title: string; children: ReactNode }) {
-  return <section className="space-y-2.5 border-b border-line py-4 last:border-0"><h3 className="text-[13px] font-semibold tracking-[0.01em] text-ink-2">{title}</h3>{children}</section>
+  return <section className="space-y-2.5 border-b border-line py-4 last:border-0"><h3 className="text-[14px] font-bold text-ink">{title}</h3>{children}</section>
 }
 function Seg<T extends string>({ label, value, options, onChange }: { label: string; value: T; options: [T, string][]; onChange: (v: T) => void }) {
   return (
     <div role="radiogroup" aria-label={label} className="flex flex-wrap gap-1.5">
       {options.map(([v, l]) => (
         <button key={v} type="button" role="radio" aria-checked={value === v} onClick={() => onChange(v)}
-          className={cx('h-8 rounded-full px-3 text-[12px] font-medium ring-1 ring-inset', value === v ? 'bg-ink text-white ring-ink' : 'bg-surface ring-line hover:ring-line-strong')}>{l}</button>
+          className={cx('h-8 rounded-[var(--radius-control)] px-3 text-[12px] font-medium ring-1 ring-inset', value === v ? 'bg-accent-soft font-semibold text-accent-ink ring-accent' : 'bg-surface text-ink-2 ring-line hover:ring-line-strong')}>{l}</button>
       ))}
     </div>
   )
@@ -52,7 +52,7 @@ export function DemoControlsPanel({ onDone }: { onDone?: () => void }) {
         {sorted.length === 0 && <p className="text-muted">Không có đơn đang xử lý.</p>}
         <ul className="space-y-2">
           {sorted.map((o) => (
-            <li key={o.id} className={cx('rounded-[10px] p-2.5 ring-1 ring-inset', o.id === ctxOrder ? 'bg-accent-soft/50 ring-accent' : 'ring-line')}>
+            <li key={o.id} className={cx('rounded-[var(--radius-control)] p-2.5 ring-1 ring-inset', o.id === ctxOrder ? 'bg-accent-soft/50 ring-accent' : 'ring-line')}>
               <p className="flex justify-between gap-2"><span className="truncate font-medium">{shopName(o.shopId)}</span><span className="shrink-0 text-muted">{STATUS_LABEL[o.status]}</span></p>
               <p className="tabular text-[12px] text-muted">{o.id} · {vnd(o.total)}</p>
               <div className="mt-2 flex flex-wrap gap-1.5">
@@ -65,7 +65,7 @@ export function DemoControlsPanel({ onDone }: { onDone?: () => void }) {
           ))}
         </ul>
         {cancelReqs.map((o) => (
-          <div key={o.id} className="rounded-[10px] p-2.5 ring-1 ring-inset ring-line">
+          <div key={o.id} className="rounded-[var(--radius-control)] p-2.5 ring-1 ring-inset ring-line">
             <p>Yêu cầu hủy · <span className="tabular">{o.id}</span></p>
             <div className="mt-2 flex gap-1.5">
               <Button size="sm" variant="secondary" onClick={() => { respondCancel(o.id, true); said('Shop đã chấp nhận hủy') }}>Shop chấp nhận</Button>
@@ -74,7 +74,7 @@ export function DemoControlsPanel({ onDone }: { onDone?: () => void }) {
           </div>
         ))}
         {refunds.map((o) => (
-          <div key={o.id} className="flex items-center justify-between gap-2 rounded-[10px] p-2.5 ring-1 ring-inset ring-line">
+          <div key={o.id} className="flex items-center justify-between gap-2 rounded-[var(--radius-control)] p-2.5 ring-1 ring-inset ring-line">
             <span>Hoàn tiền <span className="tabular">{vnd(o.refund!.amount)}</span></span>
             <Button size="sm" variant="secondary" onClick={() => { finishRefund(o.id); said('Đã hoàn tiền xong') }}>Hoàn tiền xong</Button>
           </div>
@@ -90,7 +90,7 @@ export function DemoControlsPanel({ onDone }: { onDone?: () => void }) {
                 : r.status === 'inspecting' ? [['inspected', 'Kiểm tra đạt, hoàn tiền'], ['reject', 'Kiểm tra không đạt']]
                   : []
           return (
-            <div key={r.id} className={cx('rounded-[10px] p-2.5 ring-1 ring-inset', r.id === ctxReturn ? 'bg-accent-soft/50 ring-accent' : 'ring-line')}>
+            <div key={r.id} className={cx('rounded-[var(--radius-control)] p-2.5 ring-1 ring-inset', r.id === ctxReturn ? 'bg-accent-soft/50 ring-accent' : 'ring-line')}>
               <p className="flex justify-between"><span className="tabular">{r.orderId}</span><span className="text-muted">{RETURN_LABEL[r.status]}</span></p>
               <div className="mt-2 flex flex-wrap gap-1.5">{acts.map(([a, l]) => <Button key={a} size="sm" variant="secondary" onClick={() => { returnDemo(r.id, a); said(l) }}>{l}</Button>)}</div>
             </div>

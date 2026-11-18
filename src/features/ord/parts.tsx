@@ -26,7 +26,7 @@ export function LineRow({ line, w, link = true, review, className }: { line: Ord
   const name = <span className="line-clamp-2 text-[14px] leading-snug" title={line.name}>{line.name}</span>
   return (
     <div className={cx('flex gap-3', className)}>
-      <Img src={line.image} alt="" className="size-16 shrink-0 rounded-[8px] lg:size-[72px]" />
+      <Img src={line.image} alt="" className="size-20 shrink-0 rounded-[var(--radius-control)]" />
       <div className="min-w-0 flex-1">
         {link && live ? <Link to={`/p/${p!.slug}`} className="text-ink no-underline hover:underline">{name}</Link> : name}
         {line.variantText && <p className="mt-0.5 text-[12px] text-muted">Phân loại: {line.variantText}</p>}
@@ -62,8 +62,8 @@ export function PaymentCountdown({ payment, className }: { payment: Payment; cla
   if (t.expired) return null
   return (
     <p className={cx('text-[13px] text-ink-2', className)}>
-      Thanh toán trước {hm(payment.expiresAt)} · <span className="tabular font-semibold text-jade-ink">còn {t.mm}:{t.ss}</span>
-      {t.soon && <span className="ml-1.5 font-semibold text-jade-ink">Sắp hết hạn</span>}
+      Thanh toán trước {hm(payment.expiresAt)} · <span className="tabular font-semibold text-accent-ink">còn {t.mm}:{t.ss}</span>
+      {t.soon && <span className="ml-1.5 font-semibold text-accent-ink">Sắp hết hạn</span>}
     </p>
   )
 }
@@ -133,7 +133,7 @@ export function CancelSheet({ order, open, onOpenChange }: { order: Order; open:
     <Sheet open={open} onOpenChange={(v) => !busy && onOpenChange(v)} title="Lý do hủy"
       footer={
         <div className="space-y-3">
-          <div className="space-y-1 rounded-[12px] bg-well px-3.5 py-3 text-[13px] leading-relaxed text-ink-2">
+          <div className="space-y-1 rounded-[var(--radius-control)] bg-well px-3.5 py-3 text-[13px] leading-relaxed text-ink-2">
             <p>{refundCopy(order.paymentMethod, order.paymentStatus)}</p>
             {paid && <p className="whitespace-nowrap">Số tiền hoàn: <strong className="tabular font-semibold text-ink">{vnd(order.total)}</strong></p>}
             <p>Voucher đã dùng cho đơn hàng này sẽ không được hoàn lại.</p>
@@ -148,7 +148,7 @@ export function CancelSheet({ order, open, onOpenChange }: { order: Order; open:
         <legend className="sr-only">Lý do hủy</legend>
         {CANCEL_REASONS.map((r) => (
           <label key={r} className="flex min-h-12 cursor-pointer items-start gap-3 border-b border-line py-3 last:border-0">
-            <input type="radio" name="cancel-reason" checked={reason === r} disabled={busy} onChange={() => setReason(r)} className="mt-0.5 size-[18px] shrink-0 accent-[var(--color-jade)]" />
+            <input type="radio" name="cancel-reason" checked={reason === r} disabled={busy} onChange={() => setReason(r)} className="mt-0.5 size-[18px] shrink-0 accent-[var(--color-accent)]" />
             <span className="text-[14px] leading-snug">{r}</span>
           </label>
         ))}
@@ -157,7 +157,7 @@ export function CancelSheet({ order, open, onOpenChange }: { order: Order; open:
         <div className="mt-2">
           <label htmlFor="cancel-other" className="mb-1.5 block text-[13px] font-medium text-ink-2">Nhập lý do</label>
           <textarea id="cancel-other" value={other} maxLength={200} rows={3} disabled={busy} onChange={(e) => setOther(e.target.value)}
-            className="w-full resize-none rounded-[10px] bg-surface px-3.5 py-2.5 text-[14px] ring-1 ring-line-strong outline-none ring-inset focus:ring-2 focus:ring-jade" />
+            className="w-full resize-none rounded-[var(--radius-control)] bg-surface px-3.5 py-2.5 text-[14px] ring-1 ring-line-strong outline-none ring-inset focus:ring-2 focus:ring-accent" />
           <p className="text-right text-[12px] text-muted tabular">{other.length}/200</p>
         </div>
       )}
@@ -213,7 +213,7 @@ export function useOrderActionRunner(order: Order) {
 
 export function CopyButton({ text }: { text: string }) {
   return (
-    <button type="button" className="min-h-11 px-1 text-[13px] font-semibold text-jade-ink hover:underline"
+    <button type="button" className="min-h-11 px-1 text-[13px] font-semibold text-accent-ink hover:underline"
       onClick={() => navigator.clipboard?.writeText(text).then(() => toast('Đã sao chép'), () => toast('Không sao chép được', { tone: 'error' }))}>
       Sao chép
     </button>
@@ -223,7 +223,7 @@ export function CopyButton({ text }: { text: string }) {
 export function ShopName({ w, shopId, className, link = true }: { w: World; shopId: string; className?: string; link?: boolean }) {
   const s = w.shops.find((x) => x.id === shopId)
   if (!s) return null
-  const inner = <><span className="min-w-0 truncate">{s.name}</span>{s.isOfficial && <BadgeCheck size={15} className="shrink-0 text-jade" aria-label="Shop chính hãng" />}</>
+  const inner = <><span className="min-w-0 truncate">{s.name}</span>{s.isOfficial && <BadgeCheck size={15} className="shrink-0 text-accent" aria-label="Shop chính hãng" />}</>
   return link
     ? <Link to={`/s/${s.handle}`} className={cx('relative z-[1] inline-flex min-w-0 items-center gap-1.5 text-[14px] font-semibold text-ink no-underline hover:underline', className)}>{inner}</Link>
     : <span className={cx('inline-flex min-w-0 items-center gap-1.5 text-[14px] font-semibold', className)}>{inner}</span>
@@ -237,10 +237,10 @@ export function CancelRequestLine({ children }: { children: ReactNode }) {
 export function AccountAside() {
   const items: [string, string][] = [['Tôi', '/me'], ['Đơn mua', '/orders'], ['Kho voucher', '/vouchers'], ['Địa chỉ', '/me/addresses'], ['Yêu thích', '/favorites'], ['Thông báo', '/notifications']]
   return (
-    <nav aria-label="Tài khoản" className="sticky top-[140px] w-[200px] shrink-0 self-start">
+    <nav aria-label="Tài khoản" className="panel sticky top-[140px] w-[200px] shrink-0 self-start p-2">
       <ul className="space-y-0.5">
         {items.map(([l, to]) => (
-          <li key={to}><NavLink to={to} end className={({ isActive }) => cx('flex h-10 items-center rounded-full px-4 text-[14px] no-underline', isActive ? 'bg-well font-semibold text-ink' : 'text-ink-2 hover:bg-well')}>{l}</NavLink></li>
+          <li key={to}><NavLink to={to} end className={({ isActive }) => cx('flex h-10 items-center rounded-[var(--radius-control)] px-3 text-[14px] no-underline', isActive ? 'bg-accent-soft font-semibold text-accent-ink' : 'text-ink-2 hover:bg-well hover:text-ink')}>{l}</NavLink></li>
         ))}
       </ul>
     </nav>

@@ -25,6 +25,13 @@ export function voucherOffer(v: Voucher): string {
   return v.kind === 'percent' ? `Giảm ${v.value}%` : `Giảm ${vnd(v.value)}`
 }
 
+/** Ticket-stub value: "15%", "30K", "1,5Tr"; shipping vouchers show an icon instead (undefined). */
+export function voucherStubValue(v: Voucher): string | undefined {
+  if (v.scope === 'shipping') return undefined
+  if (v.kind === 'percent') return `${v.value}%`
+  return v.value >= 1_000_000 ? `${String(Math.floor(v.value / 100_000) / 10).replace('.', ',')}Tr` : `${Math.floor(v.value / 1000)}K`
+}
+
 /** "Tối đa 50.000₫ · Đơn tối thiểu 300.000₫". */
 export function voucherCapLine(v: Voucher): string {
   const parts: string[] = []

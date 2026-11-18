@@ -1,4 +1,4 @@
-// Product card in the flash variant (US-FND-007): slot price in the deal colour, -NN%, the sold bar. Shared with PRM.
+// Product card in the flash variant (US-FND-007): slot price as an accent chip, -NN%, the sold bar. Shared with PRM.
 import { Link } from 'react-router'
 import { compactCount, discountPct, vnd } from '@/domain/money'
 import type { FlashItem, FlashSlot, Product } from '@/domain/types'
@@ -13,6 +13,11 @@ export function flashEntries(w: World, slot: FlashSlot, limit = Infinity): Flash
   return orderFlashItems(live).map((item) => ({ item, product: w.products.find((p) => p.id === item.productId)! }))
 }
 
+/** Module-tile price: bold accent on its tint, muted when the item can no longer be bought. */
+export function PriceChip({ value, muted, className }: { value: number; muted?: boolean; className?: string }) {
+  return <span className={cx('tabular inline-flex h-6 items-center rounded-[4px] px-1.5 text-[14px] font-bold', muted ? 'bg-well text-muted' : 'bg-accent-soft text-accent-ink', className)}>{vnd(value)}</span>
+}
+
 export function FlashCard({ entry: { item, product }, w, upcoming, showLimit }: { entry: FlashEntry; w: World; upcoming?: boolean; showLimit?: boolean }) {
   const sku = w.skus.find((k) => k.id === item.skuId)
   const pct = discountPct(item.salePrice, sku ? sku.priceBeforePromo ?? sku.price : undefined)
@@ -21,18 +26,18 @@ export function FlashCard({ entry: { item, product }, w, upcoming, showLimit }: 
   return (
     <article className="min-w-0">
       <Link to={`/p/${product.slug}?sku=${item.skuId}`} className="group block no-underline">
-        <Img src={sku?.image ?? product.images[0]} alt={product.name} className={cx('aspect-[4/5] w-full rounded-[var(--radius-media)] transition-[filter] group-hover:brightness-[0.97]', out && 'opacity-50')} />
-        <h3 className={cx('mt-2 truncate text-[14px] leading-5', out ? 'text-muted' : 'text-ink')} title={product.name}>{product.name}</h3>
-        <p className="mt-0.5 flex flex-wrap items-baseline gap-x-1.5">
-          <span className={cx('tabular text-[16px] font-bold', out ? 'text-muted' : 'text-jade')}>{vnd(item.salePrice)}</span>
-          {pct > 0 && <span className="text-[12px] font-semibold text-jade-ink">-{pct}%</span>}
+        <Img src={sku?.image ?? product.images[0]} alt={product.name} className={cx('aspect-square w-full rounded-[var(--radius-control)] transition-[filter] group-hover:brightness-[0.97]', out && 'opacity-50')} />
+        <h3 className={cx('mt-2 truncate text-[13px] leading-5', out ? 'text-muted' : 'text-ink')} title={product.name}>{product.name}</h3>
+        <p className="mt-1 flex flex-wrap items-center gap-x-1.5">
+          <PriceChip value={item.salePrice} muted={out} />
+          {pct > 0 && <span className="text-[12px] font-semibold text-accent-ink">-{pct}%</span>}
         </p>
         {upcoming ? <p className="mt-1.5 text-[12px] text-ink-2">Sắp diễn ra</p> : (
           <div className="mt-1.5">
-            <span aria-hidden className="block h-1 overflow-hidden rounded-full bg-jade/15"><span className="block h-full rounded-full bg-jade" style={{ width: `${sold}%` }} /></span>
+            <span aria-hidden className="block h-1 overflow-hidden rounded-full bg-accent/15"><span className="block h-full rounded-full bg-accent" style={{ width: `${sold}%` }} /></span>
             <p className="mt-1 flex items-baseline justify-between gap-2 text-[12px]">
               <span className="text-ink-2">{out ? 'Đã bán hết' : `Đã bán ${compactCount(item.sold)}`}</span>
-              {almostGone(item) && <span className="font-semibold text-jade-ink">Sắp hết</span>}
+              {almostGone(item) && <span className="font-semibold text-accent-ink">Sắp hết</span>}
             </p>
           </div>
         )}

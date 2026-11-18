@@ -105,8 +105,14 @@ export function SearchCombo({ mode, className, autoFocus, onCancel, onDone }: { 
   const listId = `${id}-list`
 
   const list = (
-    <div id={listId} role="listbox" aria-label="Gợi ý tìm kiếm"
-      className={cx(mode === 'dropdown' ? 'absolute inset-x-0 top-[calc(100%+6px)] z-50 max-h-[70dvh] overflow-y-auto rounded-[var(--radius-card)] bg-surface py-2 shadow-[var(--shadow-pop)]' : 'pt-3')}>
+    <div className={cx(mode === 'dropdown' ? 'absolute inset-x-0 top-[calc(100%+6px)] z-50 max-h-[70dvh] overflow-y-auto rounded-[var(--radius-card)] bg-surface py-2 shadow-[var(--shadow-pop)]' : 'pt-3')}>
+      {!q && history.length > 0 && (
+        <div className="flex items-center justify-between gap-3 px-4 py-1.5">
+          <span id={`${id}-hh`} className="text-[13px] font-semibold text-ink-2">Lịch sử tìm kiếm</span>
+          <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => removeSearch()} className="min-h-9 text-[13px] text-muted underline-offset-4 hover:text-accent-ink hover:underline">Xóa lịch sử tìm kiếm</button>
+        </div>
+      )}
+    <div id={listId} role="listbox" aria-label="Gợi ý tìm kiếm">
       {q ? rows.map((r, i) => {
         const s = r.s
         if (r.kind === 'raw') return opt(r, i, <><Search size={16} aria-hidden className="shrink-0 text-muted" /><span className="min-w-0 truncate">Tìm “{r.text}”</span></>, 'flex min-h-11 items-center gap-3 px-4 text-[14px]')
@@ -117,10 +123,6 @@ export function SearchCombo({ mode, className, autoFocus, onCancel, onDone }: { 
         <>
           {history.length > 0 && (
             <div role="group" aria-labelledby={`${id}-hh`} className="pb-2">
-              <div className="flex items-center justify-between gap-3 px-4 py-1.5">
-                <span id={`${id}-hh`} className="text-[13px] font-semibold text-ink-2">Lịch sử tìm kiếm</span>
-                <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={() => removeSearch()} className="min-h-9 text-[13px] text-muted underline-offset-4 hover:text-ink hover:underline">Xóa lịch sử tìm kiếm</button>
-              </div>
               {history.map((r) => opt(r, rows.indexOf(r), <><Clock size={16} aria-hidden className="shrink-0 text-muted" /><span className="min-w-0 truncate">{r.text}</span></>, 'flex min-h-11 items-center gap-3 px-4 text-[14px]'))}
             </div>
           )}
@@ -132,6 +134,7 @@ export function SearchCombo({ mode, className, autoFocus, onCancel, onDone }: { 
           </div>
         </>
       )}
+    </div>
     </div>
   )
 

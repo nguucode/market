@@ -1,4 +1,4 @@
-// US-PDP-003: chip picker, one radiogroup per dimension. Reused by the cart's "change variant" sheet.
+// US-PDP-003: option-box picker, one radiogroup per dimension. Reused by the cart's "change variant" sheet.
 import { useState, type KeyboardEvent } from 'react'
 import { cx } from '@/components/ui'
 import type { Product } from '@/domain/types'
@@ -15,13 +15,15 @@ export function useSkuSelection(product: Product, initial?: Selection) {
   return { sel, setSel, skus, sku: resolveSku(skus, sel) }
 }
 
-export function VariantPicker({ product, value, onChange, onPreview, className }: {
+export function VariantPicker({ product, value, onChange, onPreview, className, rows }: {
   product: Product
   value: Selection
   onChange: (sel: Selection) => void
   /** Web hover on a first-dimension option with an image (gallery preview); undefined on leave. */
   onPreview?: (image: string | undefined) => void
   className?: string
+  /** Web PDP: each dimension as a row with the name in the 88px label column. */
+  rows?: boolean
 }) {
   const w = useWorld()
   const skus = skusOf(w, product.id)
@@ -44,11 +46,13 @@ export function VariantPicker({ product, value, onChange, onPreview, className }
           e.currentTarget.parentElement?.querySelectorAll<HTMLElement>('[role=radio]')[next]?.focus()
         }
         return (
-          <div key={dim.id}>
-            <p id={labelId} className="mb-2 text-[13px] text-ink-2">
-              {picked ? <>{dim.name}: <span className="font-semibold text-ink">{picked.label}</span></> : <>Chọn {dim.name}</>}
-            </p>
-            <div role="radiogroup" aria-labelledby={labelId} className="flex flex-wrap gap-2">
+          <div key={dim.id} className={cx(rows && 'flex gap-3')}>
+            {rows ? <p id={labelId} className="w-[88px] shrink-0 pt-2 text-[13px] text-muted">{dim.name}</p> : (
+              <p id={labelId} className="mb-2 text-[13px] text-ink-2">
+                {picked ? <>{dim.name}: <span className="font-semibold text-ink">{picked.label}</span></> : <>Chọn {dim.name}</>}
+              </p>
+            )}
+            <div role="radiogroup" aria-labelledby={labelId} className="flex min-w-0 flex-1 flex-wrap gap-2">
               {dim.options.map((o, i) => {
                 const st = states[d][i]
                 const on = value[d] === o.id
@@ -67,12 +71,13 @@ export function VariantPicker({ product, value, onChange, onPreview, className }
                     onMouseEnter={d === 0 && o.image && onPreview ? () => onPreview(o.image) : undefined}
                     onMouseLeave={d === 0 && o.image && onPreview ? () => onPreview(undefined) : undefined}
                     className={cx(
-                      'inline-flex h-11 max-w-[220px] items-center gap-2 rounded-full bg-surface px-4 text-[13px] lg:h-9',
-                      on ? 'font-semibold ring-2 ring-inset ring-ink' : 'ring-1 ring-inset ring-line hover:ring-line-strong',
-                      !st.enabled && 'cursor-not-allowed text-muted line-through decoration-muted/70 hover:ring-line',
+                      'inline-flex h-11 max-w-[220px] items-center gap-2 rounded-[var(--radius-control)] px-3 text-[13px] lg:h-9',
+                      o.image && 'pl-1',
+                      on ? 'bg-accent-soft font-medium text-accent-ink ring-2 ring-inset ring-accent' : 'bg-surface ring-1 ring-inset ring-line-strong hover:ring-accent',
+                      !st.enabled && 'cursor-not-allowed bg-well text-muted line-through decoration-muted/70 ring-line hover:ring-line',
                     )}
                   >
-                    {o.image && <img src={o.image} alt="" className={cx('-ml-2.5 size-8 shrink-0 rounded-full bg-well object-contain mix-blend-multiply', !st.enabled && 'opacity-50')} />}
+                    {o.image && <img src={o.image} alt="" className={cx('size-9 shrink-0 rounded-[6px] bg-well object-contain mix-blend-multiply lg:size-7', !st.enabled && 'opacity-50')} />}
                     <span className="truncate">{o.label}</span>
                   </button>
                 )

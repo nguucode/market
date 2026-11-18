@@ -34,12 +34,12 @@ function Chooser({ view, onClose }: { view: LineView; onClose: () => void }) {
   return (
     <div className="space-y-5">
       <div className="flex gap-3">
-        <Img src={chosen?.image ?? view.sku.image ?? p.images[0]} alt={p.name} className="aspect-[4/5] w-20 shrink-0 rounded-[var(--radius-media)]" />
+        <Img src={chosen?.image ?? view.sku.image ?? p.images[0]} alt={p.name} className="aspect-square w-20 shrink-0 rounded-[var(--radius-control)]" />
         <div className="min-w-0">
           <p className="line-clamp-2 text-[14px]">{p.name}</p>
           {u ? (
             <p className="mt-1 flex flex-wrap items-baseline gap-x-2">
-              <span className={u.before && u.before > u.price ? 'tabular font-bold text-jade' : 'tabular font-bold'}>{vnd(u.price)}</span>
+              <span className="tabular text-[18px] font-bold text-accent">{vnd(u.price)}</span>
               {u.before && u.before > u.price && <s className="tabular text-[13px] text-muted">{vnd(u.before)}</s>}
             </p>
           ) : <p className="mt-1 text-[13px] text-muted">Chọn đủ phân loại để xem giá</p>}

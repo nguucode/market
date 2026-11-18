@@ -23,7 +23,7 @@ export default function InvoicePage() {
         <SampleBadge className="self-start" />
         <Button onClick={() => window.print()} className="w-full lg:w-auto"><Printer size={16} aria-hidden />In / Lưu PDF</Button>
       </div>
-      <article className="mx-auto max-w-[794px] rounded-[14px] bg-surface p-5 text-ink print:max-w-none print:rounded-none print:p-0 lg:p-10">
+      <article className="mx-auto max-w-[794px] rounded-[var(--radius-card)] bg-surface p-5 text-ink print:max-w-none print:rounded-none print:p-0 lg:p-10">
         <div className="flex items-start justify-between gap-4">
           <PageTitle>Hóa đơn</PageTitle>
           <span className="hidden text-[11px] font-semibold print:inline">Dữ liệu mẫu</span>

@@ -56,9 +56,9 @@ function WebCartButton() {
   const w = useWorld()
   const n = cartCount(w)
   return (
-    <Link to="/cart" aria-label={`Giỏ hàng${n ? `, ${n} sản phẩm` : ''}`} className="relative inline-flex h-11 shrink-0 items-center gap-2 rounded-[var(--radius-card)] px-4 text-[14px] font-semibold text-accent-ink no-underline ring-1 ring-inset ring-accent hover:bg-accent-soft">
-      <ShoppingCart size={19} strokeWidth={1.9} aria-hidden /><span aria-hidden>Giỏ hàng</span>
-      {n > 0 && <span aria-hidden className="tabular flex h-5 min-w-5 items-center justify-center rounded-full bg-accent px-1.5 text-[11px] font-bold text-white">{n > 99 ? '99+' : n}</span>}
+    <Link to="/cart" className="relative inline-flex h-11 shrink-0 items-center gap-2 rounded-[var(--radius-card)] px-4 text-[14px] font-semibold text-accent-ink no-underline ring-1 ring-inset ring-accent hover:bg-accent-soft">
+      <ShoppingCart size={19} strokeWidth={1.9} aria-hidden />Giỏ hàng
+      {n > 0 && <span className="tabular flex h-5 min-w-5 items-center justify-center rounded-full bg-accent px-1.5 text-[11px] font-bold text-white">{n > 99 ? '99+' : n}<span className="sr-only"> sản phẩm</span></span>}
     </Link>
   )
 }
@@ -107,8 +107,8 @@ function UtilityBar() {
         <SampleBadge className="ml-1 h-5! bg-line/70!" />
         <span className="flex-1" />
         <nav aria-label="Tài khoản" className="flex items-center gap-0.5">
-          <NavLink to="/notifications" className={utilLink} aria-label={`Thông báo${unread ? `, ${unread} chưa đọc` : ''}`}>
-            <Bell size={13} aria-hidden /><span aria-hidden>Thông báo</span>{unread > 0 && <span aria-hidden className="tabular font-semibold text-accent">{unread}</span>}
+          <NavLink to="/notifications" className={utilLink}>
+            <Bell size={13} aria-hidden />Thông báo{unread > 0 && <span className="tabular font-semibold text-accent-ink">{unread}<span className="sr-only"> chưa đọc</span></span>}
           </NavLink>
           <NavLink to="/orders" className={utilLink}>Đơn mua</NavLink>
           <NavLink to="/vouchers" className={utilLink}>Kho voucher</NavLink>

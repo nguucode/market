@@ -1,5 +1,5 @@
 // US-RET-002 Return request status: /returns/:id
-import { ArrowLeft, CheckCircle2 } from 'lucide-react'
+import { ArrowLeft, CheckCircle2, CircleX, RotateCcw } from 'lucide-react'
 import { useEffect, useState, type ReactNode } from 'react'
 import { Link, useParams } from 'react-router'
 import { useLayout } from '@/app/layout'
@@ -31,8 +31,8 @@ export default function ReturnPage() {
   return <ReturnDetail r={r} o={o} w={w} />
 }
 
-const block = 'rounded-[14px] bg-surface p-4 lg:p-5'
-const h2 = 'font-display text-[18px] leading-tight font-semibold'
+const block = 'panel p-4 lg:p-5'
+const h2 = 'font-display text-[16px] leading-tight'
 
 function ReturnDetail({ r, o, w }: { r: ReturnRequest; o: Order; w: World }) {
   const layout = useLayout()
@@ -45,19 +45,22 @@ function ReturnDetail({ r, o, w }: { r: ReturnRequest; o: Order; w: World }) {
   const evidenceNote = [...r.timeline].reverse().find((t) => t.status === 'needs_evidence')?.note ?? 'Ảnh hiện tại chưa thể hiện rõ vấn đề của sản phẩm. Vui lòng chụp thêm ảnh cận cảnh.'
 
   const status = (
-    <section aria-labelledby="return-status" className={layout === 'app' ? '-mx-4 -mt-4 bg-well px-4 py-5' : block}>
-      <h2 id="return-status" className="flex items-center gap-2 font-display text-[22px] leading-tight font-semibold">
-        {r.status === 'refunded' && <CheckCircle2 size={22} className="text-jade" aria-hidden />}{RETURN_LABEL[r.status]}
-      </h2>
+    <section aria-labelledby="return-status" className={cx(block, 'flex gap-3.5 lg:gap-4')}>
+      <span aria-hidden className={cx('flex size-11 shrink-0 items-center justify-center rounded-full', r.status === 'rejected' ? 'bg-well text-muted' : 'bg-accent-soft text-accent')}>
+        {r.status === 'refunded' ? <CheckCircle2 size={22} /> : r.status === 'rejected' ? <CircleX size={22} /> : <RotateCcw size={22} />}
+      </span>
+      <div className="min-w-0 flex-1">
+      <h2 id="return-status" className="font-display text-[20px] leading-tight lg:text-[22px]">{RETURN_LABEL[r.status]}</h2>
       <p className="mt-1.5 text-[14px] text-ink-2">{returnSentence(r)}</p>
       {r.status === 'refunded' && (
         <div className="mt-3 space-y-1">
-          <p className="tabular text-[24px] font-bold">{vnd(r.cash)}</p>
+          <p className="tabular text-[24px] font-bold text-accent">{vnd(r.cash)}</p>
           <p className="text-[14px]">Đã hoàn {vnd(r.cash)} về {r.refundTo.charAt(0).toLowerCase() + r.refundTo.slice(1)}{refundedAt ? ` · ${dmy(refundedAt)}` : ''}</p>
           {r.voucherCredit > 0 && <p className="text-[14px]">Đã hoàn Voucher Market {vnd(r.voucherCredit)} vào Kho voucher</p>}
         </div>
       )}
       {r.status === 'rejected' && r.rejectReason && <p className="mt-2 text-[14px] break-words text-ink">Lý do: {r.rejectReason}</p>}
+      </div>
     </section>
   )
 
@@ -71,7 +74,7 @@ function ReturnDetail({ r, o, w }: { r: ReturnRequest; o: Order; w: World }) {
       <ol>
         {reached.map((t, i) => (
           <li key={`${t.status}-${t.at}`} className="flex gap-3 pb-4">
-            <span aria-hidden className={cx('mt-[7px] size-2 shrink-0 rounded-full', i === 0 ? 'bg-ink' : 'bg-line-strong')} />
+            <span aria-hidden className={cx('shrink-0 rounded-full', i === 0 ? 'mt-[5px] size-2.5 bg-accent ring-4 ring-accent-soft' : 'mt-[7px] size-2 bg-line-strong')} />
             <div className={cx('text-[13px]', i === 0 ? 'text-ink' : 'text-muted')}>
               <p className={cx(i === 0 && 'font-semibold')}>{RETURN_LABEL[t.status]}</p>
               {t.note && <p>{t.note}</p>}
@@ -91,7 +94,7 @@ function ReturnDetail({ r, o, w }: { r: ReturnRequest; o: Order; w: World }) {
 
   const photos = r.photos.slice(0, 5)
   const summary = (
-    <section aria-labelledby="return-summary" className="space-y-4">
+    <section aria-labelledby="return-summary" className="space-y-3">
       <div className={block}>
         <h2 id="return-summary" className={cx(h2, 'mb-3')}>Thông tin yêu cầu</h2>
         <ul className="divide-y divide-line">{lines.map((l) => <li key={l.id} className="py-3 first:pt-0"><LineRow line={l} w={w} link={false} /></li>)}</ul>
@@ -112,7 +115,7 @@ function ReturnDetail({ r, o, w }: { r: ReturnRequest; o: Order; w: World }) {
             ))}
           </ul>
         )}
-        <Link to={`/orders/${o.id}`} className="mt-3 inline-flex min-h-11 items-center text-[14px] font-semibold text-jade-ink">Xem đơn hàng</Link>
+        <Link to={`/orders/${o.id}`} className="mt-3 inline-flex min-h-11 items-center text-[14px] font-semibold text-accent-ink">Xem đơn hàng</Link>
       </div>
       <RefundSplitBlock o={o} lineIds={r.lineIds} cash={r.cash} credit={r.voucherCredit} />
     </section>
@@ -120,7 +123,7 @@ function ReturnDetail({ r, o, w }: { r: ReturnRequest; o: Order; w: World }) {
 
   if (layout === 'app')
     return (
-      <div className="space-y-3 pb-10">
+      <div className="space-y-2 pb-10">
         <PageTitle className="sr-only">Chi tiết trả hàng</PageTitle>
         {status}{panel}{timeline}{summary}
       </div>
@@ -128,9 +131,9 @@ function ReturnDetail({ r, o, w }: { r: ReturnRequest; o: Order; w: World }) {
   return (
     <div className="mx-auto max-w-[1120px] pb-12">
       <Link to={`/orders/${o.id}`} className="inline-flex min-h-11 items-center gap-1.5 text-[14px] text-ink-2 no-underline hover:text-ink"><ArrowLeft size={16} aria-hidden />Chi tiết đơn hàng</Link>
-      <PageTitle className="mb-5">Chi tiết trả hàng</PageTitle>
-      <div className="grid grid-cols-[minmax(0,1fr)_360px] items-start gap-8">
-        <div className="space-y-4">{status}{panel}{timeline}</div>
+      <PageTitle className="mb-4">Chi tiết trả hàng</PageTitle>
+      <div className="grid grid-cols-[minmax(0,1fr)_360px] items-start gap-4">
+        <div className="space-y-3">{status}{panel}{timeline}</div>
         <aside className="sticky top-[132px]">{summary}</aside>
       </div>
     </div>
@@ -177,7 +180,7 @@ function ShippingPanel({ r, shopName, legalName, address, now }: { r: ReturnRequ
   return (
     <section aria-labelledby="ship-back" className={block}>
       <h2 id="ship-back" className={h2}>Gửi hàng trả</h2>
-      <p className={cx('tabular mt-2 text-[15px] font-semibold', d.urgent ? 'text-jade-ink' : 'text-ink')}>{d.text}</p>
+      <p className={cx('tabular mt-2 text-[15px] font-semibold', d.urgent ? 'text-accent-ink' : 'text-ink')}>{d.text}</p>
       <div className="mt-3 text-[14px]">
         <p className="text-[13px] text-muted">Địa chỉ trả hàng</p>
         <p className="font-medium break-words">{shopName}</p>

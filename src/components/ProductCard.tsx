@@ -74,7 +74,7 @@ export function ProductGrid({ products: raw, eagerFirst = 0 }: { products: Produ
 export function ProductRail({ products: raw, label }: { products: Product[]; label: string }) {
   const products = spreadSiblings(raw, (p) => p)
   return (
-    <ul aria-label={label} className="no-scrollbar -mx-4 flex snap-x gap-2 overflow-x-auto px-4 lg:mx-0 lg:grid lg:grid-cols-5 lg:gap-3 lg:overflow-visible lg:px-0 xl:grid-cols-6" role="list">
+    <ul aria-label={label} className="no-scrollbar -mx-3 flex snap-x gap-2 overflow-x-auto px-3 lg:mx-0 lg:grid lg:grid-cols-5 lg:gap-3 lg:overflow-visible lg:px-0 xl:grid-cols-6" role="list">
       {products.map((p) => <li key={p.id} className="w-[40%] shrink-0 snap-start md:w-[28%] lg:w-auto"><ProductCard product={p} /></li>)}
     </ul>
   )

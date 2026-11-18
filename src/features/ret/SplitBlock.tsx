@@ -10,8 +10,8 @@ export function RefundSplitBlock({ o, lineIds, cash, credit }: { o: Order; lineI
   const shipPaid = o.shippingFee - o.shippingDiscount
   const muted = (t: string) => <span className="text-muted">{t}</span>
   return (
-    <div className="rounded-[14px] border border-line bg-surface p-4">
-      <h3 className="mb-3 font-display text-[17px] font-semibold">Số tiền hoàn</h3>
+    <div className="panel p-4 lg:p-5">
+      <h3 className="mb-3 font-display text-[16px]">Số tiền hoàn</h3>
       <MoneyFold label="Hoàn tiền về tài khoản" total={cash ?? s.cash} defaultOpen size="md" lines={[
         { label: 'Tiền hàng', amount: s.goods },
         ...(s.shopShare ? [{ label: muted('Voucher của Shop (không hoàn)'), amount: s.shopShare, tone: 'minus' as const }] : []),
@@ -20,7 +20,7 @@ export function RefundSplitBlock({ o, lineIds, cash, credit }: { o: Order; lineI
       ]} footnote={!all && shipPaid > 0 ? `Phí vận chuyển ${vnd(shipPaid)} chỉ được hoàn khi trả toàn bộ đơn.` : undefined} />
       {(credit ?? s.voucherCredit) > 0 && (
         <p className="mt-3 flex justify-between gap-4 border-t border-line pt-3 text-[14px]">
-          <span>Hoàn vào Kho voucher: Voucher Market</span><strong className="tabular font-semibold whitespace-nowrap">{vnd(credit ?? s.voucherCredit)}</strong>
+          <span>Hoàn vào Kho voucher: Voucher Market</span><strong className="tabular font-bold whitespace-nowrap text-accent">{vnd(credit ?? s.voucherCredit)}</strong>
         </p>
       )}
     </div>

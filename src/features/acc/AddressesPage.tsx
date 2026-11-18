@@ -10,7 +10,7 @@ import { AccountNav } from './AccountNav'
 import { AddressFormSheet } from './AddressForm'
 
 const Tag = ({ children, strong }: { children: string; strong?: boolean }) => (
-  <span className={cx('rounded-full px-2 py-0.5 text-[11px] font-semibold', strong ? 'bg-jade-soft text-jade-ink' : 'bg-well text-ink-2')}>{children}</span>
+  <span className={cx('rounded-[4px] px-1.5 py-px text-[11px] font-semibold ring-1 ring-inset', strong ? 'text-accent-ink ring-accent' : 'text-ink-2 ring-line-strong')}>{children}</span>
 )
 
 export default function AddressesPage() {
@@ -38,11 +38,11 @@ export default function AddressesPage() {
   )
 
   const body = !loaded ? (
-    <div aria-busy="true" aria-label="Đang tải" className="divide-y divide-line">{[0, 1, 2].map((i) => <div key={i} className="space-y-2 py-4"><Skeleton className="h-4 w-56" /><Skeleton className="h-4 w-4/5" /></div>)}</div>
+    <div role="status" aria-busy="true" aria-label="Đang tải" className="panel divide-y divide-line px-4 lg:px-5">{[0, 1, 2].map((i) => <div key={i} className="space-y-2 py-4"><Skeleton className="h-4 w-56" /><Skeleton className="h-4 w-4/5" /></div>)}</div>
   ) : !list.length ? (
-    <EmptyState icon={<MapPin size={24} />} title="Bạn chưa có địa chỉ nào" action={<Button onClick={() => setForm({})}>Thêm địa chỉ mới</Button>} />
+    <div className="panel"><EmptyState icon={<MapPin size={24} />} title="Bạn chưa có địa chỉ nào" action={<Button onClick={() => setForm({})}>Thêm địa chỉ mới</Button>} /></div>
   ) : (
-    <ul className={cx('divide-y divide-line', !web && '-mx-4 bg-surface px-4')}>
+    <ul className="panel divide-y divide-line px-4 lg:px-5">
       {list.map((a) => {
         const can = canDeleteAddress(a, w.addresses)
         const info = (
@@ -59,7 +59,7 @@ export default function AddressesPage() {
                 <div className="min-w-0 flex-1">{info}</div>
                 <div className="flex shrink-0 flex-col items-end gap-1">
                   <div className="flex gap-4 text-[13px]">
-                    <button type="button" className="font-semibold text-jade-ink hover:underline" onClick={() => setForm({ address: a })}>Sửa</button>
+                    <button type="button" className="font-semibold text-accent-ink hover:underline" onClick={() => setForm({ address: a })}>Sửa</button>
                     <button type="button" className="text-ink-2 hover:text-ink disabled:cursor-not-allowed disabled:text-muted" disabled={!can.ok} aria-describedby={!can.ok ? `del-${a.id}` : undefined} onClick={() => setDel(a)}>Xóa</button>
                   </div>
                   {!can.ok && <p id={`del-${a.id}`} className="max-w-[260px] text-right text-[12px] text-muted">{can.reason}</p>}
@@ -88,10 +88,10 @@ export default function AddressesPage() {
   })() : undefined
 
   return (
-    <div className={cx(web ? 'grid grid-cols-[240px_minmax(0,1fr)] gap-10 pb-12' : 'pb-[calc(96px+env(safe-area-inset-bottom))]')}>
+    <div className={cx(web ? 'grid grid-cols-[220px_minmax(0,1fr)] gap-6 pb-12' : 'pb-[calc(96px+env(safe-area-inset-bottom))]')}>
       {web && <AccountNav />}
       <div className="min-w-0">
-        <div className={cx('flex items-start justify-between gap-4', web ? 'mb-3' : 'sr-only')}>
+        <div className={cx('flex items-center justify-between gap-4', web ? 'panel mb-3 px-5 py-4' : 'sr-only')}>
           <PageTitle>Địa chỉ của tôi</PageTitle>
           {web && list.length > 0 && addBtn}
         </div>

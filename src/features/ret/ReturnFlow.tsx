@@ -37,7 +37,9 @@ function Flow({ o, w }: { o: Order; w: World }) {
   const step = resolveStep(params.get('step'), draft)
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
-  useEffect(() => { if (params.get('step') !== step) setParams({ step }, { replace: true }) }, [step]) // eslint-disable-line react-hooks/exhaustive-deps
+  // Only sync ?step while this flow will render; otherwise the redirects below must win (setParams would undo them).
+  const redirecting = (!!draft.submittedId && step !== 'result') || (!!o.returnId && !draft.submittedId) || (!draft.submittedId && o.status !== 'delivered' && o.status !== 'completed')
+  useEffect(() => { if (!redirecting && params.get('step') !== step) setParams({ step }, { replace: true }) }, [step, redirecting]) // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => setError(''), [step])
 
   if (draft.submittedId && step !== 'result') return <Navigate to={`/returns/${draft.submittedId}`} replace />
@@ -66,8 +68,8 @@ function Flow({ o, w }: { o: Order; w: World }) {
   if (step === 'result') {
     drafts.delete(o.id)
     return (
-      <div className="mx-auto max-w-[640px] py-10 text-center">
-        <CheckCircle2 size={40} className="mx-auto text-jade" aria-hidden />
+      <div className="panel mx-auto max-w-[640px] px-5 py-10 text-center">
+        <span className="mx-auto flex size-16 items-center justify-center rounded-full bg-accent-soft text-accent" aria-hidden><CheckCircle2 size={32} /></span>
         <PageTitle className="mt-4">Đã gửi yêu cầu trả hàng/hoàn tiền</PageTitle>
         <p className="mt-2 text-[14px] text-ink-2">Market sẽ phản hồi trong 3–5 ngày làm việc.</p>
         <p className="mt-3 flex items-center justify-center gap-2 text-[13px] text-muted">Mã yêu cầu <span className="tabular font-medium text-ink">{draft.submittedId}</span><CopyButton text={draft.submittedId!} /></p>
@@ -85,7 +87,7 @@ function Flow({ o, w }: { o: Order; w: World }) {
         return (
           <li key={s} className="flex items-center gap-2" aria-current={s === step ? 'step' : undefined}>
             {i > 0 && <span aria-hidden className="text-line-strong">·</span>}
-            <span className={cx(s === step ? 'font-semibold text-ink' : 'text-muted')}>{i + 1} {STEP_LABEL[s]}{skipped && ' (Không cần)'}</span>
+            <span className={cx(s === step ? 'font-semibold text-accent-ink' : 'text-muted')}>{i + 1} {STEP_LABEL[s]}{skipped && ' (Không cần)'}</span>
           </li>
         )
       })}
@@ -106,10 +108,12 @@ function Flow({ o, w }: { o: Order; w: World }) {
 
   return (
     <div className={cx('mx-auto max-w-[640px]', layout === 'app' ? 'pb-28' : 'pb-12')}>
-      <PageTitle className={layout === 'app' ? 'sr-only' : undefined}>Yêu cầu trả hàng/hoàn tiền</PageTitle>
-      <div className="mt-2 flex flex-wrap items-center gap-x-2 text-[13px] text-muted"><ShopName w={w} shopId={o.shopId} link={false} className="text-[13px]" /><span>· Đơn {o.id}</span></div>
-      <div className="mt-3 border-b border-line pb-3">{indicator}</div>
-      <section className="mt-5" aria-label={STEP_LABEL[step]}>
+      <div className="panel px-4 py-3 lg:px-5 lg:py-4">
+        <PageTitle className={layout === 'app' ? 'sr-only' : undefined}>Yêu cầu trả hàng/hoàn tiền</PageTitle>
+        <div className="mt-1 flex flex-wrap items-center gap-x-2 text-[13px] text-muted lg:mt-2"><ShopName w={w} shopId={o.shopId} link={false} className="text-[13px]" /><span>· Đơn {o.id}</span></div>
+        <div className="mt-3 border-t border-line pt-3">{indicator}</div>
+      </div>
+      <section className="mt-3" aria-label={STEP_LABEL[step]}>
         {step === 'items' && <ItemsStep o={o} w={w} draft={draft} setDraft={setDraft} />}
         {step === 'reason' && <ReasonStep draft={draft} setDraft={setDraft} />}
         {step === 'evidence' && (
@@ -122,15 +126,15 @@ function Flow({ o, w }: { o: Order; w: World }) {
       </section>
       {layout === 'app'
         ? <div className="fixed inset-x-0 bottom-0 z-40 bg-surface px-4 py-3 pb-[max(12px,env(safe-area-inset-bottom))] shadow-[var(--shadow-bar)]">{footer}</div>
-        : <div className="mt-8 border-t border-line pt-4">{footer}</div>}
+        : <div className="panel mt-3 px-5 py-4">{footer}</div>}
     </div>
   )
 }
 
 function Group({ title, hint, children }: { title: string; hint?: ReactNode; children: ReactNode }) {
   return (
-    <div className="space-y-3">
-      <div><h2 className="font-display text-[19px] font-semibold">{title}</h2>{hint && <p className="mt-1 text-[13px] text-muted">{hint}</p>}</div>
+    <div className="panel space-y-3 p-4 lg:p-5">
+      <div><h2 className="font-display text-[18px]">{title}</h2>{hint && <p className="mt-1 text-[13px] text-muted">{hint}</p>}</div>
       {children}
     </div>
   )
@@ -142,11 +146,11 @@ function ItemsStep({ o, w, draft, setDraft }: StepProps & { o: Order; w: World }
   const toggle = (id: string, on: boolean) => setDraft({ lineIds: on ? [...draft.lineIds, id] : draft.lineIds.filter((x) => x !== id) })
   return (
     <Group title="Chọn sản phẩm cần trả" hint="Trả nguyên dòng sản phẩm, theo số lượng đã mua.">
-      <ul className="divide-y divide-line rounded-[14px] bg-surface px-4">
+      <ul className="divide-y divide-line">
         {o.lines.map((l) => (
           <li key={l.id}>
             <label className="flex cursor-pointer items-start gap-3 py-3.5">
-              <input type="checkbox" checked={draft.lineIds.includes(l.id)} onChange={(e) => toggle(l.id, e.target.checked)} className="mt-6 size-5 shrink-0 accent-[var(--color-jade)]" aria-label={l.name} />
+              <input type="checkbox" checked={draft.lineIds.includes(l.id)} onChange={(e) => toggle(l.id, e.target.checked)} className="mt-6 size-5 shrink-0 accent-[var(--color-accent)]" aria-label={l.name} />
               <LineRow line={l} w={w} link={false} className="min-w-0 flex-1" />
             </label>
           </li>
@@ -158,42 +162,38 @@ function ItemsStep({ o, w, draft, setDraft }: StepProps & { o: Order; w: World }
 
 function ReasonStep({ draft, setDraft }: StepProps) {
   return (
-    <div className="space-y-6">
-      <Group title="Lý do trả hàng">
-        <fieldset className="rounded-[14px] bg-surface px-4">
+    <Group title="Lý do trả hàng">
+        <fieldset className="space-y-2">
           <legend className="sr-only">Lý do trả hàng</legend>
           {REASONS.map((r) => (
-            <label key={r.id} className="flex min-h-14 cursor-pointer items-center gap-3 border-b border-line last:border-0">
-              <input type="radio" name="return-reason" checked={draft.reason === r.id} onChange={() => setDraft({ reason: r.id, solution: allowedSolutions(r.id).includes(draft.solution!) ? draft.solution : undefined })} className="size-[18px] shrink-0 accent-[var(--color-jade)]" />
+            <Radio key={r.id} name="return-reason" checked={draft.reason === r.id} onChange={() => setDraft({ reason: r.id, solution: allowedSolutions(r.id).includes(draft.solution!) ? draft.solution : undefined })}>
               <span className="text-[14px]">{r.label}</span>
-            </label>
+            </Radio>
           ))}
         </fieldset>
-      </Group>
       {draft.reason === 'changed_mind' && (
-        <div className="space-y-1 rounded-[12px] bg-well px-4 py-2">
+        <div className="space-y-1 rounded-[var(--radius-control)] bg-well px-4 py-2">
           <label className="flex min-h-11 cursor-pointer items-center gap-3 text-[14px]">
-            <input type="checkbox" checked={draft.intact} onChange={(e) => setDraft({ intact: e.target.checked })} className="size-5 shrink-0 accent-[var(--color-jade)]" />
+            <input type="checkbox" checked={draft.intact} onChange={(e) => setDraft({ intact: e.target.checked })} className="size-5 shrink-0 accent-[var(--color-accent)]" />
             Sản phẩm còn nguyên tem, nhãn và bao bì
           </label>
           <p className="pb-1 text-[13px] text-ink-2">Market không hỗ trợ đổi hàng, chỉ hoàn tiền.</p>
         </div>
       )}
-      <div>
+      <div className="pt-2">
         <label htmlFor="return-desc" className="mb-1.5 block text-[13px] font-medium text-ink-2">Mô tả chi tiết</label>
         <textarea id="return-desc" rows={4} maxLength={DESCRIPTION_MAX} value={draft.description} onChange={(e) => setDraft({ description: e.target.value })}
-          className="w-full resize-y rounded-[10px] bg-surface px-3.5 py-2.5 text-[14px] leading-relaxed ring-1 ring-line-strong outline-none ring-inset focus:ring-2 focus:ring-jade" />
+          className="w-full resize-y rounded-[var(--radius-control)] bg-surface px-3.5 py-2.5 text-[14px] leading-relaxed ring-1 ring-line-strong outline-none ring-inset focus:ring-2 focus:ring-accent" />
         <p className="text-right text-[12px] text-muted tabular">{draft.description.length}/{DESCRIPTION_MAX}</p>
       </div>
-    </div>
+    </Group>
   )
 }
 
 function RefundStep({ o, draft, setDraft }: StepProps & { o: Order }) {
   return (
-    <div className="space-y-6">
-      <Group title="Cách hoàn tiền">
-        <div className="space-y-2.5">
+    <Group title="Cách hoàn tiền">
+        <div className="space-y-2">
           {allowedSolutions(draft.reason).map((s) => (
             <Radio key={s} name="solution" checked={draft.solution === s} onChange={() => setDraft({ solution: s })}>
               <span className="block text-[15px] font-semibold">{SOLUTION[s].title}</span>
@@ -201,12 +201,11 @@ function RefundStep({ o, draft, setDraft }: StepProps & { o: Order }) {
             </Radio>
           ))}
         </div>
-      </Group>
-      <div>
+      <div className="border-t border-line pt-3">
         <h3 className="text-[13px] font-medium text-muted">Hoàn tiền về</h3>
         <p className="mt-1 text-[14px]">{returnDestinationCopy(o.paymentMethod)}</p>
       </div>
-    </div>
+    </Group>
   )
 }
 
@@ -215,12 +214,12 @@ function ConfirmStep({ o, w, draft, expired }: { o: Order; w: World; draft: Draf
   const lines = o.lines.filter((l) => draft.lineIds.includes(l.id))
   const dt = 'text-[13px] text-muted'
   return (
-    <div className="space-y-5">
-      {expired && <p role="alert" className="rounded-[12px] bg-well px-4 py-3 text-[14px] font-medium">Đã hết hạn yêu cầu trả hàng/hoàn tiền.</p>}
+    <div className="space-y-3">
+      {expired && <p role="alert" className="rounded-[var(--radius-card)] bg-danger-soft px-4 py-3 text-[14px] font-medium text-danger">Đã hết hạn yêu cầu trả hàng/hoàn tiền.</p>}
       <Group title="Kiểm tra yêu cầu">
-        <ul className="divide-y divide-line rounded-[14px] bg-surface px-4">{lines.map((l) => <li key={l.id} className="py-3"><LineRow line={l} w={w} link={false} /></li>)}</ul>
+        <ul className="divide-y divide-line">{lines.map((l) => <li key={l.id} className="py-3"><LineRow line={l} w={w} link={false} /></li>)}</ul>
       </Group>
-      <dl className="space-y-3 rounded-[14px] bg-surface p-4 text-[14px]">
+      <dl className="panel space-y-3 p-4 text-[14px] lg:p-5">
         <div><dt className={dt}>Lý do</dt><dd>{reasonLabel(draft.reason!)}</dd></div>
         {draft.description.trim() && (
           <div>

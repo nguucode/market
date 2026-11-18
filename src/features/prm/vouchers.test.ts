@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest'
 import type { SavedVoucher, Voucher } from '@/domain/types'
-import { claimFailText, describeVoucher, hubList, pickHomeVouchers, usesLeftLine, applyTarget, voucherCapLine, voucherExpiry, voucherOffer, voucherTileState } from './vouchers'
+import { claimFailText, describeVoucher, hubList, pickHomeVouchers, usesLeftLine, applyTarget, voucherCapLine, voucherExpiry, voucherOffer, voucherStubValue, voucherTileState } from './vouchers'
 
 /** A wall-clock time in Vietnam (UTC+7), so tests pass in any runner timezone. */
 const vnt = (y: number, mo: number, d: number, h = 0, mi = 0) => Date.UTC(y, mo, d, h, mi) - 7 * 3_600_000
@@ -120,4 +120,11 @@ describe('describeVoucher', () => {
     expect(r['Ưu đãi'].value).toBe('Giảm phí vận chuyển tối đa 25.000₫ mỗi shop')
     expect(r['Áp dụng cho'].value).toBe('Phí vận chuyển của mọi shop trong đơn')
   })
+})
+
+test('voucherStubValue', () => {
+  expect(voucherStubValue(v({ id: 'a' }))).toBe('30K')
+  expect(voucherStubValue(v({ id: 'a', value: 1_500_000 }))).toBe('1,5Tr')
+  expect(voucherStubValue(v({ id: 'a', kind: 'percent', value: 15 }))).toBe('15%')
+  expect(voucherStubValue(v({ id: 'a', scope: 'shipping' }))).toBeUndefined()
 })

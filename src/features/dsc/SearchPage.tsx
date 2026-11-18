@@ -19,7 +19,7 @@ export default function SearchPage() {
 
   if (layout === 'web' && empty)
     return (
-      <div className="mx-auto max-w-[720px] pt-6">
+      <div className="panel mx-auto max-w-[760px] p-6">
         <PageTitle className="mb-5">Tìm kiếm</PageTitle>
         <SearchCombo mode="page" autoFocus />
       </div>
@@ -38,11 +38,11 @@ export default function SearchPage() {
       title={(count) => (
         <>
           {layout === 'app' && (
-            <button type="button" onClick={() => setEditing(true)} className="mb-3 flex h-11 w-full items-center gap-2.5 rounded-full bg-surface px-4 text-left text-[15px] ring-1 ring-inset ring-line-strong" aria-label={`Sửa tìm kiếm: ${q}`}>
-              <Search size={18} aria-hidden /><span className="min-w-0 truncate">{q || 'Tìm sản phẩm, shop…'}</span>
+            <button type="button" onClick={() => setEditing(true)} className="mb-3 flex h-11 w-full items-center gap-2.5 rounded-[var(--radius-control)] bg-surface px-3.5 text-left text-[15px] ring-2 ring-inset ring-accent" aria-label={`Sửa tìm kiếm: ${q}`}>
+              <Search size={18} aria-hidden className="shrink-0 text-muted" /><span className="min-w-0 truncate">{q || 'Tìm sản phẩm, shop…'}</span>
             </button>
           )}
-          <SearchHeading q={q} count={count} />
+          <SearchHeading q={q} count={layout === 'app' ? count : undefined} />
         </>
       )}
     />

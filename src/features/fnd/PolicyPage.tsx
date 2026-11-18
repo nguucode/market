@@ -36,11 +36,11 @@ export default function PolicyPage() {
   const p = Object.hasOwn(PAGES, slug) ? PAGES[slug] : undefined
   if (!p) return <NotFound />
   return (
-    <article className="mx-auto max-w-[68ch] pb-10">
+    <article className="panel mx-auto mb-10 max-w-[760px] p-5 lg:px-10 lg:py-8">
       <PageTitle>{p.title}</PageTitle>
-      <div className="mt-5 space-y-4 text-[15px] leading-7 text-ink-2">{p.body.map((x, i) => <p key={i}>{x}</p>)}</div>
+      <div className="mt-5 max-w-[68ch] space-y-4 text-[15px] leading-7 text-ink-2">{p.body.map((x, i) => <p key={i}>{x}</p>)}</div>
       <nav aria-label="Trang chính sách khác" className="mt-8 flex flex-wrap gap-x-4 gap-y-2 border-t border-line pt-4 text-[13px]">
-        {Object.entries(PAGES).filter(([s]) => s !== slug).map(([s, x]) => <Link key={s} to={`/policies/${s}`}>{x.title}</Link>)}
+        {Object.entries(PAGES).filter(([s]) => s !== slug).map(([s, x]) => <Link key={s} to={`/policies/${s}`} className="text-accent-ink no-underline hover:underline">{x.title}</Link>)}
       </nav>
     </article>
   )

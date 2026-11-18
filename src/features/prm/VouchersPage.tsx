@@ -30,24 +30,24 @@ export default function VouchersPage() {
   useEffect(() => { tabsRef.current?.querySelector('[aria-selected="true"]')?.scrollIntoView({ block: 'nearest', inline: 'nearest' }) }, [tab])
 
   return (
-    <div className="mx-auto max-w-[960px] pb-8">
-      <PageTitle className="mb-2 max-lg:sr-only lg:mb-4 lg:text-[36px]!">Kho voucher</PageTitle>
-      <div ref={tabsRef} className="sticky top-14 z-30 -mx-4 bg-ground px-4 lg:static lg:mx-0 lg:px-0">
-        <Tabs label="Loại voucher" value={tab} items={HUB_TABS.map((x) => ({ id: x.id, label: x.label }))}
+    <div className="mx-auto max-w-[1040px] pb-8">
+      <PageTitle className="mb-3 max-lg:sr-only">Kho voucher</PageTitle>
+      <div ref={tabsRef} className="sticky top-14 z-30 -mx-3 bg-surface px-1 lg:static lg:mx-0 lg:rounded-[var(--radius-card)] lg:px-3">
+        <Tabs className="border-b-0!" label="Loại voucher" value={tab} items={HUB_TABS.map((x) => ({ id: x.id, label: x.label }))}
           onChange={(id) => setSp((p) => { p.set('tab', id); p.delete('voucher'); return p }, { replace: true })} />
       </div>
-      {vid && !deepValid && <p role="status" className="mt-4 rounded-[10px] bg-well px-4 py-3 text-[14px] text-ink-2">Voucher không còn hiệu lực.</p>}
-      <div role="tabpanel" aria-label={HUB_TABS.find((x) => x.id === tab)!.label} className="mt-4">
+      {vid && !deepValid && <p role="status" className="panel mt-2 px-4 py-3 text-[14px] text-ink-2 lg:mt-3">Voucher không còn hiệu lực.</p>}
+      <div role="tabpanel" aria-label={HUB_TABS.find((x) => x.id === tab)!.label} className="mt-2 lg:mt-3">
         {!ready ? (
-          <ul role="list" aria-busy="true" aria-label="Đang tải" className="grid grid-cols-1 gap-3 lg:grid-cols-2">
-            {Array.from({ length: 6 }, (_, i) => <li key={i}><Skeleton className="h-[132px] w-full rounded-[12px]" /></li>)}
+          <ul role="list" aria-busy="true" aria-label="Đang tải" className="grid grid-cols-1 gap-2 lg:grid-cols-2 lg:gap-3">
+            {Array.from({ length: 6 }, (_, i) => <li key={i}><Skeleton className="h-[120px] w-full" /></li>)}
           </ul>
         ) : items.length === 0 ? (
-          tab === 'expiring' ? <EmptyState title="Không có voucher nào sắp hết hạn." />
-            : <EmptyState title="Bạn chưa có voucher nào ở đây." action={tab === 'all' && <ButtonLink to="/">Khám phá sản phẩm</ButtonLink>} />
+          tab === 'expiring' ? <EmptyState className="panel max-w-none!" title="Không có voucher nào sắp hết hạn." />
+            : <EmptyState className="panel max-w-none!" title="Bạn chưa có voucher nào ở đây." action={tab === 'all' && <ButtonLink to="/">Khám phá sản phẩm</ButtonLink>} />
         ) : (
           <>
-            <ul role="list" className="grid grid-cols-1 gap-3 lg:grid-cols-2">
+            <ul role="list" className="grid grid-cols-1 gap-2 lg:grid-cols-2 lg:gap-3">
               {items.slice(0, n).map(({ voucher }) => <li key={voucher.id}><VoucherTile voucher={voucher} className="h-full" /></li>)}
             </ul>
             {items.length > n && (

@@ -44,18 +44,18 @@ export function PhotoPicker({ photos, onChange, max = 5, counted = 0, samples = 
     <div>
       <ul className="flex flex-wrap gap-2" aria-label="Ảnh đã thêm">
         {photos.map((p, i) => (
-          <li key={i} className={cx('relative overflow-hidden rounded-[10px] bg-well', tile)}>
+          <li key={i} className={cx('relative overflow-hidden rounded-[var(--radius-control)] bg-well', tile)}>
             <img src={p} alt={`Ảnh ${counted + i + 1}`} className="size-full object-cover" />
             <button type="button" onClick={() => onChange(photos.filter((_, j) => j !== i))} aria-label={`Xóa ảnh ${counted + i + 1}`}
-              className="absolute top-0 right-0 flex size-8 items-center justify-center rounded-bl-[10px] bg-ink/70 text-white hover:bg-ink">
+              className="absolute top-0 right-0 flex size-8 items-center justify-center rounded-bl-[var(--radius-control)] bg-ink/70 text-white hover:bg-ink">
               <X size={14} aria-hidden />
             </button>
           </li>
         ))}
-        {Array.from({ length: pending }, (_, i) => <li key={`p${i}`} className={tile}><Skeleton className="size-full rounded-[10px]" /></li>)}
+        {Array.from({ length: pending }, (_, i) => <li key={`p${i}`} className={tile}><Skeleton className="size-full" /></li>)}
         {room > 0 && (
           <li className={tile}>
-            <label htmlFor={id} className="flex size-full cursor-pointer flex-col items-center justify-center gap-1 rounded-[10px] text-center text-[11px] leading-tight text-ink-2 ring-1 ring-line-strong ring-inset hover:bg-well focus-within:ring-2 focus-within:ring-jade">
+            <label htmlFor={id} className="flex size-full cursor-pointer flex-col items-center justify-center gap-1 rounded-[var(--radius-control)] text-center text-[11px] leading-tight text-ink-2 ring-1 ring-line-strong ring-inset [border-style:dashed] hover:bg-well hover:text-accent-ink focus-within:ring-2 focus-within:ring-accent">
               <ImagePlus size={20} aria-hidden />
               <span>{label} ({total}/{max})</span>
             </label>
@@ -65,7 +65,7 @@ export function PhotoPicker({ photos, onChange, max = 5, counted = 0, samples = 
         )}
       </ul>
       {unusedSample && room > 0 && (
-        <button type="button" onClick={() => onChange([...photos, unusedSample])} className="mt-2 min-h-11 text-[13px] font-semibold text-jade-ink hover:underline">
+        <button type="button" onClick={() => onChange([...photos, unusedSample])} className="mt-2 min-h-11 text-[13px] font-semibold text-accent-ink hover:underline">
           Dùng ảnh mẫu
         </button>
       )}

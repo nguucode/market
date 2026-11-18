@@ -4,11 +4,11 @@ import { useEffect, useState } from 'react'
 import { Link, useParams, useSearchParams } from 'react-router'
 import { useLayout } from '@/app/layout'
 import { delay, productBySlug, skuById, useWorld } from '@/app/store'
-import { Button, Chip, EmptyState, PageTitle, Sheet, Skeleton, Stars, useLoaded } from '@/components/ui'
+import { Button, Chip, EmptyState, PageTitle, Sheet, Skeleton, useLoaded } from '@/components/ui'
 import { variantText } from '@/mock/seed'
 import NotFound from '@/features/demo/NotFound'
 import { filterReviews, parseReviewParams, reviewSummary } from './pdp'
-import { Distribution, ReviewItem } from './Reviews'
+import { RatingOverview, ReviewItem } from './Reviews'
 
 const PAGE = 10
 
@@ -48,24 +48,18 @@ export default function ReviewsPage() {
   const none = !params.star && !params.media && !params.comment && !params.sku
 
   return (
-    <div className="mx-auto max-w-[760px] pb-16">
-      <p className="mb-1 truncate text-[13px] text-muted"><Link to={`/p/${product.slug}`} className="text-ink-2 hover:text-ink">{product.name}</Link></p>
+    <div className="mx-auto max-w-[960px] pb-16">
+      <p className="mb-1 truncate text-[13px] text-muted"><Link to={`/p/${product.slug}`} className="text-ink-2 hover:text-accent-ink">{product.name}</Link></p>
       <PageTitle>Đánh giá</PageTitle>
       {!ready ? (
-        <div className="mt-6 space-y-6" aria-busy="true" aria-label="Đang tải">{[0, 1, 2].map((i) => <div key={i} className="space-y-2"><Skeleton className="h-4 w-1/3" /><Skeleton className="h-4 w-full" /><Skeleton className="h-4 w-2/3" /></div>)}</div>
+        <div className="panel mt-4 space-y-6 p-4 lg:p-6" role="status" aria-busy="true" aria-label="Đang tải">{[0, 1, 2].map((i) => <div key={i} className="space-y-2"><Skeleton className="h-4 w-1/3" /><Skeleton className="h-4 w-full" /><Skeleton className="h-4 w-2/3" /></div>)}</div>
       ) : !s.count ? (
-        <EmptyState title="Chưa có đánh giá nào cho sản phẩm này" />
+        <div className="panel mt-4"><EmptyState title="Chưa có đánh giá nào cho sản phẩm này" /></div>
       ) : (
-        <>
-          <div className="mt-5 grid gap-6 lg:grid-cols-[200px_minmax(0,1fr)] lg:items-center">
-            <div>
-              <p className="font-display text-[36px] leading-none font-semibold lg:text-[40px]">{s.avg.toLocaleString('vi-VN')}<span className="ml-1 font-sans text-[15px] font-normal text-muted">trên 5</span></p>
-              <Stars value={s.avg} size={16} count={s.count} className="mt-2" />
-            </div>
-            <Distribution byStar={s.byStar} count={s.count} />
-          </div>
+        <div className="panel mt-4 p-4 lg:p-6">
+          <RatingOverview avg={s.avg} byStar={s.byStar} count={s.count} />
 
-          <div role="group" aria-label="Lọc đánh giá" className="no-scrollbar -mx-4 mt-6 flex gap-2 overflow-x-auto px-4 pb-1 lg:mx-0 lg:flex-wrap lg:px-0">
+          <div role="group" aria-label="Lọc đánh giá" className="no-scrollbar -mx-4 mt-4 flex gap-2 overflow-x-auto px-4 pb-1 lg:mx-0 lg:flex-wrap lg:px-0">
             <Chip selected={none} onClick={() => setQ(new URLSearchParams(), { replace: true })}>Tất cả</Chip>
             {[5, 4, 3, 2, 1].map((n) => (
               <Chip key={n} selected={params.star === n} onClick={() => set({ star: params.star === n ? null : String(n) })}>{n} Sao ({s.byStar[n - 1]})</Chip>
@@ -86,17 +80,17 @@ export default function ReviewsPage() {
 
           <Sheet open={skuSheet} onOpenChange={setSkuSheet} title="Phân loại" dialog={layout === 'web'}>
             <ul className="space-y-1">
-              <li><button type="button" onClick={() => { set({ sku: null }); setSkuSheet(false) }} className="flex min-h-11 w-full items-center rounded-[10px] px-3 text-left text-[14px] hover:bg-well" aria-pressed={!params.sku}>Tất cả phân loại</button></li>
+              <li><button type="button" onClick={() => { set({ sku: null }); setSkuSheet(false) }} className="flex min-h-11 w-full items-center rounded-[var(--radius-control)] px-3 text-left text-[14px] hover:bg-well aria-pressed:bg-accent-soft aria-pressed:font-semibold aria-pressed:text-accent-ink" aria-pressed={!params.sku}>Tất cả phân loại</button></li>
               {skuIds.map((id) => (
                 <li key={id}>
-                  <button type="button" onClick={() => { set({ sku: id }); setSkuSheet(false) }} aria-pressed={params.sku === id} className="flex min-h-11 w-full items-center justify-between gap-3 rounded-[10px] px-3 text-left text-[14px] hover:bg-well aria-pressed:font-semibold">
+                  <button type="button" onClick={() => { set({ sku: id }); setSkuSheet(false) }} aria-pressed={params.sku === id} className="flex min-h-11 w-full items-center justify-between gap-3 rounded-[var(--radius-control)] px-3 text-left text-[14px] hover:bg-well aria-pressed:bg-accent-soft aria-pressed:font-semibold aria-pressed:text-accent-ink">
                     <span className="min-w-0">{skuLabel(id)}</span><span className="tabular text-[12px] text-muted">{all.filter((r) => r.skuId === id).length}</span>
                   </button>
                 </li>
               ))}
             </ul>
           </Sheet>
-        </>
+        </div>
       )}
     </div>
   )
