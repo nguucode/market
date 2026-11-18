@@ -9,7 +9,7 @@ dist
 *.local
 *.tsbuildinfo
 .impeccable/review/
-.scratch/source/
+.scratch/
 
 # wrangler files
 .wrangler
