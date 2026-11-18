@@ -54,12 +54,12 @@ export default function MePage() {
         <ul className="mt-2 grid grid-cols-4 gap-1">
           {shortcuts.map(([label, n, status, Icon]) => (
             <li key={status}>
-              <Link to={`/orders?status=${status}`} className="relative flex min-h-[72px] flex-col items-center justify-center gap-1.5 rounded-[12px] text-center text-[12px] text-ink-2 no-underline hover:bg-well" aria-label={n ? `${label}, ${n} đơn` : label}>
+              <Link to={`/orders?status=${status}`} className="relative flex min-h-[72px] flex-col items-center justify-center gap-1.5 rounded-[12px] text-center text-[12px] text-ink-2 no-underline hover:bg-well">
                 <span className="relative">
                   <Icon size={24} strokeWidth={1.5} aria-hidden className="text-ink" />
                   {n > 0 && <span className="tabular absolute -top-2 left-4 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-well px-1 text-[11px] font-bold text-ink ring-2 ring-surface" aria-hidden>{badgeText(n)}</span>}
                 </span>
-                <span className="leading-tight">{label}</span>
+                <span className="leading-tight">{label}{n > 0 && <span className="sr-only">, {n} đơn</span>}</span>
               </Link>
             </li>
           ))}

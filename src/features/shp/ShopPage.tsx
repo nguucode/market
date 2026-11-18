@@ -158,7 +158,7 @@ function VoucherRow({ shop }: { shop: Shop }) {
           const out = stateOf(v) === 'sold_out' || stateOf(v) === 'used'
           return (
             <li key={v.id} className={cx('flex h-[88px] w-[240px] shrink-0 snap-start items-stretch rounded-[12px] bg-well lg:w-[280px]', out && 'opacity-70')}>
-              <button type="button" onClick={() => setDetail(v)} className="min-w-0 flex-1 px-3.5 py-2.5 text-left" aria-label={`Điều kiện voucher ${voucherLabel(v)}`}>
+              <button type="button" onClick={() => setDetail(v)} className="min-w-0 flex-1 px-3.5 py-2.5 text-left">
                 <span className="block truncate text-[15px] font-bold text-jade">{v.kind === 'percent' ? `Giảm ${v.value}%` : `Giảm ${compactVnd(v.value)}`}</span>
                 <span className="block truncate text-[12px] text-ink-2">{v.kind === 'percent' && v.maxDiscount ? `Giảm tối đa ${compactVnd(v.maxDiscount)} · ` : ''}Đơn tối thiểu {compactVnd(v.minSpend)}</span>
                 <span className="block truncate text-[12px] text-muted">{expiryText(v.endsAt, t)}</span>

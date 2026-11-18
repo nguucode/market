@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router'
 import { useLayout } from '@/app/layout'
 import {
-  cartGroups, defaultAddress, flashFor, lineAmount, removeLines, savedUse, setQty, setSelected, skusOf, startCheckout, updateCheckout, useNow, useWorld, type LineView,
+  cartGroups, defaultAddress, flashFor, lineAmount, lineParts, removeLines, savedUse, setQty, setSelected, skusOf, startCheckout, updateCheckout, useNow, useWorld, type LineView,
 } from '@/app/store'
 import {
   Button, ButtonLink, Checkbox, Confirm, cx, EmptyState, Img, MoneyFold, PageTitle, QtyStepper, Sheet, Skeleton, toast, useLoaded, vnd,
@@ -39,7 +39,7 @@ export default function CartPage() {
   const used = (v: Voucher) => savedUse(w, v.id)
   const inputs = groups.map((g) => ({
     shopId: g.shop.id,
-    lines: g.lines.filter((l) => l.line.selected).map((l) => ({ id: l.line.id, unitPrice: lineAmount(l, w, t) / l.line.qty, qty: l.line.qty, beforePromo: l.before })),
+    lines: g.lines.filter((l) => l.line.selected).flatMap((l) => lineParts(w, l.sku, l.line.qty, t).map((p, j) => ({ id: `${l.line.id}#${j}`, unitPrice: p.price, qty: p.qty, beforePromo: l.before }))),
     vouchers: vouchersOf(g.shop.id),
   }))
   const summary = cartSummary(inputs, choice, { now: t }, used)

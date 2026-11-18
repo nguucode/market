@@ -39,21 +39,28 @@ for (const shot of shots) {
     const r = await send('Runtime.evaluate', { expression: 'document.querySelector("main")?.innerText.length ?? 0', returnByValue: true })
     if (r?.result?.value > 20) break
   }
-  // Product photos come from a CDN: wait until the images in the first two screens have loaded.
-  for (let i = 0; i < 40; i++) {
-    const r = await send('Runtime.evaluate', { expression: `[...document.images].filter((im) => im.getBoundingClientRect().top < ${height * 2} && !im.complete).length`, returnByValue: true })
-    if (!r?.result?.value) break
-    await sleep(250)
+  // Wait for simulated loading to finish (skeletons gone), then scroll through so lazy images load, then wait for images.
+  const settle = async (expr) => { for (let i = 0; i < 60; i++) { const r = await send('Runtime.evaluate', { expression: expr, returnByValue: true }); if (!r?.result?.value) return; await sleep(250) } }
+  await settle('document.querySelectorAll(".skeleton,[aria-busy=true]").length')
+  const fullShot = name.startsWith('full:')
+  const h = (await send('Runtime.evaluate', { expression: 'document.documentElement.scrollHeight', returnByValue: true })).result.value
+  // Full-page: lay the page out at its full height first, so nothing re-renders during the capture.
+  if (fullShot) {
+    await send('Emulation.setDeviceMetricsOverride', { width, height: Math.min(h, 6000), deviceScaleFactor: 2, mobile: width < 640 })
+    await sleep(800)
   }
+  for (let y = 0; y < (fullShot ? Math.min(h, 6000) : height * 2); y += Math.floor(height * 0.8)) {
+    await send('Runtime.evaluate', { expression: `window.scrollTo(0, ${y})` })
+    await sleep(350)
+  }
+  await settle('document.querySelectorAll(".skeleton,[aria-busy=true]").length')
+  await settle(`[...document.images].filter((im) => !im.complete && (im.loading !== 'lazy' || im.getBoundingClientRect().top < ${fullShot ? 6000 : height * 2})).length`)
+  await send('Runtime.evaluate', { expression: 'window.scrollTo(0, 0)' })
+  if (process.env.DEBUG) console.log(name, (await send('Runtime.evaluate', { expression: 'JSON.stringify([document.querySelectorAll(".skeleton").length, document.querySelectorAll("[aria-busy=true]").length, [...document.images].filter(i=>!i.complete).length])', returnByValue: true })).result.value)
   await sleep(500)
-  const full = name.startsWith('full:')
-  const file = full ? name.slice(5) : name
-  let clip
-  if (full) {
-    const m = await send('Page.getLayoutMetrics')
-    clip = { x: 0, y: 0, width, height: Math.min(m.cssContentSize.height, 6000), scale: 1 }
-  }
-  const { data } = await send('Page.captureScreenshot', { format: 'png', ...(clip ? { clip, captureBeyondViewport: true } : {}) })
+  const file = fullShot ? name.slice(5) : name
+  const { data } = await send('Page.captureScreenshot', { format: 'png' })
+  if (fullShot) await send('Emulation.setDeviceMetricsOverride', { width, height, deviceScaleFactor: 2, mobile: width < 640 })
   writeFileSync(join(outDir, `${file}.png`), Buffer.from(data, 'base64'))
   console.log('captured', file)
 }

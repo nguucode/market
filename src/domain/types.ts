@@ -126,6 +126,8 @@ export type OrderLine = {
   beforePromo?: number
   qty: number
   reviewId?: string
+  /** Units bought at a flash-sale price in this slot. */
+  flashSlotId?: string
 }
 export type AppliedVoucher = { voucherId: string; scope: VoucherScope; label: string; code: string; amount: number }
 

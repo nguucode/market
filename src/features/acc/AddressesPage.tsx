@@ -67,7 +67,7 @@ export default function AddressesPage() {
                 </div>
               </div>
             ) : (
-              <button type="button" className="block w-full py-3.5 text-left" onClick={() => setForm({ address: a })} aria-label={`Sửa địa chỉ ${addressLine(a)}`}>{info}</button>
+              <button type="button" className="block w-full py-3.5 text-left" onClick={() => setForm({ address: a })}>{info}<span className="sr-only">Sửa địa chỉ này</span></button>
             )}
           </li>
         )

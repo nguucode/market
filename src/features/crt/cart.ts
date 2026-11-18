@@ -35,7 +35,7 @@ export function cartSummary(shops: CartShopInput[], choice: VoucherChoice, ctx: 
     if (c) return s.vouchers.find((v) => v.id === c)
     return bestVoucher(s.vouchers, goodsOf(s), ctx, undefined, usedBy)
   }
-  const r = price({ shops: shops.map((s) => ({ shopId: s.shopId, lines: s.lines, shippingFee: 0, shopVoucher: pick(s) })), ctx })
+  const r = price({ shops: shops.map((s) => ({ shopId: s.shopId, lines: s.lines, shippingFee: 0, shopVoucher: pick(s) })), ctx: { ...ctx, usedBy } })
   const out = r.shops.map((x, i) => {
     const s = shops[i]
     const missing = x.shopVoucher || !s.lines.length ? [] : s.vouchers

@@ -33,7 +33,7 @@ const PAGES: Record<string, { title: string; body: string[] }> = {
 
 export default function PolicyPage() {
   const { slug = '' } = useParams()
-  const p = PAGES[slug]
+  const p = Object.hasOwn(PAGES, slug) ? PAGES[slug] : undefined
   if (!p) return <NotFound />
   return (
     <article className="mx-auto max-w-[68ch] pb-10">

@@ -7,7 +7,7 @@ import { useLayout } from '@/app/layout'
 import { categoryRow, isTabRoot, screenFor, tabBar } from '@/app/sitemap'
 import { cartCount, unreadCount, useWorld } from '@/app/store'
 import { childrenOf } from '@/app/catalog'
-import { cx, IconButton, SampleBadge, Toaster } from '@/components/ui'
+import { cx, IconButton, SampleBadge, toast, Toaster } from '@/components/ui'
 import { DemoControlsButton, DemoControlsSheet } from '@/features/demo/DemoControls'
 import { CategoryMenu } from '@/features/dsc/CategoryMenu'
 import { SearchBox } from '@/features/dsc/SearchBox'
@@ -58,8 +58,9 @@ function AccountMenu() {
   return (
     <DropdownMenu.Root>
       <DropdownMenu.Trigger asChild>
-        <button type="button" className="inline-flex h-11 items-center gap-2 rounded-full pr-2 pl-1.5 hover:bg-well" aria-label="Tài khoản">
-          <span className="flex size-8 items-center justify-center rounded-full bg-ink text-[12px] font-semibold text-ground">{w.buyer.avatarInitials}</span>
+        <button type="button" className="inline-flex h-11 items-center gap-2 rounded-full pr-2 pl-1.5 hover:bg-well">
+          <span className="sr-only">Tài khoản</span>
+          <span aria-hidden className="flex size-8 items-center justify-center rounded-full bg-ink text-[12px] font-semibold text-ground">{w.buyer.avatarInitials}</span>
           <ChevronDown size={14} aria-hidden />
         </button>
       </DropdownMenu.Trigger>
@@ -179,10 +180,19 @@ function TabBar() {
   )
 }
 
+function useStorageWarning() {
+  useEffect(() => {
+    const warn = () => toast('Trình duyệt hết chỗ lưu dữ liệu demo. Thay đổi mới chỉ giữ đến khi tải lại trang.', { tone: 'error', ms: 8000 })
+    window.addEventListener('market:storage-failed', warn)
+    return () => window.removeEventListener('market:storage-failed', warn)
+  }, [])
+}
+
 export function Shell() {
   const layout = useLayout()
   const { pathname } = useLocation()
   useRouteFocus()
+  useStorageWarning()
   const s = screenFor(pathname)
   const focused = s?.shell === 'focused'
   const bare = s?.shell === 'none'

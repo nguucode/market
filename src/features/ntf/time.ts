@@ -3,11 +3,11 @@ const MIN = 60_000
 const HOUR = 3_600_000
 const DAY = 86_400_000
 
-const p2 = (n: number) => String(n).padStart(2, '0')
-/** `18/11/2026` in local time. */
-export const fmtDate = (ms: number) => { const d = new Date(ms); return `${p2(d.getDate())}/${p2(d.getMonth() + 1)}/${d.getFullYear()}` }
-/** `14:05` in local time. */
-export const fmtTime = (ms: number) => { const d = new Date(ms); return `${p2(d.getHours())}:${p2(d.getMinutes())}` }
+import { dmy, hm } from '@/domain/time'
+/** `18/11/2026` in Vietnam time. */
+export const fmtDate = dmy
+/** `14:05` in Vietnam time. */
+export const fmtTime = hm
 
 /** "Vừa xong", "{n} phút trước", "{n} giờ trước", else the date. */
 export function relativeTime(ms: number, now: number): string {

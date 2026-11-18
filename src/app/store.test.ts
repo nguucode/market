@@ -1,5 +1,5 @@
 import {
-  advanceOrder, buyAgain, cancelOrder, getState, pay, placeOrder, quoteCheckout, requestCancel, resetDemo, respondCancel, returnDemo, setSettings,
+  advanceOrder, expirePayment, lineParts, buyAgain, cancelOrder, getState, pay, placeOrder, quoteCheckout, requestCancel, resetDemo, respondCancel, returnDemo, setSettings,
   startCheckout, submitReturn, type CheckoutDraft,
 } from './store'
 
@@ -90,3 +90,57 @@ test('buy again skips unavailable lines', () => {
   expect(r.added + r.skipped).toBe(o.lines.length)
   expect(getState().world.cart.length).toBeGreaterThanOrEqual(before)
 })
+
+describe('review fixes', () => {
+  const flashItem = () => {
+    const w = getState().world
+    const t = Date.now()
+    const slot = w.flashSlots.find((s) => s.startsAt <= t && t < s.endsAt)!
+    const item = slot.items.find((i) => w.skus.find((k) => k.id === i.skuId)!.stock >= 5 && i.quota - i.sold >= 5)!
+    return { w, t, slot, item, sku: w.skus.find((k) => k.id === item.skuId)! }
+  }
+
+  test('flash price stops at the per-buyer limit across orders, and parts are whole đồng', async () => {
+    const { item, sku } = flashItem()
+    const lim = item.perBuyerLimit
+    const parts = lineParts(getState().world, sku, lim + 2, Date.now())
+    expect(parts[0]).toMatchObject({ price: item.salePrice, qty: lim })
+    expect(parts[1]).toMatchObject({ price: sku.price, qty: 2 })
+    startCheckout('buy_now', [{ skuId: sku.id, qty: lim }])
+    const d = JSON.parse(sessionStorage.getItem('market.session.v1')!).checkout as CheckoutDraft
+    const r = await placeOrder(d)
+    expect(r.ok).toBe(true)
+    expect(lineParts(getState().world, sku, 1, Date.now())).toEqual([{ price: sku.price, qty: 1 }])
+  })
+
+  test('a total that changed since the page was shown stops place order', async () => {
+    const d = draftFromCart()
+    const shown = quoteCheckout(getState().world, d, Date.now()).pricing.total
+    const r = await placeOrder(d, shown + 1000)
+    expect(r.ok).toBe(false)
+  })
+
+  test('paying an expired payment does not mark it paid', async () => {
+    const r = await placeOrder({ ...draftFromCart(), payment: 'vietqr' })
+    if (!r.ok) throw new Error('place failed')
+    expirePayment(r.paymentId)
+    expect(await pay(r.paymentId)).toBe('timeout')
+    expect(getState().world.payments.find((p) => p.id === r.paymentId)!.status).toBe('expired')
+  })
+
+  test('a voucher used up by this buyer is dropped even when picked by hand', () => {
+    const w = getState().world
+    const v = w.vouchers.find((x) => x.id === 'mk15')!
+    mutateUsage('mk15', v.perBuyerLimit)
+    const d = { ...draftFromCart(), platformVoucher: 'mk15' }
+    const q = quoteCheckout(getState().world, d, Date.now())
+    expect(q.pricing.platformVoucher).toBeUndefined()
+    expect(q.pricing.dropped.map((x) => x.reason.kind)).toContain('used_up')
+  })
+})
+
+function mutateUsage(voucherId: string, n: number) {
+  setSettings({})
+  const w = getState().world
+  w.savedVouchers.find((s) => s.voucherId === voucherId)!.usedCount = n
+}

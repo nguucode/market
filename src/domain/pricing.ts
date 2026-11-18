@@ -19,7 +19,7 @@ export function allocate(total: number, weights: number[]): number[] {
   return parts
 }
 
-export type VoucherContext = { now: number; paymentMethod?: PaymentMethod; usedByBuyer?: number }
+export type VoucherContext = { now: number; paymentMethod?: PaymentMethod; usedByBuyer?: number; usedBy?: (v: Voucher) => number }
 
 export type Ineligible =
   | { kind: 'min_spend'; missing: number }
@@ -34,7 +34,7 @@ export function ineligibility(v: Voucher, base: number, ctx: VoucherContext): In
   if (ctx.now >= v.endsAt) return { kind: 'expired' }
   if (ctx.now < v.startsAt) return { kind: 'not_started' }
   if (v.usedCount >= v.totalQuota) return { kind: 'out_of_quota' }
-  if ((ctx.usedByBuyer ?? 0) >= v.perBuyerLimit) return { kind: 'used_up' }
+  if ((ctx.usedByBuyer ?? ctx.usedBy?.(v) ?? 0) >= v.perBuyerLimit) return { kind: 'used_up' }
   if (v.paymentMethods && ctx.paymentMethod && !v.paymentMethods.includes(ctx.paymentMethod))
     return { kind: 'payment_method', methods: v.paymentMethods }
   if (base < v.minSpend) return { kind: 'min_spend', missing: v.minSpend - base }

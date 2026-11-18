@@ -80,7 +80,7 @@ function Checkout({ d, onPlaced }: { d: CheckoutDraft; onPlaced: () => void }) {
     busy.current = true; setPlacing(true)
     const before = q
     try {
-      const r = await placeOrder(d)
+      const r = await placeOrder(d, q.pricing.total)
       if (r.ok) {
         onPlaced()
         nav(r.method === 'cod' ? `/checkout/result/${r.paymentId}` : `/checkout/pay/${r.paymentId}`, { replace: true })

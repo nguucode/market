@@ -23,7 +23,7 @@ describe('codState', () => {
   it('names the shop that has COD off, then the cap', () => {
     expect(codState([{ name: 'A', codEnabled: true, total: 1 }, { name: 'Bước Chân', codEnabled: false, total: 1 }]))
       .toEqual({ ok: false, reason: 'Bước Chân không hỗ trợ Thanh toán khi nhận hàng' })
-    expect(codState([{ name: 'A', codEnabled: true, total: 12_499_000 }])).toEqual({ ok: false, reason: 'Thanh toán khi nhận hàng chỉ áp dụng cho đơn dưới 10.000.000₫' })
+    expect(codState([{ name: 'A', codEnabled: true, total: 12_499_000 }])).toEqual({ ok: false, reason: 'Thanh toán khi nhận hàng chỉ áp dụng cho đơn đến 10.000.000₫' })
     expect(codState([{ name: 'A', codEnabled: true, total: 9_999_999 }]).ok).toBe(true)
   })
 })

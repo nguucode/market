@@ -32,6 +32,8 @@ export type World = {
   searchHistory: string[]
   /** Vouchers already announced as expiring (US-NTF-002). */
   expiryNotified?: string[]
+  /** Flash units the buyer bought, per `slotId:skuId` (per-buyer limit). */
+  flashBought?: Record<string, number>
   seq: number
 }
 

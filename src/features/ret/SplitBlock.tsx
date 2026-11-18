@@ -16,8 +16,8 @@ export function RefundSplitBlock({ o, lineIds, cash, credit }: { o: Order; lineI
         { label: 'Tiền hàng', amount: s.goods },
         ...(s.shopShare ? [{ label: muted('Voucher của Shop (không hoàn)'), amount: s.shopShare, tone: 'minus' as const }] : []),
         ...(s.platformShare ? [{ label: 'Voucher Market đã dùng', amount: s.platformShare, tone: 'minus' as const }] : []),
-        all ? { label: 'Phí vận chuyển', amount: s.shipping } : { label: muted('Phí vận chuyển (không hoàn)'), amount: shipPaid },
-      ]} />
+        ...(all ? [{ label: 'Phí vận chuyển', amount: s.shipping }] : []),
+      ]} footnote={!all && shipPaid > 0 ? `Phí vận chuyển ${vnd(shipPaid)} chỉ được hoàn khi trả toàn bộ đơn.` : undefined} />
       {(credit ?? s.voucherCredit) > 0 && (
         <p className="mt-3 flex justify-between gap-4 border-t border-line pt-3 text-[14px]">
           <span>Hoàn vào Kho voucher: Voucher Market</span><strong className="tabular font-semibold whitespace-nowrap">{vnd(credit ?? s.voucherCredit)}</strong>

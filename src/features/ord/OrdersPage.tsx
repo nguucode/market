@@ -31,7 +31,8 @@ function OrderCard({ o, w, now }: { o: Order; w: World; now: number }) {
       {o.status === 'to_ship' && o.cancelRequest?.status === 'pending' && <div className="mt-1"><CancelRequestLine>Đang chờ Shop phản hồi yêu cầu hủy</CancelRequestLine></div>}
       {o.status === 'cancelled' && <p className="mt-1 text-[13px] text-muted">{whoCancelled(o)}</p>}
       {payment && <PaymentCountdown payment={payment} className="mt-1" />}
-      <Link to={`/orders/${o.id}`} className="mt-3 block text-ink no-underline after:absolute after:inset-0" aria-label={`Đơn hàng ${o.id}, ${label}`}>
+      <Link to={`/orders/${o.id}`} className="mt-3 block text-ink no-underline after:absolute after:inset-0" >
+        <span className="sr-only">Đơn hàng {o.id}, {label}: </span>
         <LineRow line={o.lines[0]} w={w} link={false} />
       </Link>
       {o.lines.length > 1 && <p className="mt-2 pl-[76px] text-[13px] text-muted lg:pl-[84px]">+{o.lines.length - 1} sản phẩm</p>}

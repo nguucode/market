@@ -4,12 +4,10 @@ import { OPTION_LABEL } from '@/domain/shipping'
 import type { Order, PaymentMethod, ReturnRequest, TrackingEvent } from '@/domain/types'
 
 export const DAY = 86_400_000
-const pad = (n: number) => String(n).padStart(2, '0')
-export const dmy = (t: number) => { const d = new Date(t); return `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()}` }
-export const dm = (t: number) => { const d = new Date(t); return `${pad(d.getDate())}/${pad(d.getMonth() + 1)}` }
-export const hm = (t: number) => { const d = new Date(t); return `${pad(d.getHours())}:${pad(d.getMinutes())}` }
+import { dm, dmy, hm, vnStartOfDay as startOfDay } from '@/domain/time'
+export { dm, dmy, hm }
 export const dmyhm = (t: number) => `${dmy(t)} ${hm(t)}`
-const startOfDay = (t: number) => { const d = new Date(t); d.setHours(0, 0, 0, 0); return d.getTime() }
+const pad = (n: number) => String(n).padStart(2, '0')
 /** Calendar days from today to `until` (0 = today is the last day, negative = passed). */
 export const calendarDaysLeft = (until: number, now: number) => Math.round((startOfDay(until) - startOfDay(now)) / DAY)
 

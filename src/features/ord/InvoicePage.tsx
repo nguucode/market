@@ -51,7 +51,7 @@ export default function InvoicePage() {
                 <p className="text-ink-2">{[a.detail, a.wardName, a.provinceName].filter(Boolean).join(', ')}</p>
               </section>
             </div>
-            <div className="mt-6 overflow-x-auto print:overflow-visible">
+            <div className="mt-6 overflow-x-auto print:overflow-visible" tabIndex={0} role="region" aria-label="Danh sách sản phẩm trong hóa đơn">
               <table className="w-full min-w-[560px] border-collapse text-[13px] print:min-w-0">
                 <thead>
                   <tr className="border-b border-ink text-left">
@@ -80,8 +80,8 @@ export default function InvoicePage() {
                 <div key={r.label} className="flex justify-between gap-4"><dt className="text-ink-2">{r.label}</dt><dd className="tabular whitespace-nowrap">{r.minus ? `−${vnd(r.amount)}` : vnd(r.amount)}</dd></div>
               ))}
               <div className="flex justify-between gap-4 border-t border-ink pt-2 text-[15px] font-bold"><dt>Tổng thanh toán</dt><dd className="tabular whitespace-nowrap">{vnd(o.total)}</dd></div>
-              <p className="text-right text-[12px] text-muted">Giá đã bao gồm VAT</p>
             </dl>
+            <p className="mt-1.5 ml-auto max-w-[420px] text-right text-[12px] text-muted">Giá đã bao gồm VAT</p>
             <p className="mt-8 border-t border-line pt-4 text-[12px] leading-relaxed text-muted">
               Chứng từ này do Market tạo từ thông tin đơn hàng, không thay thế hóa đơn giá trị gia tăng của người bán.
             </p>

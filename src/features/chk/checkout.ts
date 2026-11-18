@@ -13,7 +13,7 @@ export const WALLETS = ['Ví Sen', 'Ví Mây'] as const
 export function codState(shops: { name: string; codEnabled: boolean; total: number }[]): { ok: true } | { ok: false; reason: string } {
   const off = shops.find((s) => !s.codEnabled)
   if (off) return { ok: false, reason: `${off.name} không hỗ trợ Thanh toán khi nhận hàng` }
-  if (shops.some((s) => s.total >= COD_CAP)) return { ok: false, reason: `Thanh toán khi nhận hàng chỉ áp dụng cho đơn dưới ${vnd(COD_CAP)}` }
+  if (shops.some((s) => s.total > COD_CAP)) return { ok: false, reason: `Thanh toán khi nhận hàng chỉ áp dụng cho đơn đến ${vnd(COD_CAP)}` }
   return { ok: true }
 }
 

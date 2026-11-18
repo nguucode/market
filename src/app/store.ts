@@ -1,9 +1,10 @@
 // Mock store: spec/ia/mock-data.md, US-FND-003. Domain state in localStorage `market.state.v1`,
 // synced across tabs and the /device frame with BroadcastChannel.
 import { useSyncExternalStore } from 'react'
-import { AUTO_COMPLETE_DAYS, PAYMENT_MINUTES, RETURN_SHIP_DAYS, refundDestination, refundSplit, STATUS_LABEL } from '@/domain/orders'
+import { AUTO_COMPLETE_DAYS, PAYMENT_LABEL, PAYMENT_MINUTES, RETURN_SHIP_DAYS, refundDestination, refundSplit, STATUS_LABEL } from '@/domain/orders'
 import { bestVoucher, ineligibility, price, voucherLabel, type PricingResult } from '@/domain/pricing'
 import { vnd } from '@/domain/money'
+import { dmy, hm } from '@/domain/time'
 import { quoteShipping, type Quote } from '@/domain/shipping'
 import type {
   Address, AppliedVoucher, CartLine, Notification, Order, OrderLine, PaymentMethod, Product, ReturnReason, Review, ShippingOption, Shop, Sku, Voucher,
@@ -40,6 +41,7 @@ function load(): State {
 }
 
 let state: State = load()
+let storageWarned = false
 const listeners = new Set<() => void>()
 let channel: BroadcastChannel | null = null
 try {
@@ -49,7 +51,10 @@ try {
 
 function commit(next: State) {
   state = { ...next, version: next.version + 1 }
-  try { localStorage.setItem(KEY, JSON.stringify(state)) } catch { /* quota or private mode */ }
+  try { localStorage.setItem(KEY, JSON.stringify(state)) } catch {
+    // Quota or private mode: keep working in memory, tell the shell once per session.
+    if (!storageWarned) { storageWarned = true; window.dispatchEvent(new Event('market:storage-failed')) }
+  }
   channel?.postMessage(state)
   listeners.forEach((l) => l())
 }
@@ -224,12 +229,24 @@ export function cartGroups(w: World, t: number) {
   return { groups: order.map((id) => ({ shop: w.shops.find((s) => s.id === id)!, lines: available.filter((v) => v.shop.id === id) })), unavailable }
 }
 
-/** Effective unit price for `qty` units with a flash per-buyer limit: extra units at the normal price. */
+const flashKey = (slotId: string, skuId: string) => `${slotId}:${skuId}`
+/**
+ * Whole-đồng price parts for `qty` units: flash units are capped by the per-buyer limit minus what the buyer already
+ * bought in this slot, and by the slot's remaining quota; the rest is at the normal price (rules.md#price-display).
+ */
+export function lineParts(w: World, sku: Sku, qty: number, t: number): { price: number; qty: number; flashSlotId?: string }[] {
+  const f = flashFor(w, sku.id, t)
+  if (!f) return [{ price: sku.price, qty }]
+  const bought = w.flashBought?.[flashKey(f.slot.id, sku.id)] ?? 0
+  const n = Math.max(0, Math.min(qty, f.item.perBuyerLimit - bought, f.item.quota - f.item.sold))
+  const parts: { price: number; qty: number; flashSlotId?: string }[] = []
+  if (n > 0) parts.push({ price: f.item.salePrice, qty: n, flashSlotId: f.slot.id })
+  if (qty - n > 0) parts.push({ price: sku.price, qty: qty - n })
+  return parts
+}
+/** Line amount in whole đồng. */
 export function lineAmount(v: Pick<LineView, 'unit' | 'sku'> & { line: { qty: number } }, w: World, t: number) {
-  const f = flashFor(w, v.sku.id, t)
-  if (!f) return v.unit * v.line.qty
-  const n = Math.min(v.line.qty, f.item.perBuyerLimit)
-  return n * f.item.salePrice + (v.line.qty - n) * v.sku.price
+  return lineParts(w, v.sku, v.line.qty, t).reduce((a, p) => a + p.price * p.qty, 0)
 }
 
 /* ── Checkout session (per tab) ───────────────────────────────────── */
@@ -307,8 +324,8 @@ export function quoteCheckout(w: World, d: CheckoutDraft, t: number): CheckoutQu
     const option = quotes.some((q) => q.option === d.shipping[shopId]) ? d.shipping[shopId] : 'fast'
     return { shop, lines, quotes, option, quote: quotes.find((q) => q.option === option)!, shopVouchers: w.vouchers.filter((v) => v.scope === 'shop' && v.shopId === shopId && !v.credit) }
   })
-  const ctx = { now: t, paymentMethod: d.payment }
   const used = (v: Voucher) => savedUse(w, v.id)
+  const ctx = { now: t, paymentMethod: d.payment, usedBy: used }
   const pickShop = (s: CheckoutShop) => {
     const chosen = d.shopVoucher[s.shop.id]
     if (chosen === null) return undefined
@@ -318,7 +335,7 @@ export function quoteCheckout(w: World, d: CheckoutDraft, t: number): CheckoutQu
   }
   const shopInputs = shops.map((s) => ({
     shopId: s.shop.id,
-    lines: s.lines.map((l) => ({ id: l.skuId, unitPrice: l.amount / l.qty, qty: l.qty, beforePromo: l.before })),
+    lines: s.lines.flatMap((l) => lineParts(w, l.sku, l.qty, t).map((p, j) => ({ id: `${l.skuId}#${j}`, unitPrice: p.price, qty: p.qty, beforePromo: l.before }))),
     shippingFee: s.quote.fee,
     shopVoucher: pickShop(s),
   }))
@@ -343,7 +360,7 @@ export type PlaceResult =
   | { ok: false; kind: 'changed'; changes: { name: string; text: string }[] }
 
 /** Last-moment checks, then one order per shop: US-CHK-006. */
-export async function placeOrder(d: CheckoutDraft): Promise<PlaceResult> {
+export async function placeOrder(d: CheckoutDraft, expectedTotal?: number): Promise<PlaceResult> {
   await delay()
   return mutate((w, s) => {
     const t = now()
@@ -370,6 +387,9 @@ export async function placeOrder(d: CheckoutDraft): Promise<PlaceResult> {
     }
     const q = quoteCheckout(w, d, t)
     for (const dr of q.pricing.dropped) changes.push({ name: voucherLabel(dr.voucher), text: 'Voucher không còn áp dụng' })
+    if (d.payment === 'cod' && !q.codAllowed.ok) changes.push({ name: PAYMENT_LABEL.cod, text: q.codAllowed.reason ?? 'Không dùng được cho đơn này' })
+    if (!changes.length && expectedTotal !== undefined && expectedTotal !== q.pricing.total)
+      changes.push({ name: 'Tổng thanh toán', text: `Thay đổi từ ${vnd(expectedTotal)} thành ${vnd(q.pricing.total)}` })
     if (changes.length) return { ok: false as const, kind: 'changed' as const, changes }
 
     const paymentId = `pay${++w.seq}`
@@ -382,10 +402,10 @@ export async function placeOrder(d: CheckoutDraft): Promise<PlaceResult> {
       if (r.shopVoucher) vouchers.push({ voucherId: r.shopVoucher.id, scope: 'shop', label: voucherLabel(r.shopVoucher), code: r.shopVoucher.code, amount: r.shopDiscount })
       if (q.pricing.platformVoucher && r.platformShare) vouchers.push({ voucherId: q.pricing.platformVoucher.id, scope: 'platform', label: voucherLabel(q.pricing.platformVoucher), code: q.pricing.platformVoucher.code, amount: r.platformShare })
       if (q.pricing.shippingVoucher && r.shippingDiscount) vouchers.push({ voucherId: q.pricing.shippingVoucher.id, scope: 'shipping', label: voucherLabel(q.pricing.shippingVoucher), code: q.pricing.shippingVoucher.code, amount: r.shippingDiscount })
-      const lines: OrderLine[] = cs.lines.map((l, j) => ({
-        id: `${id}-${j}`, productId: l.product.id, skuId: l.sku.id, name: l.product.name, variantText: l.variant,
-        image: l.sku.image ?? l.product.images[0], unitPrice: l.amount / l.qty, beforePromo: l.before, qty: l.qty,
-      }))
+      const lines: OrderLine[] = cs.lines.flatMap((l) => lineParts(w, l.sku, l.qty, t).map((part) => ({
+        id: '', productId: l.product.id, skuId: l.sku.id, name: l.product.name, variantText: l.variant,
+        image: l.sku.image ?? l.product.images[0], unitPrice: part.price, beforePromo: l.before, qty: part.qty, flashSlotId: part.flashSlotId,
+      }))).map((x, j) => ({ ...x, id: `${id}-${j}` }))
       const online = d.payment !== 'cod'
       const order: Order = {
         id, paymentId, shopId: cs.shop.id, lines, status: online ? 'awaiting_payment' : 'to_confirm',
@@ -397,9 +417,14 @@ export async function placeOrder(d: CheckoutDraft): Promise<PlaceResult> {
       w.orders.unshift(order)
       if (!online) w.tracking.push({ orderId: id, at: t, code: 'to_confirm', text: 'Đơn hàng đã đặt' })
       orderIds.push(id)
-      for (const l of cs.lines) {
-        const k = w.skus.find((x) => x.id === l.sku.id)!; k.stock = Math.max(0, k.stock - l.qty)
-        const f = flashFor(w, k.id, t); if (f) { const it = w.flashSlots.find((s2) => s2.id === f.slot.id)!.items.find((x) => x.skuId === k.id)!; it.sold = Math.min(it.quota, it.sold + Math.min(l.qty, it.perBuyerLimit)) }
+      for (const l of lines) {
+        const k = w.skus.find((x) => x.id === l.skuId)!; k.stock = Math.max(0, k.stock - l.qty)
+        if (l.flashSlotId) {
+          const it = w.flashSlots.find((s2) => s2.id === l.flashSlotId)!.items.find((x) => x.skuId === k.id)!
+          it.sold = Math.min(it.quota, it.sold + l.qty)
+          const key = flashKey(l.flashSlotId, k.id)
+          w.flashBought = { ...w.flashBought, [key]: (w.flashBought?.[key] ?? 0) + l.qty }
+        }
         const p = w.products.find((x) => x.id === k.productId)!; p.soldCount += l.qty
       }
     })
@@ -428,6 +453,7 @@ export async function pay(paymentId: string): Promise<'paid' | 'failed' | 'timeo
   await delay()
   return mutate((w, s) => {
     const p = w.payments.find((x) => x.id === paymentId)!
+    if (!paymentOpen(w, paymentId, now())) return 'timeout'
     const outcome = s.nextPayment
     s.nextPayment = 'success'
     if (outcome === 'failure') { p.status = 'failed'; p.failures += 1; return 'failed' }
@@ -472,10 +498,6 @@ function expiringVouchers(w: World, t: number) {
     .map((sv) => w.vouchers.find((v) => v.id === sv.voucherId)!)
     .filter((v) => v && v.endsAt > t && v.endsAt - t <= DAY)
 }
-const vnTime = (ms: number) => new Date(ms + 7 * HOUR)
-const pad = (n: number) => String(n).padStart(2, '0')
-const hm = (ms: number) => { const d = vnTime(ms); return `${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())}` }
-const dmy = (ms?: number) => { if (!ms) return ''; const d = vnTime(ms); return `${pad(d.getUTCDate())}/${pad(d.getUTCMonth() + 1)}/${d.getUTCFullYear()}` }
 function refundSentence(o: Order) {
   if (!o.refund) return 'Đơn thanh toán khi nhận hàng nên không phát sinh hoàn tiền.'
   return `Số tiền ${vnd(o.refund.amount)} sẽ được hoàn về ${o.refund.to}.`
@@ -506,7 +528,17 @@ export function syncTime() {
 /* ── Orders: buyer actions ────────────────────────────────────────── */
 
 function restock(w: World, o: Order) {
-  for (const l of o.lines) { const k = w.skus.find((x) => x.id === l.skuId); if (k) k.stock += l.qty }
+  const t = now()
+  for (const l of o.lines) {
+    const k = w.skus.find((x) => x.id === l.skuId); if (k) k.stock += l.qty
+    const p = w.products.find((x) => x.id === l.productId); if (p) p.soldCount = Math.max(0, p.soldCount - l.qty)
+    const slot = l.flashSlotId ? w.flashSlots.find((s) => s.id === l.flashSlotId) : undefined
+    if (slot && slot.startsAt <= t && t < slot.endsAt) {
+      const it = slot.items.find((x) => x.skuId === l.skuId); if (it) it.sold = Math.max(0, it.sold - l.qty)
+      const key = flashKey(slot.id, l.skuId)
+      if (w.flashBought?.[key]) w.flashBought[key] = Math.max(0, w.flashBought[key] - l.qty)
+    }
+  }
 }
 function refundFor(_w: World, o: Order, amount: number) {
   const dest = refundDestination(o.paymentMethod, o.paymentStatus === 'paid')
@@ -625,9 +657,11 @@ export async function submitReviews(orderId: string, inputs: ReviewInput[]) {
     }
   })
 }
-export const editReview = (reviewId: string, patch: Pick<Review, 'rating' | 'text' | 'tags' | 'photos'>) => mutate((w) => {
+export const editReview = (reviewId: string, patch: Pick<Review, 'rating' | 'text' | 'tags' | 'photos'> & Partial<Pick<Review, 'sub'>>) => mutate((w) => {
   const r = w.reviews.find((x) => x.id === reviewId)!
   if (r.editedAt || r.shopReply) return false
+  const p = w.products.find((x) => x.id === r.productId)
+  if (p && p.ratingCount > 0 && patch.rating !== r.rating) p.rating = Math.round(((p.rating * p.ratingCount - r.rating + patch.rating) / p.ratingCount) * 10) / 10
   Object.assign(r, patch, { editedAt: now() }); return true
 })
 
@@ -667,7 +701,11 @@ export function advanceOrder(orderId: string) {
         w.tracking.push({ orderId, at: t, code: 'to_ship', text: 'Shop đã xác nhận đơn, đang chuẩn bị hàng' })
         return notify(w, 'order', 'Shop đã xác nhận đơn hàng', `Đơn hàng ${orderId} đang được ${shopName} chuẩn bị.`, `/orders/${orderId}`)
       case 'to_ship':
-        if (o.cancelRequest?.status === 'pending') o.cancelRequest.status = 'refused'
+        if (o.cancelRequest?.status === 'pending') {
+          o.cancelRequest.status = 'refused'
+          w.tracking.push({ orderId, at: t, code: 'cancel_refused', text: 'Shop đã từ chối yêu cầu hủy' })
+          notify(w, 'order', 'Shop từ chối yêu cầu hủy đơn', `Đơn hàng ${orderId} sẽ tiếp tục được giao.`, `/orders/${orderId}`)
+        }
         o.status = 'shipping'; o.at.picked = t; o.at.shipping = t
         w.tracking.push({ orderId, at: t, code: 'picked', text: 'Đơn vị vận chuyển đã lấy hàng', location: w.shops.find((s) => s.id === o.shopId)!.provinceName })
         return notify(w, 'order', 'Đơn hàng đang được giao', `Đơn hàng ${orderId} đã được giao cho ${o.carrier}. Mã vận đơn ${o.trackingCode}.`, `/orders/${orderId}`)
@@ -742,7 +780,7 @@ export function returnDemo(returnId: string, action: ReturnDemo) {
       case 'approve_return':
         r.returnDeadline = t + RETURN_SHIP_DAYS * DAY
         step('awaiting_return_shipment')
-        return notify(w, 'order', 'Yêu cầu trả hàng đã được chấp nhận', `Vui lòng gửi hàng trả trước ${dmy(r.returnDeadline)}.`, `/returns/${r.id}`)
+        return notify(w, 'order', 'Yêu cầu trả hàng đã được chấp nhận', `Vui lòng gửi hàng trả trước ${dmy(r.returnDeadline!)}.`, `/returns/${r.id}`)
       case 'need_evidence':
         step('needs_evidence')
         return notify(w, 'order', 'Cần bổ sung bằng chứng', `Yêu cầu trả hàng của đơn hàng ${o.id} cần thêm ảnh.`, `/returns/${r.id}`)

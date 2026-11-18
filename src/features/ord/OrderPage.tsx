@@ -115,8 +115,8 @@ function OrderDetail({ o, w }: { o: Order; w: World }) {
       </div>
       {events.length === 0 ? <p className="text-[13px] text-muted">Chưa có cập nhật vận chuyển.</p>
         : layout === 'app' ? (
-          <button type="button" onClick={() => setEventSheet(true)} className="flex w-full items-center gap-3 text-left" aria-label="Xem toàn bộ hành trình đơn hàng">
-            <div className="min-w-0 flex-1"><Timeline events={events} limit={1} /></div>
+          <button type="button" onClick={() => setEventSheet(true)} className="flex w-full items-center gap-3 text-left">
+            <div className="min-w-0 flex-1"><Timeline events={events} limit={1} /><span className="sr-only">Xem toàn bộ hành trình đơn hàng</span></div>
             {events.length > 1 && <ChevronRight size={18} className="shrink-0 text-muted" aria-hidden />}
           </button>
         ) : (

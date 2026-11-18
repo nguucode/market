@@ -338,7 +338,7 @@ export function Skeleton({ className }: { className?: string }) {
 }
 export function GridSkeleton({ n = 8 }: { n?: number }) {
   return (
-    <div className="grid grid-cols-2 gap-x-3 gap-y-6 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5" aria-busy="true" aria-label="Đang tải">
+    <div className="grid grid-cols-2 gap-x-3 gap-y-6 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5" role="status" aria-busy="true" aria-label="Đang tải">
       {Array.from({ length: n }, (_, i) => (
         <div key={i} className="space-y-2"><Skeleton className="aspect-[4/5] w-full" /><Skeleton className="h-4 w-4/5" /><Skeleton className="h-4 w-1/3" /></div>
       ))}
