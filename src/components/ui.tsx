@@ -358,8 +358,12 @@ export function useLoaded(deps: unknown[] = [], ms?: number) {
   return ready
 }
 
-/** Product image with a warm well behind it and graceful failure. */
-export function Img({ src, alt, className, eager }: { src?: string; alt: string; className?: string; eager?: boolean }) {
+/** First catalogue image → its ~6KB thumbnail (DummyJSON only ships a thumbnail for image 1). */
+export const thumbOf = (src?: string) => src?.replace(/\/1\.webp$/, '/thumbnail.webp')
+
+/** Product image with a warm well behind it and graceful failure. Thumbnails by default; `full` for the gallery. */
+export function Img({ src: raw, alt, className, eager, full }: { src?: string; alt: string; className?: string; eager?: boolean; full?: boolean }) {
+  const src = full ? raw : thumbOf(raw)
   const [failed, setFailed] = useState(false)
   return (
     <span className={cx('relative block overflow-hidden bg-well', className)}>

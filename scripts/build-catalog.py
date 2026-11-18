@@ -1,6 +1,6 @@
 """Builds src/mock/data/catalog-source.json from the DummyJSON product list (MIT, images hosted on cdn.dummyjson.com).
 Run: python3 -I scripts/build-catalog.py .scratch/source/dummyjson.json
-Names are rewritten in Vietnamese without real brand names; branded products are excluded (mock-data.md)."""
+Names are rewritten in Vietnamese without real brand names; products whose photo shows a real brand or logo are excluded (checked visually 2026-11-18)."""
 import json, sys
 
 # category tree: level1 slug -> (name, {level2 slug: (name, {level3 slug: name})})
@@ -54,7 +54,6 @@ TREE = {
 # id: (name, level3, price VND, variant kind)
 # kinds: apparel (Màu × Kích cỡ), shoes (Màu × Size), color, weight, none
 P = {
-  1: ('Mascara chuốt mi cong dài, chống lem', 'trang-diem-mat', 89000, 'none'),
   2: ('Bảng phấn mắt 12 ô có gương', 'trang-diem-mat', 159000, 'color'),
   3: ('Hộp phấn phủ kiềm dầu', 'phan', 129000, 'color'),
   4: ('Son thỏi đỏ lì mềm môi', 'trang-diem-moi', 119000, 'color'),
@@ -66,27 +65,21 @@ P = {
   15: ('Tủ lavabo gỗ kèm gương', 'phong-tam', 4590000, 'none'),
   16: ('Táo đỏ nhập khẩu', 'trai-cay', 79000, 'weight'),
   17: ('Thăn bò Úc cắt steak', 'thit-ca', 289000, 'weight'),
-  18: ('Hạt khô cho mèo trưởng thành', 'thuc-an-thu-cung', 159000, 'weight'),
   19: ('Ức gà phi lê tươi', 'thit-ca', 69000, 'weight'),
   20: ('Dầu ăn thực vật 1L', 'gao-dau', 52000, 'none'),
   21: ('Dưa leo baby', 'rau-cu', 29000, 'weight'),
-  22: ('Hạt khô cho chó mọi lứa tuổi', 'thuc-an-thu-cung', 189000, 'weight'),
   23: ('Trứng gà sạch hộp 10 quả', 'trung', 39000, 'none'),
   24: ('Cá hồi cắt khúc', 'thit-ca', 259000, 'weight'),
   25: ('Ớt chuông xanh', 'rau-cu', 35000, 'weight'),
   26: ('Ớt hiểm xanh', 'rau-cu', 15000, 'weight'),
-  27: ('Mật ong hoa nhãn hũ thủy tinh', 'gao-dau', 145000, 'none'),
-  28: ('Kem que vị trái cây hộp 4', 'sua', 65000, 'none'),
   29: ('Nước ép cam nguyên chất', 'nuoc', 45000, 'none'),
   30: ('Kiwi vàng', 'trai-cay', 99000, 'weight'),
   31: ('Chanh vàng', 'trai-cay', 49000, 'weight'),
   32: ('Sữa tươi thanh trùng 1L', 'sua', 36000, 'none'),
   33: ('Dâu tằm tươi', 'trai-cay', 85000, 'weight'),
   35: ('Khoai tây Đà Lạt', 'rau-cu', 32000, 'weight'),
-  36: ('Bột protein vị vani', 'thuc-pham-bo-sung', 890000, 'none'),
   37: ('Hành tím', 'rau-cu', 39000, 'weight'),
   38: ('Gạo thơm túi 5kg', 'gao-dau', 145000, 'none'),
-  39: ('Nước ngọt có ga lốc 6 lon', 'nuoc', 59000, 'none'),
   40: ('Dâu tây Đà Lạt', 'trai-cay', 129000, 'weight'),
   41: ('Khăn giấy hộp 3 lớp', 'khan-giay', 25000, 'none'),
   42: ('Nước khoáng thiên nhiên thùng 24 chai', 'nuoc', 115000, 'none'),
@@ -129,25 +122,20 @@ P = {
   85: ('Áo sơ mi kẻ caro dáng suông', 'so-mi-nam', 259000, 'apparel'),
   86: ('Áo sơ mi nam ngắn tay', 'so-mi-nam', 219000, 'apparel'),
   87: ('Áo sơ mi caro cổ bẻ', 'so-mi-nam', 249000, 'apparel'),
-  91: ('Giày thể thao trắng đỏ đế êm', 'giay-the-thao-nam', 690000, 'shoes-m'),
   92: ('Giày sneaker trắng phối đỏ', 'giay-the-thao-nam', 590000, 'shoes-m'),
   93: ('Đồng hồ dây da nâu mặt tròn', 'dong-ho-nam', 890000, 'none'),
   109: ('Gậy monopod chụp ảnh', 'gay-chan-may', 189000, 'none'),
-  108: ('Ốp lưng silicone có nam châm', 'op-lung-dt', 99000, 'color'),
   111: ('Gậy selfie có remote', 'gay-chan-may', 149000, 'color'),
   112: ('Chân máy quay có bánh xe', 'gay-chan-may', 2890000, 'none'),
   137: ('Bóng bầu dục da', 'bong-cac-loai', 289000, 'none'),
   138: ('Bóng chày da khâu tay', 'bong-cac-loai', 89000, 'none'),
   139: ('Găng bắt bóng chày', 'gay', 390000, 'size'),
-  140: ('Bóng rổ số 7', 'bong-cac-loai', 259000, 'none'),
   141: ('Vành rổ treo tường', 'dung-cu-tap', 590000, 'none'),
   142: ('Bóng cricket da đỏ', 'bong-cac-loai', 129000, 'none'),
-  143: ('Gậy cricket gỗ liễu', 'gay', 690000, 'none'),
   144: ('Mũ bảo hiểm thể thao có lưới', 'dung-cu-tap', 790000, 'size'),
   145: ('Bộ cọc cricket', 'dung-cu-tap', 459000, 'none'),
   146: ('Quả cầu lông vũ hộp 12', 'bong-cac-loai', 129000, 'none'),
   147: ('Bóng đá số 5', 'bong-cac-loai', 229000, 'none'),
-  148: ('Bóng golf hộp 3', 'bong-cac-loai', 149000, 'none'),
   149: ('Gậy golf sắt số 7', 'gay', 1890000, 'none'),
   150: ('Gậy bóng chày kim loại', 'gay', 459000, 'size'),
   151: ('Bóng tennis hộp 3', 'bong-cac-loai', 99000, 'none'),
@@ -174,7 +162,7 @@ P = {
   182: ('Bông tai pha lê xanh', 'bong-tai', 159000, 'none'),
   183: ('Bông tai đá oval xanh', 'bong-tai', 189000, 'none'),
   184: ('Bông tai nhiệt đới', 'bong-tai', 129000, 'none'),
-  185: ('Dép lê nâu đen', 'dep-sandal-nu', 159000, 'shoes-w'),
+  185: ('Giày cao gót mũi nhọn đen', 'giay-cao-got', 389000, 'shoes-w'),
   187: ('Giày cao gót ánh vàng', 'giay-cao-got', 459000, 'shoes-w'),
   188: ('Giày búp bê nơ', 'giay-cao-got', 329000, 'shoes-w'),
   189: ('Giày cao gót đỏ', 'giay-cao-got', 489000, 'shoes-w'),
@@ -199,6 +187,11 @@ def main(path):
     s = src[pid]
     products.append({'src': pid, 'name': name, 'categoryId': cat, 'price': price, 'kind': kind,
                      'images': s['images'], 'thumbnail': s['thumbnail'], 'weight': s.get('weight', 1)})
+  used = {p['categoryId'] for p in products}
+  keep3 = {c['id'] for c in cats if c['level'] == 3 and c['id'] in used}
+  keep2 = {c['parentId'] for c in cats if c['id'] in keep3}
+  keep1 = {c['parentId'] for c in cats if c['id'] in keep2}
+  cats = [c for c in cats if c['id'] in keep1 | keep2 | keep3]
   json.dump({'categories': cats, 'products': products}, open('src/mock/data/catalog-source.json', 'w', encoding='utf-8'),
             ensure_ascii=False, separators=(',', ':'))
   print(len(cats), 'categories,', len(products), 'products')

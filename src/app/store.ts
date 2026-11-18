@@ -3,6 +3,7 @@
 import { useSyncExternalStore } from 'react'
 import { AUTO_COMPLETE_DAYS, PAYMENT_MINUTES, RETURN_SHIP_DAYS, refundDestination, refundSplit, STATUS_LABEL } from '@/domain/orders'
 import { bestVoucher, ineligibility, price, voucherLabel, type PricingResult } from '@/domain/pricing'
+import { vnd } from '@/domain/money'
 import { quoteShipping, type Quote } from '@/domain/shipping'
 import type {
   Address, AppliedVoucher, CartLine, Notification, Order, OrderLine, PaymentMethod, Product, ReturnReason, Review, ShippingOption, Shop, Sku, Voucher,
@@ -440,6 +441,7 @@ export async function pay(paymentId: string): Promise<'paid' | 'failed' | 'timeo
       w.tracking.push({ orderId: o.id, at: t, code: 'paid', text: 'Đã thanh toán' })
       w.tracking.push({ orderId: o.id, at: t, code: 'to_confirm', text: 'Đơn hàng đã đặt' })
     }
+    notify(w, 'order', 'Đặt hàng thành công', `Đã thanh toán ${vnd(p.amount)} cho ${p.orderIds.length} đơn hàng.`, `/orders/${p.orderIds[0]}`)
     return 'paid'
   })
 }
@@ -460,19 +462,44 @@ function expireIn(w: World, paymentId: string) {
     w.tracking.push({ orderId: o.id, at: t, code: 'cancelled', text: 'Đơn tự hủy vì quá hạn thanh toán' })
     restock(w, o)
   }
-  notify(w, 'order', 'Đơn hàng đã hủy', `Quá hạn thanh toán, ${p.orderIds.length} đơn đã tự hủy.`, `/orders/${p.orderIds[0]}`)
+  notify(w, 'order', 'Đơn hàng đã bị hủy', `${p.orderIds.length > 1 ? `${p.orderIds.length} đơn hàng` : `Đơn hàng ${p.orderIds[0]}`} đã bị hủy vì quá hạn thanh toán.`, `/orders/${p.orderIds[0]}`)
 }
+
+/** Saved, unused vouchers in their last 24 hours that have not been announced yet (US-NTF-002). */
+function expiringVouchers(w: World, t: number) {
+  return w.savedVouchers
+    .filter((sv) => sv.usedCount === 0 && !(w.expiryNotified ?? []).includes(sv.voucherId))
+    .map((sv) => w.vouchers.find((v) => v.id === sv.voucherId)!)
+    .filter((v) => v && v.endsAt > t && v.endsAt - t <= DAY)
+}
+const vnTime = (ms: number) => new Date(ms + 7 * HOUR)
+const pad = (n: number) => String(n).padStart(2, '0')
+const hm = (ms: number) => { const d = vnTime(ms); return `${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())}` }
+const dmy = (ms?: number) => { if (!ms) return ''; const d = vnTime(ms); return `${pad(d.getUTCDate())}/${pad(d.getUTCMonth() + 1)}/${d.getUTCFullYear()}` }
+function refundSentence(o: Order) {
+  if (!o.refund) return 'Đơn thanh toán khi nhận hàng nên không phát sinh hoàn tiền.'
+  return `Số tiền ${vnd(o.refund.amount)} sẽ được hoàn về ${o.refund.to}.`
+}
+const maskName = (name: string) => { const ch = Array.from(name.replace(/\s+/g, '')); return `${ch[0]}***${ch[ch.length - 1]}` }
 
 /** Time-driven transitions at load and on clock jumps: payment expiry, auto-complete after 15 days. */
 export function syncTime() {
   const t = now()
   const w = state.world
   const due = w.payments.some((p) => p.status !== 'paid' && p.status !== 'expired' && p.method !== 'cod' && p.expiresAt <= t && p.orderIds.some((id) => w.orders.find((o) => o.id === id)?.status === 'awaiting_payment')) ||
-    w.orders.some((o) => o.status === 'delivered' && (o.at.delivered ?? Infinity) + AUTO_COMPLETE_DAYS * DAY <= t)
+    w.orders.some((o) => o.status === 'delivered' && (o.at.delivered ?? Infinity) + AUTO_COMPLETE_DAYS * DAY <= t) ||
+    expiringVouchers(w, t).length > 0
   if (!due) return
   mutate((ww) => {
     for (const p of ww.payments) if (p.method !== 'cod' && p.expiresAt <= t) expireIn(ww, p.id)
-    for (const o of ww.orders) if (o.status === 'delivered' && (o.at.delivered ?? Infinity) + AUTO_COMPLETE_DAYS * DAY <= t) { o.status = 'completed'; o.at.completed = t }
+    for (const o of ww.orders) if (o.status === 'delivered' && (o.at.delivered ?? Infinity) + AUTO_COMPLETE_DAYS * DAY <= t) {
+      o.status = 'completed'; o.at.completed = t
+      notify(ww, 'order', 'Đơn hàng đã hoàn thành', `Đơn hàng ${o.id} đã tự hoàn thành sau ${AUTO_COMPLETE_DAYS} ngày kể từ khi giao.`, `/orders/${o.id}`)
+    }
+    for (const v of expiringVouchers(ww, t)) {
+      ww.expiryNotified = [...(ww.expiryNotified ?? []), v.id]
+      notify(ww, 'promotion', 'Voucher sắp hết hạn', `${voucherLabel(v)} sẽ hết hạn lúc ${hm(v.endsAt)} ${dmy(v.endsAt)}.`, `/vouchers?voucher=${v.id}`)
+    }
   })
 }
 
@@ -589,7 +616,7 @@ export async function submitReviews(orderId: string, inputs: ReviewInput[]) {
       if (l.reviewId) continue
       const id = `rm${++w.seq}`
       w.reviews.unshift({
-        id, productId: l.productId, skuId: l.skuId, orderId, buyerName: r.anonymous ? 'T****à' : 'Thu Hà', anonymous: r.anonymous, rating: r.rating, sub: r.sub,
+        id, productId: l.productId, skuId: l.skuId, orderId, buyerName: r.anonymous ? maskName(w.buyer.name) : 'Thu Hà', anonymous: r.anonymous, rating: r.rating, sub: r.sub,
         text: r.text.trim(), tags: r.tags, photos: r.photos, createdAt: now(), isMine: true,
       })
       l.reviewId = id
@@ -638,20 +665,20 @@ export function advanceOrder(orderId: string) {
       case 'to_confirm':
         o.status = 'to_ship'; o.at.to_ship = t
         w.tracking.push({ orderId, at: t, code: 'to_ship', text: 'Shop đã xác nhận đơn, đang chuẩn bị hàng' })
-        return notify(w, 'order', 'Shop đã xác nhận đơn', `${shopName} đang chuẩn bị đơn ${orderId}.`, `/orders/${orderId}`)
+        return notify(w, 'order', 'Shop đã xác nhận đơn hàng', `Đơn hàng ${orderId} đang được ${shopName} chuẩn bị.`, `/orders/${orderId}`)
       case 'to_ship':
         if (o.cancelRequest?.status === 'pending') o.cancelRequest.status = 'refused'
         o.status = 'shipping'; o.at.picked = t; o.at.shipping = t
         w.tracking.push({ orderId, at: t, code: 'picked', text: 'Đơn vị vận chuyển đã lấy hàng', location: w.shops.find((s) => s.id === o.shopId)!.provinceName })
-        return notify(w, 'order', 'Đơn hàng đang giao', `Đơn ${orderId} đã được giao cho ${o.carrier}.`, `/orders/${orderId}`)
+        return notify(w, 'order', 'Đơn hàng đang được giao', `Đơn hàng ${orderId} đã được giao cho ${o.carrier}. Mã vận đơn ${o.trackingCode}.`, `/orders/${orderId}`)
       case 'shipping':
         o.status = 'delivered'; o.at.delivered = t
         if (o.paymentMethod === 'cod') o.paymentStatus = 'paid'
         w.tracking.push({ orderId, at: t, code: 'delivered', text: 'Giao hàng thành công', location: o.address.provinceName })
-        return notify(w, 'order', 'Giao hàng thành công', `Đơn ${orderId} đã giao. Kiểm tra hàng và bấm "Đã nhận được hàng".`, `/orders/${orderId}`)
+        return notify(w, 'order', 'Giao hàng thành công', `Đơn hàng ${orderId} đã được giao. Bấm "Đã nhận được hàng" nếu bạn đã nhận đủ hàng.`, `/orders/${orderId}`)
       case 'delivered':
         o.status = 'completed'; o.at.completed = t
-        return
+        return notify(w, 'order', 'Đơn hàng đã hoàn thành', `Đơn hàng ${orderId} đã hoàn thành. Bạn có thể đánh giá sản phẩm.`, `/orders/${orderId}`)
     }
   })
 }
@@ -664,7 +691,7 @@ export function failDelivery(orderId: string) {
     w.tracking.push({ orderId, at: t, code: 'cancelled', text: 'Giao hàng không thành công, đơn đã hủy' })
     refundFor(w, o, o.total)
     restock(w, o)
-    notify(w, 'order', 'Giao hàng không thành công', `Đơn ${orderId} đã hủy sau khi giao không thành công.${o.refund ? ' Tiền sẽ được hoàn.' : ''}`, `/orders/${orderId}`)
+    notify(w, 'order', 'Giao hàng không thành công', `Đơn hàng ${orderId} đã bị hủy vì giao hàng không thành công. ${refundSentence(o)}`, `/orders/${orderId}`)
   })
 }
 export function respondCancel(orderId: string, accept: boolean) {
@@ -677,11 +704,11 @@ export function respondCancel(orderId: string, accept: boolean) {
       o.status = 'cancelled'; o.cancelledBy = 'shop'; o.cancelReason = o.cancelRequest.reason; o.at.cancelled = t
       w.tracking.push({ orderId, at: t, code: 'cancelled', text: 'Shop đã chấp nhận yêu cầu hủy' })
       refundFor(w, o, o.total); restock(w, o)
-      notify(w, 'order', 'Yêu cầu hủy được chấp nhận', `Đơn ${orderId} đã hủy.`, `/orders/${orderId}`)
+      notify(w, 'order', 'Shop đã đồng ý hủy đơn', `Đơn hàng ${orderId} đã được hủy. ${refundSentence(o)}`, `/orders/${orderId}`)
     } else {
       o.cancelRequest.status = 'refused'
       w.tracking.push({ orderId, at: t, code: 'cancel_refused', text: 'Shop đã từ chối yêu cầu hủy' })
-      notify(w, 'order', 'Yêu cầu hủy bị từ chối', `Shop đã từ chối yêu cầu hủy đơn ${orderId}. Đơn vẫn được giao.`, `/orders/${orderId}`)
+      notify(w, 'order', 'Shop từ chối yêu cầu hủy đơn', `Đơn hàng ${orderId} sẽ tiếp tục được giao.`, `/orders/${orderId}`)
     }
   })
 }
@@ -690,7 +717,7 @@ export function finishRefund(orderId: string) {
     const o = w.orders.find((x) => x.id === orderId)!
     if (o.refund?.status !== 'processing') return
     o.refund.status = 'done'; o.refund.doneAt = now()
-    notify(w, 'order', `Đã hoàn tiền ${o.refund.amount.toLocaleString('vi-VN')}₫`, `Tiền của đơn ${orderId} đã về ${o.refund.to}.`, `/orders/${orderId}`)
+    notify(w, 'order', `Đã hoàn tiền ${vnd(o.refund.amount)}`, `Tiền của đơn hàng ${orderId} đã về ${o.refund.to}.`, `/orders/${orderId}`)
   })
 }
 export type ReturnDemo = 'approve_refund' | 'approve_return' | 'need_evidence' | 'reject' | 'received' | 'inspected'
@@ -708,21 +735,21 @@ export function returnDemo(returnId: string, action: ReturnDemo) {
         w.vouchers.push({ id, code: id.toUpperCase(), scope: 'platform', kind: 'amount', value: r.voucherCredit, minSpend: 0, startsAt: t, endsAt: t + 30 * DAY, totalQuota: 1, usedCount: 0, perBuyerLimit: 1, credit: true })
         w.savedVouchers.unshift({ voucherId: id, savedAt: t, usedCount: 0 })
       }
-      notify(w, 'order', `Đã hoàn tiền ${r.cash.toLocaleString('vi-VN')}₫`, `Yêu cầu trả hàng của đơn ${o.id} đã hoàn tiền về ${r.refundTo}.`, `/returns/${r.id}`)
+      notify(w, 'order', `Đã hoàn tiền ${vnd(r.cash)}`, `Yêu cầu trả hàng của đơn hàng ${o.id} đã hoàn tiền về ${r.refundTo}.${r.voucherCredit ? ` Voucher Market ${vnd(r.voucherCredit)} đã vào Kho voucher.` : ''}`, `/returns/${r.id}`)
     }
     switch (action) {
       case 'approve_refund': return done()
       case 'approve_return':
         r.returnDeadline = t + RETURN_SHIP_DAYS * DAY
         step('awaiting_return_shipment')
-        return notify(w, 'order', 'Yêu cầu trả hàng được chấp nhận', `Gửi hàng trả cho đơn ${o.id} trong ${RETURN_SHIP_DAYS} ngày.`, `/returns/${r.id}`)
+        return notify(w, 'order', 'Yêu cầu trả hàng đã được chấp nhận', `Vui lòng gửi hàng trả trước ${dmy(r.returnDeadline)}.`, `/returns/${r.id}`)
       case 'need_evidence':
         step('needs_evidence')
-        return notify(w, 'order', 'Cần bổ sung bằng chứng', `Yêu cầu trả hàng của đơn ${o.id} cần thêm ảnh.`, `/returns/${r.id}`)
+        return notify(w, 'order', 'Cần bổ sung bằng chứng', `Yêu cầu trả hàng của đơn hàng ${o.id} cần thêm ảnh.`, `/returns/${r.id}`)
       case 'reject':
         step('rejected'); r.rejectReason = 'Ảnh chưa cho thấy lỗi của sản phẩm'
         o.status = o.statusBeforeReturn ?? 'completed'
-        return notify(w, 'order', 'Yêu cầu trả hàng bị từ chối', `Yêu cầu của đơn ${o.id} bị từ chối.`, `/returns/${r.id}`)
+        return notify(w, 'order', 'Yêu cầu trả hàng/hoàn tiền bị từ chối', `Yêu cầu của đơn hàng ${o.id} bị từ chối: ${r.rejectReason}.`, `/returns/${r.id}`)
       case 'received': return step('inspecting', 'Kho đã nhận hàng trả')
       case 'inspected': return done()
     }

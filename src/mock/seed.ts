@@ -3,6 +3,7 @@
 // shortcut: images are hotlinked from cdn.dummyjson.com; self-host them if that CDN ever becomes unreliable.
 import source from './data/catalog-source.json'
 import { quoteShipping } from '@/domain/shipping'
+import { refundSplit } from '@/domain/orders'
 import { price as priceSession, voucherLabel } from '@/domain/pricing'
 import type {
   Address, Buyer, CartLine, Category, FlashSlot, Notification, Order, OrderLine, OrderStatus, Payment, PaymentMethod, Product,
@@ -29,6 +30,8 @@ export type World = {
   favorites: string[]
   follows: string[]
   searchHistory: string[]
+  /** Vouchers already announced as expiring (US-NTF-002). */
+  expiryNotified?: string[]
   seq: number
 }
 
@@ -254,7 +257,7 @@ export function seedWorld(now: number): World {
   const pin = (srcId: number) => bySrc[srcId]
   // §4.3 cart: Shop A (Linen Hạ, Đà Nẵng) 298.000₫ + 180.000₫, Shop B (Chảo Gang Bà Bảy, HCM) 245.000₫.
   const shopA = sh('linen-ha'), shopB = sh('chao-gang-ba-bay'), shopC = sh('buoc-chan-sneaker')
-  const dress = moveTo(pin(164), shopA), earrings = moveTo(pin(184), shopA), wok = moveTo(pin(52), shopB), sneaker = moveTo(pin(91), shopC)
+  const dress = moveTo(pin(164), shopA), earrings = moveTo(pin(184), shopA), wok = moveTo(pin(52), shopB), sneaker = moveTo(pin(92), shopC)
   setPrice(dress, 298_000, 398_000); setPrice(earrings, 180_000); setPrice(wok, 245_000, 289_000)
   // 2 dimensions × 6 options with gaps: one colour with no stock at all.
   const floral = pin(163)
@@ -289,7 +292,7 @@ export function seedWorld(now: number): World {
   /* ── Reviews ── */
   const reviews: Review[] = []
   for (const p of products) {
-    const n = Math.min(p.ratingCount, int(4, 14))
+    const n = p.ratingCount === 0 ? 0 : int(6, 40)
     const pskus = skus.filter((k) => k.productId === p.id)
     for (let i = 0; i < n; i++) {
       const r = rnd() < 0.72 ? 5 : rnd() < 0.6 ? 4 : rnd() < 0.5 ? 3 : int(1, 2)
@@ -304,6 +307,13 @@ export function seedWorld(now: number): World {
         shopReply: rnd() < 0.15 ? { text: 'Cảm ơn bạn đã tin chọn shop. Shop rất vui khi bạn hài lòng!', at: now - int(0, 30) * DAY } : undefined,
       })
     }
+  }
+
+  // The rating line and the review summary count the same reviews (product page consistency).
+  for (const p of products) {
+    const rs = reviews.filter((r) => r.productId === p.id)
+    p.ratingCount = rs.length
+    p.rating = rs.length ? Math.round((rs.reduce((a, r) => a + r.rating, 0) / rs.length) * 10) / 10 : 0
   }
 
   /* ── Vouchers ── */
@@ -506,7 +516,7 @@ export function seedWorld(now: number): World {
   rq.statusBeforeReturn = 'delivered'; delete rq.at.completed
   returns.push({
     id: 'RT1', orderId: rq.id, lineIds: [rq.lines[0].id], reason: 'damaged', description: 'Hộp bị móp, sản phẩm trầy một góc.', photos: [rq.lines[0].image],
-    solution: 'return_and_refund', refundTo: 'Tài khoản ngân hàng ••••6789', cash: rq.lines[0].unitPrice * rq.lines[0].qty, voucherCredit: 0, shippingRefund: 0,
+    solution: 'return_and_refund', refundTo: 'Tài khoản ngân hàng ••••6789', ...splitOf(rq, [rq.lines[0].id]),
     status: 'under_review', createdAt: now - 1 * DAY, timeline: [{ status: 'submitted', at: now - 1 * DAY }, { status: 'under_review', at: now - 20 * HOUR }],
   })
   rq.returnId = 'RT1'
@@ -514,7 +524,7 @@ export function seedWorld(now: number): World {
   rd.statusBeforeReturn = 'completed'
   returns.push({
     id: 'RT2', orderId: rd.id, lineIds: rd.lines.map((l) => l.id), reason: 'not_as_described', description: 'Màu khác ảnh.', photos: [rd.lines[0].image],
-    solution: 'refund_only', refundTo: 'Ví điện tử đã thanh toán', cash: rd.total, voucherCredit: 0, shippingRefund: rd.shippingFee - rd.shippingDiscount,
+    solution: 'refund_only', refundTo: 'Ví điện tử đã thanh toán', ...splitOf(rd, rd.lines.map((l) => l.id)),
     status: 'refunded', createdAt: rd.at.completed! + DAY, timeline: [{ status: 'submitted', at: rd.at.completed! + DAY }, { status: 'under_review', at: rd.at.completed! + DAY + 2 * HOUR }, { status: 'refunded', at: rd.at.completed! + 3 * DAY }],
   })
   rd.returnId = 'RT2'; rd.paymentStatus = 'refunded'
@@ -563,6 +573,11 @@ export function seedWorld(now: number): World {
   function setPrice(p: Product, price: number, before?: number) {
     for (const k of skus.filter((x) => x.productId === p.id)) { k.price = price; k.priceBeforePromo = before; if (!k.stock) k.stock = 20 }
   }
+}
+
+function splitOf(o: Order, lineIds: string[]) {
+  const r = refundSplit(o, lineIds)
+  return { cash: r.cash, voucherCredit: r.voucherCredit, shippingRefund: r.shipping }
 }
 
 export function variantText(p: Product, k: Sku): string {

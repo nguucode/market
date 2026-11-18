@@ -10,7 +10,7 @@ import { pickHomeVouchers } from '@/features/prm/vouchers'
 import { VoucherTile } from '@/features/prm/VoucherTile'
 import { flashSlotState, formatCountdown, startLabel } from './flash'
 import { FlashCard, flashEntries } from './FlashCard'
-import { autoLoadAllowed, categoryTiles, HERO, pickMosaic, RAILS, railProducts, REC_PAGE, recommendationPage } from './home'
+import { autoLoadAllowed, categoryTiles, HERO, kitchenMosaic, RAILS, railProducts, REC_PAGE, recommendationPage } from './home'
 import { Rail } from './Rail'
 
 /* ── Per-tab memory: scroll position and recommendation pages survive PDP → back (US-HOM-001) ── */
@@ -59,20 +59,20 @@ function ViewAll({ to, label = 'Xem tất cả' }: { to: string; label?: string 
 
 function Hero() {
   const w = useWorld()
-  const mosaic = pickMosaic(HERO.mosaic, HERO.fallbacks, w.products)
+  const mosaic = kitchenMosaic(w)
   const target = w.categories.some((c) => c.slug === HERO.cta.category) ? `/c/${HERO.cta.category}` : '/categories'
   return (
     <section aria-labelledby="home-hero" className="grid items-center gap-5 lg:grid-cols-12 lg:gap-10">
-      <div className="order-2 lg:order-1 lg:col-span-5 lg:min-w-[360px]">
-        <PageTitle className="text-[28px]! leading-[1.12]! tracking-[-0.015em] text-balance lg:text-[44px]! lg:leading-[1.1]!"><span id="home-hero">{HERO.headline}</span></PageTitle>
+      <div className="order-2 lg:order-1 lg:col-span-5 lg:min-w-[360px] lg:py-6">
+        <PageTitle className="text-[28px]! leading-[1.12]! tracking-[-0.015em] text-balance lg:text-[48px]! lg:leading-[1.06]! xl:text-[60px]!"><span id="home-hero">{HERO.headline}</span></PageTitle>
         <p className="mt-3 max-w-[44ch] text-[15px] text-ink-2 lg:mt-4 lg:text-[18px]">{HERO.subhead}</p>
         <ButtonLink to={target} size="lg" className="mt-5 w-full lg:mt-8 lg:w-auto">{HERO.cta.label}</ButtonLink>
       </div>
-      <ul role="list" aria-label="Sản phẩm trong bộ sưu tập" className="order-1 grid grid-cols-3 gap-2 rounded-[16px] bg-well/70 p-2 lg:order-2 lg:col-span-7 lg:gap-3 lg:p-3">
+      <ul role="list" aria-label="Sản phẩm trong bộ sưu tập" className="order-1 grid grid-cols-3 gap-2 lg:order-2 lg:col-span-7 lg:gap-3">
         {mosaic.map((p, i) => (
           <li key={p.id} className={cx(i >= 3 && 'hidden lg:block')}>
             <Link to={`/p/${p.slug}`} className="block rounded-[var(--radius-media)]" aria-label={p.name}>
-              <Img src={p.images[0]} alt="" eager className="aspect-[4/5] w-full rounded-[var(--radius-media)] bg-surface! transition-[filter] hover:brightness-[0.97]" />
+              <Img full src={p.images[0]} alt="" eager className="aspect-[4/5] w-full rounded-[var(--radius-media)] transition-[filter] hover:brightness-[0.97]" />
             </Link>
           </li>
         ))}

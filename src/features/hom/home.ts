@@ -21,6 +21,15 @@ export function pickMosaic(ids: string[], fallbacks: string[], products: Product
     .slice(0, n)
 }
 
+/** Hero mosaic for the kitchen story: the six best-selling primary kitchen listings (ids would drift with the catalogue). */
+export function kitchenMosaic(w: World, n = 6): Product[] {
+  const leaves = new Set(leavesUnder(w, 'do-bep'))
+  return activeProducts(w)
+    .filter((p) => leaves.has(p.categoryId) && !p.name.startsWith('['))
+    .sort((a, b) => b.soldCount - a.soldCount || a.id.localeCompare(b.id))
+    .slice(0, n)
+}
+
 /** Level-1 categories with one product photo each (US-HOM-002). */
 export function categoryTiles(w: World): { category: Category; image?: string }[] {
   const active = activeProducts(w)

@@ -106,9 +106,9 @@ function WebHeader({ focused }: { focused: boolean }) {
           <NavLink key={c.id} to={c.route!} className={({ isActive }) => cx('flex h-8 items-center rounded-full px-3 text-[13px] font-medium no-underline whitespace-nowrap hover:bg-well', isActive && 'bg-well')}>{c.label}</NavLink>
         ))}
         <span className="mx-1 h-4 w-px bg-line" aria-hidden />
-        {top.map((c) => <NavLink key={c.id} to={`/c/${c.slug}`} className={({ isActive }) => cx('flex h-8 items-center rounded-full px-3 text-[13px] no-underline whitespace-nowrap text-ink-2 hover:bg-well', isActive && 'bg-well text-ink')}>{c.name}</NavLink>)}
+        {top.map((c, i) => <NavLink key={c.id} to={`/c/${c.slug}`} className={({ isActive }) => cx('h-8 items-center rounded-full px-3 text-[13px] no-underline whitespace-nowrap text-ink-2 hover:bg-well', i < 3 ? 'flex' : i < 5 ? 'hidden xl:flex' : 'hidden 2xl:flex', isActive && 'bg-well text-ink')}>{c.name}</NavLink>)}
         <span className="flex-1" />
-        <Link to={`/device?path=${encodeURIComponent(location.pathname + location.search)}`} className="flex h-8 items-center gap-1.5 rounded-full px-3 text-[13px] no-underline text-ink-2 hover:bg-well"><Smartphone size={15} aria-hidden />Xem trên điện thoại</Link>
+        <Link to={`/device?path=${encodeURIComponent(location.pathname + location.search)}`} className="flex h-8 shrink-0 items-center gap-1.5 rounded-full px-3 text-[13px] whitespace-nowrap no-underline text-ink-2 hover:bg-well"><Smartphone size={15} aria-hidden />Xem trên điện thoại</Link>
         <DemoControlsButton />
         <SampleBadge />
       </nav>

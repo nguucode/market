@@ -70,7 +70,7 @@ export function Gallery({ images, alt, show, muted, overlay }: { images: string[
         <div ref={strip} className="no-scrollbar flex snap-x snap-mandatory overflow-x-auto" onScroll={(e) => { const el = e.currentTarget; const i = Math.round(el.scrollLeft / el.clientWidth); if (i !== idx) setIdx(i) }}>
           {all.map((src, i) => (
             <button key={src + i} type="button" onClick={() => open(i)} className="w-full shrink-0 snap-center" aria-label={`Xem ảnh ${i + 1} toàn màn hình`}>
-              <Img src={src} alt={i === 0 ? alt : ''} eager={i === 0} className="aspect-[4/5] w-full" />
+              <Img full src={src} alt={i === 0 ? alt : ''} eager={i === 0} className="aspect-[4/5] w-full" />
             </button>
           ))}
         </div>
@@ -98,7 +98,7 @@ export function Gallery({ images, alt, show, muted, overlay }: { images: string[
       )}
       <div className="relative min-w-0 flex-1">
         <button type="button" onClick={() => open(shownIdx)} className="block w-full cursor-zoom-in" aria-label="Xem ảnh toàn màn hình">
-          <Img src={all[shownIdx]} alt={alt} eager className="aspect-[4/5] w-full rounded-[8px]" />
+          <Img full src={all[shownIdx]} alt={alt} eager className="aspect-[4/5] w-full rounded-[8px]" />
         </button>
         {overlay}
       </div>
