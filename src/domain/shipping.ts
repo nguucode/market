@@ -43,5 +43,5 @@ const dm = (ms: number) => {
 /** "Nhận hàng 21/11 – 23/11" or "Nhận hàng hôm nay". */
 export function etaText([a, b]: [number, number], now: number) {
   if (b <= startOfDay(now)) return 'Nhận hàng hôm nay'
-  return a === b ? `Nhận hàng ${dm(a)}` : `Nhận hàng ${dm(a)}\u00a0–\u00a0${dm(b)}` // the range never breaks across lines
+  return a === b ? `Nhận hàng ${dm(a)}` : `Nhận hàng ${dm(a)}\u00a0\u2060–\u2060\u00a0${dm(b)}` // the range never breaks across lines
 }

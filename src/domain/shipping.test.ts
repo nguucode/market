@@ -17,6 +17,6 @@ test('heavy parcels add 5.000₫ per kg over 2kg', () => {
 
 test('eta text', () => {
   const [a, b] = quoteShipping(79, 48, 500, NOW)[0].eta
-  expect(etaText([a, b], NOW)).toBe('Nhận hàng 21/11\u00a0–\u00a023/11')
+  expect(etaText([a, b], NOW)).toBe('Nhận hàng 21/11\u00a0\u2060–\u2060\u00a023/11')
   expect(etaText([startOfDay(NOW), startOfDay(NOW)], NOW)).toBe('Nhận hàng hôm nay')
 })

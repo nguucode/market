@@ -148,8 +148,8 @@ function WebHeader({ focused }: { focused: boolean }) {
           <CategoryMenu />
           <div className="max-w-[820px] min-w-0 flex-1 pt-3">
             <SearchBox />
-            <nav aria-label="Tìm kiếm phổ biến" className="flex h-7 items-center gap-3 overflow-hidden px-1 text-[12px] whitespace-nowrap">
-              {TRENDING.slice(0, 7).map((k, i) => <Link key={k} to={`/search?q=${encodeURIComponent(k)}`} className={cx('no-underline hover:text-accent-ink', i === 0 ? 'text-accent-ink' : 'text-muted')}>{k}</Link>)}
+            <nav aria-label="Tìm kiếm phổ biến" className="flex h-7 flex-wrap content-start gap-x-3 overflow-hidden px-1 text-[12px] leading-7 whitespace-nowrap">
+              {TRENDING.slice(0, 4).map((k, i) => <Link key={k} to={`/search?q=${encodeURIComponent(k)}`} className={cx('no-underline hover:text-accent-ink', i === 0 ? 'text-accent-ink' : 'text-muted')}>{k}</Link>)}
             </nav>
           </div>
           <span className="flex-1" />
