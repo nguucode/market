@@ -10,6 +10,7 @@ import type {
   Address, AppliedVoucher, CartLine, Notification, Order, OrderLine, PaymentMethod, Product, ReturnReason, Review, ShippingOption, Shop, Sku, Voucher,
 } from '@/domain/types'
 import { seedWorld, variantText, type World } from '@/mock/seed'
+import catalogSource from '@/mock/data/catalog-source.json'
 
 const DAY = 86_400_000
 const HOUR = 3_600_000
@@ -23,19 +24,22 @@ export type Settings = {
   nextPlaceOrder: 'normal' | 'price_changed' | 'out_of_stock'
   clockOffsetMs: number
 }
-export type State = { world: World; settings: Settings; version: number; seededAt: number }
+export type State = { world: World; settings: Settings; version: number; seededAt: number; catalog?: string }
+
+/** Fingerprint of the catalogue: saved demo state from an older catalogue is discarded (its product ids may be gone). */
+export const CATALOG = ((s: string) => { let h = 5381; for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0; return (h >>> 0).toString(36) })(JSON.stringify(catalogSource))
 
 const KEY = 'market.state.v1'
 const DEFAULT_SETTINGS: Settings = { latency: 'normal', nextPayment: 'success', nextPlaceOrder: 'normal', clockOffsetMs: 0 }
 
 function fresh(): State {
   const t = Date.now()
-  return { world: seedWorld(t), settings: { ...DEFAULT_SETTINGS }, version: 1, seededAt: t }
+  return { world: seedWorld(t), settings: { ...DEFAULT_SETTINGS }, version: 1, seededAt: t, catalog: CATALOG }
 }
 function load(): State {
   try {
     const raw = localStorage.getItem(KEY)
-    if (raw) return JSON.parse(raw) as State
+    if (raw) { const s = JSON.parse(raw) as State; if (s.catalog === CATALOG) return s }
   } catch { /* storage blocked: fall back to a fresh seed */ }
   return fresh()
 }

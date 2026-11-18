@@ -144,3 +144,10 @@ function mutateUsage(voucherId: string, n: number) {
   const w = getState().world
   w.savedVouchers.find((s) => s.voucherId === voucherId)!.usedCount = n
 }
+
+test('saved state from another catalogue is discarded on load', async () => {
+  localStorage.setItem('market.state.v1', JSON.stringify({ ...getState(), catalog: 'old' }))
+  vi.resetModules()
+  const fresh = await import('./store')
+  expect(fresh.getState().catalog).toBe(fresh.CATALOG)
+})
