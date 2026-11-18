@@ -9,7 +9,7 @@ import { quoteShipping, type Quote } from '@/domain/shipping'
 import type {
   Address, AppliedVoucher, CartLine, Notification, Order, OrderLine, PaymentMethod, Product, ReturnReason, Review, ShippingOption, Shop, Sku, Voucher,
 } from '@/domain/types'
-import { seedWorld, variantText, type World } from '@/mock/seed'
+import { SEED_VERSION, seedWorld, variantText, type World } from '@/mock/seed'
 import catalogSource from '@/mock/data/catalog-source.json'
 
 const DAY = 86_400_000
@@ -27,7 +27,7 @@ export type Settings = {
 export type State = { world: World; settings: Settings; version: number; seededAt: number; catalog?: string }
 
 /** Fingerprint of the catalogue: saved demo state from an older catalogue is discarded (its product ids may be gone). */
-export const CATALOG = ((s: string) => { let h = 5381; for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0; return (h >>> 0).toString(36) })(JSON.stringify(catalogSource))
+export const CATALOG = ((s: string) => { let h = 5381; for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0; return (h >>> 0).toString(36) })(SEED_VERSION + JSON.stringify(catalogSource))
 
 const KEY = 'market.state.v1'
 const DEFAULT_SETTINGS: Settings = { latency: 'normal', nextPayment: 'success', nextPlaceOrder: 'normal', clockOffsetMs: 0 }

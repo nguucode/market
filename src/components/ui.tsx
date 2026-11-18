@@ -110,7 +110,7 @@ export function Price({ price, before, size = 'md', range, showStruck = true, cl
 export function RatingStar({ className }: { className?: string }) {
   return <Star size={12} strokeWidth={0} aria-hidden className={cx('inline-block shrink-0 fill-current align-[-1px]', className)} />
 }
-/** "4,6 ★ (222)" with a drawn star; screen readers hear "4,6 sao". */
+/** Rating number with a drawn star and count; screen readers hear "4,6 sao". */
 export function RatingText({ value, count, className }: { value: number; count?: string; className?: string }) {
   return (
     <span className={cx('inline-flex items-center gap-1', className)}>

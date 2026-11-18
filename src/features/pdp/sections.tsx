@@ -73,7 +73,7 @@ export function ShopVouchers({ shop }: { shop: Shop }) {
     <>
       <button type="button" onClick={() => setOpen(true)} className="flex min-h-11 w-full items-center gap-3 text-left" aria-haspopup="dialog">
         <span className="shrink-0 text-[13px] text-muted">Voucher của Shop</span>
-        <span className="flex min-w-0 flex-1 gap-1.5 overflow-hidden">
+        <span className="flex min-w-0 flex-1 flex-wrap gap-1.5 max-lg:flex-nowrap max-lg:overflow-hidden max-lg:[mask-image:linear-gradient(to_right,#000_85%,transparent)]">
           {live.slice(0, 3).map((v) => (
             <span key={v.id} className="shrink-0 rounded-full bg-jade-soft px-2.5 py-0.5 text-[12px] font-semibold whitespace-nowrap text-jade-ink">{voucherLabel(v)}{v.minSpend > 0 && <span className="font-normal"> · đơn từ {compactVnd(v.minSpend)}</span>}</span>
           ))}

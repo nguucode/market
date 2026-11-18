@@ -10,6 +10,9 @@ import type {
   ReturnRequest, Review, SavedVoucher, Shop, Sku, TrackingEvent, VariantDimension, Voucher,
 } from '@/domain/types'
 
+/** Bump whenever seed logic changes, so saved demo state from an older seed is discarded. */
+export const SEED_VERSION = 3
+
 export type World = {
   buyer: Buyer
   categories: Category[]
@@ -247,10 +250,10 @@ export function seedWorld(now: number): World {
   }
   // Competing listings from a second shop of the same group, with marketplace-style long names.
   for (const src of source.products) {
-    if (rnd() > 0.6) continue
+    if (rnd() > 0.6 || src.images.length < 2) continue
     const pool = shopsByGroup(level1Of(src.categoryId)).filter((s) => s.id !== bySrc[src.src].shopId)
     if (!pool.length) continue
-    addProduct(src, pick(pool), { name: `${src.name} ${pick(['loại 1', 'cao cấp', 'mẫu mới', 'bản tiêu chuẩn', 'giá tốt'])}`, priceFactor: 0.88 + rnd() * 0.24 })
+    addProduct({ ...src, images: [...src.images.slice(1), src.images[0]] }, pick(pool), { name: `${src.name} ${pick(['loại 1', 'cao cấp', 'mẫu mới', 'bản tiêu chuẩn', 'giá tốt'])}`, priceFactor: 0.88 + rnd() * 0.24 })
   }
 
   // ── Hand-made edge cases (mock-data.md) ──
@@ -274,6 +277,7 @@ export function seedWorld(now: number): World {
       stock: c === 3 ? 0 : (c + s) % 4 === 0 ? 0 : (c * 7 + s * 3) % 9 === 0 ? 3 : 12 + ((c + s) % 20), image: floral.images[c % floral.images.length],
     })
   })
+  floral.soldCount = 10_800
   // Overflow names.
   const longName = pin(162)
   longName.name = 'Đầm xòe xanh dương cổ vuông tay phồng dáng dài qua gối, vải đũi lụa mềm mát, phong cách tiểu thư Hàn Quốc đi biển dạo phố'
@@ -293,7 +297,7 @@ export function seedWorld(now: number): World {
   /* ── Reviews ── */
   const reviews: Review[] = []
   for (const p of products) {
-    const n = p.ratingCount === 0 ? 0 : int(6, 40)
+    const n = p.ratingCount === 0 && p.id !== floral.id ? 0 : int(6, 40)
     const pskus = skus.filter((k) => k.productId === p.id)
     for (let i = 0; i < n; i++) {
       const r = rnd() < 0.72 ? 5 : rnd() < 0.6 ? 4 : rnd() < 0.5 ? 3 : int(1, 2)
