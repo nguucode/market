@@ -1,0 +1,118 @@
+# Single source for Market's navigation and routes. The real nav (header + tab bar) reads this file.
+# One route tree serves both layouts. Layout is chosen by viewport width, never by route.
+#   web: >= 1024px, header with search + category row.  app: < 1024px, tab bar + per-screen header.
+# label: Vietnamese UI text. id/route: English.
+# priority: P0 unless stated. Flow steps use ?step= (no new route segments). Filters and sort live in the query string.
+
+layouts:
+  web: { minWidth: 1024, nav: header, content: "max-width 1440, 4-5 column product grid" }
+  app: { maxWidth: 1023, nav: tabBar, content: "2 column product grid, sheets instead of popovers" }
+
+header: # web; the app layout shows logo + search + cart on Home and a back/title/cart header elsewhere
+  - { id: logo, route: "/" }
+  - { id: categories, label: Danh mục, menu: category-tree }
+  - { id: search, label: "Tìm sản phẩm, shop…", route: "/search", kind: search }
+  - { id: notifications, label: Thông báo, route: "/notifications", badge: unread }
+  - { id: favorites, label: Yêu thích, route: "/favorites" }
+  - { id: cart, label: Giỏ hàng, route: "/cart", badge: lineCount }
+  - { id: account, label: Tài khoản, menu: [Đơn mua, Kho voucher, Địa chỉ, Đăng xuất] }
+  - { id: device, label: Xem trên điện thoại, route: "/device", demo: true }
+  - { id: demo-controls, label: Demo controls, demo: true }
+
+categoryRow: # web only, under the header; editorial entry points, not the tree (Etsy grammar)
+  - { id: flash-sale, label: Flash sale, route: "/flash-sale" }
+  - { id: vouchers, label: Mã giảm giá, route: "/vouchers" }
+  - { id: official, label: Shop chính hãng, route: "/search?official=1" }
+  - { id: top-cats, source: "top 6 level-1 categories" }
+
+tabBar: # app only
+  - { id: home, label: Trang chủ, route: "/" }
+  - { id: categories, label: Danh mục, route: "/categories" }
+  - { id: favorites, label: Yêu thích, route: "/favorites" }
+  - { id: notifications, label: Thông báo, route: "/notifications", badge: unread }
+  - { id: me, label: Tôi, route: "/me" }
+
+screens:
+  # ── Home ─────────────────────────────────────────────
+  - id: home
+    route: "/"
+    title: Trang chủ
+    sections:
+      - hero               # one editorial block: serif headline + image mosaic + pill CTA
+      - category-shortcuts # 8-10 round image tiles with labels (Etsy "gifts by interest" grammar)
+      - flash-sale         # current slot, countdown as text, horizontal rail, "Xem tất cả"
+      - voucher-strip      # 2-3 claimable platform vouchers, link to /vouchers
+      - themed-rails       # 2-3 curated rails ("Đồ bếp dưới 200K", …)
+      - recommendations    # infinite grid "Gợi ý hôm nay"
+
+  # ── Discovery ────────────────────────────────────────
+  - { id: categories, route: "/categories", title: Danh mục, note: "App: two-pane tree (level 1 left, level 2-3 right). Web: redirects to the header menu; deep link opens /c/:slug." }
+  - id: category
+    route: "/c/:slug"
+    title: "{category name}"
+    note: "Level 1-2: subcategory tiles + bestsellers rail + grid. Level 3: results grid with the same filters as search."
+  - id: search
+    route: "/search"
+    title: Tìm kiếm
+    states: [input, results]
+    note: "Input state (app full screen / web dropdown): history, trending, suggestions with category scoping. Results: filter chips row + Bộ lọc sheet/panel, sort (Liên quan, Mới nhất, Bán chạy, Giá), shop match on top when the query matches a shop."
+    query: [q, cat, price_min, price_max, rating, location, official, freeship, sale, voucher, cod, sort, page]
+
+  # ── Product and shop ─────────────────────────────────
+  - id: product
+    route: "/p/:slug"
+    title: "{product name}"
+    sections: [gallery, price-block, variant-picker, quantity, shipping-estimate, vouchers, actions, shop-card, details, reviews-summary, reviews, more-from-shop, similar]
+    overlays: [variant-sheet, shipping-sheet, voucher-sheet, image-viewer]
+    note: "App: sticky bottom bar (chat P1, Thêm vào giỏ, Mua ngay) opens variant-sheet. Web: picker inline in the right column."
+  - { id: product-reviews, route: "/p/:slug/reviews", title: Đánh giá, note: "Filters: star, with photos, with comments, by variant." }
+  - id: shop
+    route: "/s/:handle"
+    title: "{shop name}"
+    tabs: [shop, products, categories, reviews, about]  # ?tab=
+    note: "Header: banner, avatar, name, official badge, rating, followers, response rate, joined. Shop vouchers row. Follow."
+
+  # ── Buy ──────────────────────────────────────────────
+  - { id: cart, route: "/cart", title: Giỏ hàng, overlays: [variant-sheet, shop-voucher-sheet, remove-confirm] }
+  - id: checkout
+    route: "/checkout"
+    title: Thanh toán
+    shell: focused   # web: logo + steps only, no search; app: back + title
+    overlays: [address-sheet, address-form, shipping-sheet, payment-sheet, voucher-sheet]
+    note: "Single page, not a wizard (VN marketplace convention). One block per shop with its shipping option and message to seller."
+  - { id: checkout-pay, route: "/checkout/pay/:paymentId", title: Thanh toán đơn hàng, shell: focused, note: "Mock gateway for VietQR / wallet / card: QR + countdown, or card form with test values. Demo control decides success/failure." }
+  - { id: checkout-result, route: "/checkout/result/:paymentId", title: Đặt hàng thành công, shell: focused }
+
+  # ── After purchase ───────────────────────────────────
+  - id: orders
+    route: "/orders"
+    title: Đơn mua
+    tabs: [all, awaiting_payment, to_ship, shipping, delivered, cancelled, returns]  # ?status=
+  - { id: order, route: "/orders/:id", title: Chi tiết đơn hàng, overlays: [cancel-sheet, confirm-received-dialog] }
+  - { id: order-return, route: "/orders/:id/return", title: Yêu cầu trả hàng/hoàn tiền, steps: [items, reason, evidence, refund, confirm, result] }
+  - { id: order-invoice, route: "/orders/:id/invoice", title: Hóa đơn, shell: none, note: "Printable page (rules.md#order-rules)." }
+  - { id: return, route: "/returns/:id", title: Chi tiết trả hàng }
+  - { id: order-review, route: "/orders/:id/review", title: Đánh giá sản phẩm, note: "One block per line item: stars, quick tags, text, up to 5 photos (local mock upload), anonymous toggle." }
+
+  # ── Promotions ───────────────────────────────────────
+  - { id: flash-sale, route: "/flash-sale", title: Flash sale, note: "Slot tabs (today + tomorrow), per-item sold bar, Sắp diễn ra with Nhắc tôi (P1)." }
+  - { id: vouchers, route: "/vouchers", title: Kho voucher, tabs: [all, platform, shop, shipping, expiring], note: "Claim (Lưu) and see saved vouchers in one place." }
+
+  # ── Me ───────────────────────────────────────────────
+  - id: me
+    route: "/me"
+    title: Tôi
+    sections: [profile-header, order-status-shortcuts, vouchers, favorites, followed-shops, addresses, help]
+    note: "Web: account menu + a /me overview page with the same blocks."
+  - { id: addresses, route: "/me/addresses", title: Địa chỉ của tôi, overlays: [address-form] }
+  - { id: favorites, route: "/favorites", title: Yêu thích, note: "Products tab (P0), Shops tab = followed shops (P1)." }
+  - { id: my-reviews, route: "/me/reviews", title: Đánh giá của tôi, priority: P1 }
+  - { id: notifications, route: "/notifications", title: Thông báo, tabs: [orders, promotions, system] }
+
+  # ── Legal ───────────────────────────────────────────
+  - { id: policy, route: "/policies/:slug", title: "{policy name}", note: "Static pages linked from the footer: ve-market, bao-mat, quy-che, khieu-nai, dieu-khoan (rules.md#seller-and-product-disclosures)." }
+
+  # ── Demo and case study ──────────────────────────────
+  - { id: device, route: "/device", title: Xem trên điện thoại, shell: none, demo: true, note: "App layout inside a 390×844 frame, synced with the main tab, as in Wallet." }
+  - { id: product-menu, route: "/product", title: Product, priority: P1, demo: true, note: "Renders spec/. Web only." }
+  - { id: not-found, route: "*", title: Không tìm thấy trang }
