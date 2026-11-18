@@ -67,12 +67,12 @@ export function VariantPicker({ product, value, onChange, onPreview, className }
                     onMouseEnter={d === 0 && o.image && onPreview ? () => onPreview(o.image) : undefined}
                     onMouseLeave={d === 0 && o.image && onPreview ? () => onPreview(undefined) : undefined}
                     className={cx(
-                      'inline-flex h-11 max-w-[200px] items-center gap-2 rounded-[8px] bg-surface px-3 text-[13px] lg:h-9',
+                      'inline-flex h-11 max-w-[220px] items-center gap-2 rounded-full bg-surface px-4 text-[13px] lg:h-9',
                       on ? 'font-semibold ring-2 ring-inset ring-ink' : 'ring-1 ring-inset ring-line hover:ring-line-strong',
                       !st.enabled && 'cursor-not-allowed text-muted line-through decoration-muted/70 hover:ring-line',
                     )}
                   >
-                    {o.image && <img src={o.image} alt="" className={cx('-ml-1.5 size-8 shrink-0 rounded-[4px] bg-well object-contain mix-blend-multiply', !st.enabled && 'opacity-50')} />}
+                    {o.image && <img src={o.image} alt="" className={cx('-ml-2.5 size-8 shrink-0 rounded-full bg-well object-contain mix-blend-multiply', !st.enabled && 'opacity-50')} />}
                     <span className="truncate">{o.label}</span>
                   </button>
                 )

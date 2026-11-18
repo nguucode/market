@@ -28,7 +28,7 @@ function Action({ v, state, c, size = 'sm', full }: { v: Voucher; state: TileSta
   const handle = v.shopId ? w.shops.find((s) => s.id === v.shopId)?.handle : undefined
   const name = voucherLabel(v)
   if (c.just) return <Button variant="secondary" size={size} full={full} disabled>Đã lưu</Button>
-  if (state === 'saved') return <ButtonLink to={applyTarget(v, handle)} size={size} full={full} aria-label={`Dùng ngay ${name}`}>Dùng ngay</ButtonLink>
+  if (state === 'saved') return <ButtonLink to={applyTarget(v, handle)} variant="secondary" size={size} full={full}>Dùng ngay</ButtonLink>
   if (state === 'claimable' && !c.error) return <Button variant="secondary" size={size} full={full} loading={c.pending} onClick={c.claim} aria-label={`Lưu ${name}`}>Lưu</Button>
   if (state === 'expired') return <Button variant="secondary" size={size} full={full} disabled>Đã hết hạn</Button>
   return <Button variant="secondary" size={size} full={full} disabled>Đã hết lượt</Button>

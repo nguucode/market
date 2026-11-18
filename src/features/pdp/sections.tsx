@@ -1,11 +1,12 @@
+import type { ReactNode } from 'react'
 // Product page sections: price block (US-PDP-002), shop vouchers (010), shipping (005), shop card (006), specs/description/policies (007).
 import { BadgeCheck, ChevronDown, ChevronRight, MapPin, RotateCcw, ShieldCheck, Truck } from 'lucide-react'
 import { useId, useLayoutEffect, useRef, useState } from 'react'
 import { Link } from 'react-router'
 import { useLayout } from '@/app/layout'
 import { defaultAddress, saveVoucher, useNow, useWorld } from '@/app/store'
-import { Button, ButtonLink, cx, Sheet, toast } from '@/components/ui'
-import { compactCount, vnd } from '@/domain/money'
+import { Button, ButtonLink, cx, Sheet, toast, RatingText } from '@/components/ui'
+import { compactCount, compactVnd, vnd } from '@/domain/money'
 import { voucherLabel } from '@/domain/pricing'
 import { etaText, OPTION_LABEL, quoteShipping } from '@/domain/shipping'
 import type { Category, Product, Shop, Voucher } from '@/domain/types'
@@ -74,7 +75,7 @@ export function ShopVouchers({ shop }: { shop: Shop }) {
         <span className="shrink-0 text-[13px] text-muted">Voucher của Shop</span>
         <span className="flex min-w-0 flex-1 gap-1.5 overflow-hidden">
           {live.slice(0, 3).map((v) => (
-            <span key={v.id} className="shrink-0 rounded-[6px] border border-dashed border-jade/60 bg-jade-soft/70 px-2 py-0.5 text-[12px] font-semibold whitespace-nowrap text-jade-ink">{voucherLabel(v)}</span>
+            <span key={v.id} className="shrink-0 rounded-full bg-jade-soft px-2.5 py-0.5 text-[12px] font-semibold whitespace-nowrap text-jade-ink">{voucherLabel(v)}{v.minSpend > 0 && <span className="font-normal"> · đơn từ {compactVnd(v.minSpend)}</span>}</span>
           ))}
         </span>
         <span className="flex shrink-0 items-center text-[13px] text-ink-2">{live.length > 3 && 'Xem tất cả'}<ChevronRight size={16} aria-hidden /></span>
@@ -200,12 +201,12 @@ export function ShopCard({ shop }: { shop: Shop }) {
   const count = w.products.filter((p) => p.shopId === shop.id && p.status === 'active').length
   const to = `/s/${shop.handle}`
   const facts = [
-    `${shop.rating.toLocaleString('vi-VN')} ★ (${compactCount(shop.ratingCount)})`,
+    <RatingText key="r" value={shop.rating} count={compactCount(shop.ratingCount)} />,
     `${count.toLocaleString('vi-VN')} sản phẩm`,
     `Tỉ lệ phản hồi ${shop.responseRate}%`,
     shop.responseTime && `Phản hồi ${shop.responseTime}`,
     `Tham gia ${dateText(shop.joinedAt)}`,
-  ].filter(Boolean) as string[]
+  ].filter(Boolean) as ReactNode[]
   return (
     <section aria-label="Thông tin shop">
       <div className="flex items-start gap-3 pb-3 lg:items-center lg:gap-4">
@@ -219,10 +220,10 @@ export function ShopCard({ shop }: { shop: Shop }) {
           </div>
           <p className="mt-0.5 text-[12px] text-muted">{shop.provinceName}</p>
           {layout === 'web' ? (
-            <p className="mt-1.5 flex flex-wrap gap-x-2 text-[13px] text-ink-2">{facts.map((f, i) => <span key={f}>{i > 0 && <span aria-hidden className="mr-2 text-muted">·</span>}{f}</span>)}</p>
+            <p className="mt-1.5 flex flex-wrap gap-x-2 text-[13px] text-ink-2">{facts.map((f, i) => <span key={i}>{i > 0 && <span aria-hidden className="mr-2 text-muted">·</span>}{f}</span>)}</p>
           ) : (
             <dl className="mt-2 grid grid-cols-3 gap-2 text-[12px]">
-              <div><dt className="text-muted">Đánh giá</dt><dd className="font-semibold">{shop.rating.toLocaleString('vi-VN')} ★</dd></div>
+              <div><dt className="text-muted">Đánh giá</dt><dd className="font-semibold"><RatingText value={shop.rating} /></dd></div>
               <div><dt className="text-muted">Sản phẩm</dt><dd className="font-semibold">{count}</dd></div>
               <div><dt className="text-muted">Phản hồi</dt><dd className="font-semibold">{shop.responseRate}%</dd></div>
             </dl>

@@ -106,6 +106,20 @@ export function Price({ price, before, size = 'md', range, showStruck = true, cl
   )
 }
 
+/** The rating glyph: the icon library's star, filled, sized to the text. */
+export function RatingStar({ className }: { className?: string }) {
+  return <Star size={12} strokeWidth={0} aria-hidden className={cx('inline-block shrink-0 fill-current align-[-1px]', className)} />
+}
+/** "4,6 ★ (222)" with a drawn star; screen readers hear "4,6 sao". */
+export function RatingText({ value, count, className }: { value: number; count?: string; className?: string }) {
+  return (
+    <span className={cx('inline-flex items-center gap-1', className)}>
+      {value.toLocaleString('vi-VN')}<RatingStar /><span className="sr-only">sao</span>
+      {count !== undefined && <span className="text-muted">({count})</span>}
+    </span>
+  )
+}
+
 export function Stars({ value, size = 14, count, className }: { value: number; size?: number; count?: number; className?: string }) {
   return (
     <span className={cx('inline-flex items-center gap-1 text-[13px]', className)}>

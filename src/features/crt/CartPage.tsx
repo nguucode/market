@@ -88,14 +88,16 @@ export default function CartPage() {
   const selectAll = (
     <Checkbox checked={allSelected} indeterminate={someSelected && !allSelected} disabled={!available.length} onChange={toggleAll} label={`Chọn tất cả (${available.length})`} />
   )
+  // Savings = product markdowns + shop vouchers; the ledger shows both so it adds up.
+  const promo = summary.savings - summary.shopDiscount
   const ledger = (
     <MoneyFold
-      label={`Tổng cộng (${summary.count} sản phẩm)`}
+      label={`Tổng (${summary.count})`}
       total={summary.total}
       size={layout === 'web' ? 'lg' : 'md'}
       defaultOpen={layout === 'web'}
       lines={[
-        { label: 'Tiền hàng', amount: summary.goods },
+        ...(promo > 0 ? [{ label: 'Giá trước khuyến mãi', amount: summary.goods + promo }, { label: 'Giảm giá sản phẩm', amount: promo, tone: 'minus' as const }] : [{ label: 'Tiền hàng', amount: summary.goods }]),
         ...summary.shops.filter((s) => s.applied).map((s) => ({ label: `Voucher của Shop · ${groups.find((g) => g.shop.id === s.shopId)!.shop.name}: ${voucherLabel(s.applied!)}`, amount: s.discount, tone: 'minus' as const })),
       ]}
     />

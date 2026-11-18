@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { Link } from 'react-router'
 import { useLayout } from '@/app/layout'
 import { skuById, useWorld } from '@/app/store'
-import { cx, SectionHead, Stars } from '@/components/ui'
+import { cx, SectionHead, Stars, RatingText } from '@/components/ui'
 import { compactCount } from '@/domain/money'
 import type { Product, Review } from '@/domain/types'
 import { variantText } from '@/mock/seed'
@@ -93,7 +93,7 @@ export function ReviewsSummary({ product }: { product: Product }) {
       {layout === 'app' ? (
         <Link to={to} className="mb-1 flex min-h-11 items-center gap-2 no-underline">
           <h2 id="pdp-reviews" className="font-display text-[19px] font-semibold">Đánh giá sản phẩm</h2>
-          <span className="text-[13px] text-ink-2">{s.avg.toLocaleString('vi-VN')} ★ ({compactCount(s.count)})</span>
+          <RatingText value={s.avg} count={compactCount(s.count)} className="text-[13px] text-ink-2" />
           <ChevronRight size={18} aria-hidden className="ml-auto text-muted" />
         </Link>
       ) : (

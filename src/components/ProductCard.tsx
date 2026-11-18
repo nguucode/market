@@ -5,7 +5,7 @@ import { cardLabel, priceView } from '@/app/catalog'
 import { toggleFavorite, useNow, useWorld } from '@/app/store'
 import { compactCount } from '@/domain/money'
 import type { Product } from '@/domain/types'
-import { cx, Img, Price, toast } from './ui'
+import { cx, Img, Price, RatingText, toast } from './ui'
 
 export function ProductCard({ product: p, eager, className, showShopLocation }: { product: Product; eager?: boolean; className?: string; showShopLocation?: boolean }) {
   const w = useWorld()
@@ -27,7 +27,7 @@ export function ProductCard({ product: p, eager, className, showShopLocation }: 
         <h3 className="mt-2 truncate text-[14px] leading-5 text-ink" title={p.name}>{p.name}</h3>
         <Price price={pv.min} size="md" showStruck={false} className="mt-0.5" />
         <p className="mt-0.5 flex items-center gap-1.5 text-[12px] text-muted">
-          {p.ratingCount > 0 && <><span className="text-ink-2">★ {p.rating.toLocaleString('vi-VN')}</span><span aria-hidden>·</span></>}
+          {p.ratingCount > 0 && <><RatingText value={p.rating} className="text-ink-2" /><span aria-hidden>·</span></>}
           <span>Đã bán {compactCount(p.soldCount)}</span>
           {showShopLocation && <><span aria-hidden>·</span><span className="truncate">{shop.provinceName}</span></>}
         </p>

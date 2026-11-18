@@ -25,8 +25,9 @@ export function pickMosaic(ids: string[], fallbacks: string[], products: Product
 export function kitchenMosaic(w: World, n = 6): Product[] {
   const leaves = new Set(leavesUnder(w, 'do-bep'))
   return activeProducts(w)
-    .filter((p) => leaves.has(p.categoryId) && !p.name.startsWith('['))
+    .filter((p) => leaves.has(p.categoryId))
     .sort((a, b) => b.soldCount - a.soldCount || a.id.localeCompare(b.id))
+    .filter((p, i, xs) => xs.findIndex((x) => x.images[0] === p.images[0]) === i)
     .slice(0, n)
 }
 

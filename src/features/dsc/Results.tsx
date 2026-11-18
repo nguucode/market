@@ -7,7 +7,7 @@ import { useLocation, useNavigate, useNavigationType, useSearchParams } from 're
 import { useLayout } from '@/app/layout'
 import { delay, pushSearch, useNow, useWorld } from '@/app/store'
 import { ProductGrid } from '@/components/ProductCard'
-import { Button, ButtonLink, Checkbox, Chip, cx, EmptyState, GridSkeleton, inputClass, PageTitle, Radio, Sheet, useLoaded } from '@/components/ui'
+import { Button, ButtonLink, Checkbox, Chip, cx, EmptyState, GridSkeleton, inputClass, PageTitle, Radio, Sheet, useLoaded, RatingText } from '@/components/ui'
 import { compactCount } from '@/domain/money'
 import type { Category } from '@/domain/types'
 import { Monogram, OfficialBadge } from '@/features/shp/bits'
@@ -128,7 +128,7 @@ export function useSearchState(scope?: Category) {
 
 /* ── Filter panel ─────────────────────────────────────────────────── */
 
-const FLAG_LABEL: Record<Flag | 'rating', string> = { sale: 'Đang giảm', freeship: 'Freeship', voucher: 'Có voucher', official: 'Shop chính hãng', cod: 'Hỗ trợ COD', rating: '4★ trở lên' }
+const FLAG_LABEL: Record<Flag | 'rating', string> = { sale: 'Đang giảm', freeship: 'Freeship', voucher: 'Có voucher', official: 'Shop chính hãng', cod: 'Hỗ trợ COD', rating: 'Từ 4 sao' }
 
 function FilterPanel({ open, onOpenChange, params, scope, onApply }: { open: boolean; onOpenChange: (o: boolean) => void; params: SearchParams; scope?: Category; onApply: (p: SearchParams) => void }) {
   const w = useWorld()
@@ -263,7 +263,7 @@ function ShopMatch({ shop }: { shop: ReturnType<typeof matchShop> & object }) {
         <p className="truncate font-display text-[17px] font-semibold lg:text-[20px]" title={shop.name}>{shop.name}</p>
         <p className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-[13px] text-muted lg:text-[14px]">
           {shop.isOfficial && <OfficialBadge />}
-          <span>{shop.rating.toLocaleString('vi-VN')} ★</span><span aria-hidden>·</span>
+          <RatingText value={shop.rating} /><span aria-hidden>·</span>
           <span>{compactCount(shop.followers)} người theo dõi</span><span aria-hidden>·</span>
           <span>{groupDigits(n)} sản phẩm</span>
         </p>

@@ -132,7 +132,6 @@ P = {
   139: ('Găng bắt bóng chày', 'gay', 390000, 'size'),
   141: ('Vành rổ treo tường', 'dung-cu-tap', 590000, 'none'),
   142: ('Bóng cricket da đỏ', 'bong-cac-loai', 129000, 'none'),
-  144: ('Mũ bảo hiểm thể thao có lưới', 'dung-cu-tap', 790000, 'size'),
   145: ('Bộ cọc cricket', 'dung-cu-tap', 459000, 'none'),
   146: ('Quả cầu lông vũ hộp 12', 'bong-cac-loai', 129000, 'none'),
   147: ('Bóng đá số 5', 'bong-cac-loai', 229000, 'none'),

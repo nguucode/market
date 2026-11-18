@@ -5,7 +5,7 @@ import { Link, useParams, useSearchParams } from 'react-router'
 import { useLayout } from '@/app/layout'
 import { saveVoucher, savedUse, shopByHandle, toggleFollow, useNow, useWorld } from '@/app/store'
 import { ProductCard, ProductRail } from '@/components/ProductCard'
-import { Button, ButtonLink, Chip, cx, EmptyState, GridSkeleton, Img, PageTitle, SectionHead, Sheet, Skeleton, Stars, Tabs, toast, useLoaded } from '@/components/ui'
+import { Button, ButtonLink, Chip, cx, EmptyState, GridSkeleton, Img, PageTitle, SectionHead, Sheet, Skeleton, Stars, Tabs, toast, useLoaded, RatingText } from '@/components/ui'
 import { compactCount, compactVnd, vnd } from '@/domain/money'
 import { voucherLabel } from '@/domain/pricing'
 import type { Shop, Voucher } from '@/domain/types'
@@ -78,27 +78,24 @@ function FollowButton({ shop }: { shop: Shop }) {
 
 function ShopHeader({ shop, productCount }: { shop: Shop; productCount: number }) {
   const layout = useLayout()
-  const rating = `${shop.rating.toLocaleString('vi-VN')} ★ (${compactCount(shop.ratingCount)})`
+  const rating = <RatingText value={shop.rating} count={compactCount(shop.ratingCount)} />
   const followers = `${compactCount(shop.followers)} người theo dõi`
   const facts = [shop.provinceName, rating, followers, `${groupDigits(productCount)} sản phẩm`, `Tỉ lệ phản hồi ${shop.responseRate}%`, `Phản hồi ${shop.responseTime}`, `Tham gia ${fmtDate(shop.joinedAt)}`]
 
   if (layout === 'app')
     return (
       <header className="-mx-4 -mt-4 mb-3">
-        <div className="relative h-[140px] overflow-hidden bg-well">
-          {shop.banner && <Img src={shop.banner} alt="" className="absolute inset-0 size-full" />}
-          {shop.banner && <span aria-hidden className="absolute inset-0 bg-gradient-to-t from-ink/80 via-ink/45 to-ink/20" />}
-          <div className="absolute inset-x-4 bottom-3 flex items-center gap-3">
-            <Monogram shop={shop} className="size-16 text-[22px] ring-2 ring-ground" />
-            <div className={cx('min-w-0 flex-1', shop.banner ? 'text-ground' : 'text-ink')}>
-              <PageTitle className="truncate text-[20px]! leading-tight"><span title={shop.name}>{shop.name}</span></PageTitle>
-              <p className="mt-1 flex items-center gap-2 text-[12px]">
-                {shop.isOfficial && <OfficialBadge className={shop.banner ? 'bg-ground! text-ink!' : ''} />}
-                <span className="inline-flex items-center gap-1 truncate"><MapPin size={12} aria-hidden />{shop.provinceName}</span>
-              </p>
-            </div>
-            <FollowButton shop={shop} />
+        <ShopCover shop={shop} n={3} className="h-[132px] gap-1.5 px-4 pt-3" />
+        <div className="flex items-center gap-3 px-4 py-3">
+          <Monogram shop={shop} className="size-14 text-[20px]" />
+          <div className="min-w-0 flex-1">
+            <PageTitle className="truncate text-[20px]! leading-tight"><span title={shop.name}>{shop.name}</span></PageTitle>
+            <p className="mt-1 flex items-center gap-2 text-[12px] text-ink-2">
+              {shop.isOfficial && <OfficialBadge />}
+              <span className="inline-flex items-center gap-1 truncate"><MapPin size={12} aria-hidden />{shop.provinceName}</span>
+            </p>
           </div>
+          <FollowButton shop={shop} />
         </div>
         <dl className="grid grid-cols-3 border-b border-line bg-surface py-3 text-center">
           <div><dt className="text-[11px] text-muted">Đánh giá</dt><dd className="text-[14px] font-semibold">{rating}</dd></div>
@@ -111,7 +108,7 @@ function ShopHeader({ shop, productCount }: { shop: Shop; productCount: number }
 
   return (
     <header className="mb-4">
-      {shop.banner ? <Img src={shop.banner} alt="" eager className="h-[240px] w-full rounded-[8px]" /> : <div className="h-[120px] rounded-[8px] bg-well" />}
+      <ShopCover shop={shop} n={5} className="h-[220px] gap-3" />
       <div className="flex items-end gap-6 px-6">
         <Monogram shop={shop} className="-mt-12 size-24 text-[34px] ring-4 ring-ground" />
         <div className="min-w-0 flex-1 pt-4">
@@ -124,6 +121,20 @@ function ShopHeader({ shop, productCount }: { shop: Shop; productCount: number }
         <FollowButton shop={shop} />
       </div>
     </header>
+  )
+}
+
+/** Cover made of the shop's own best sellers (image-led, no stock banner). */
+function ShopCover({ shop, n, className }: { shop: Shop; n: number; className?: string }) {
+  const w = useWorld()
+  const picks = w.products.filter((p) => p.shopId === shop.id && p.status === 'active').sort((a, b) => b.soldCount - a.soldCount)
+  const seen = new Set<string>()
+  const tiles = picks.filter((p) => !seen.has(p.images[0]) && seen.add(p.images[0])).slice(0, n)
+  if (!tiles.length) return <div aria-hidden className={cx('rounded-[8px] bg-well', className)} />
+  return (
+    <div aria-hidden className={cx('grid', className)} style={{ gridTemplateColumns: `repeat(${n}, minmax(0, 1fr))` }}>
+      {Array.from({ length: n }, (_, i) => tiles[i]).map((p, i) => p ? <Img key={p.id} full={i < 2} src={p.images[0]} alt="" eager className="h-full rounded-[8px]" /> : <span key={i} className="rounded-[8px] bg-well" />)}
+    </div>
   )
 }
 

@@ -82,7 +82,7 @@ export default function MePage() {
               <ul className="mt-3 flex flex-wrap gap-2">
                 {follows.slice(0, 8).map((s) => (
                   <li key={s.id}>
-                    <Link to={`/s/${s.handle}`} aria-label={s.name} title={s.name} className="flex size-11 items-center justify-center rounded-full bg-well text-[13px] font-semibold text-ink-2 no-underline hover:bg-line">{initials(s.name)}</Link>
+                    <Link to={`/s/${s.handle}`} title={s.name} className="flex size-11 items-center justify-center rounded-full bg-well text-[13px] font-semibold text-ink-2 no-underline hover:bg-line"><span aria-hidden>{initials(s.name)}</span><span className="sr-only">{s.name}</span></Link>
                   </li>
                 ))}
                 {follows.length > 8 && <li className="flex size-11 items-center justify-center rounded-full text-[13px] text-muted">+{follows.length - 8}</li>}

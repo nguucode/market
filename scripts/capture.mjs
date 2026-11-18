@@ -1,5 +1,5 @@
 // Review captures through the Chrome DevTools Protocol, so mobile widths below headless Chrome's ~500px window minimum work.
-// Usage: node scripts/capture.mjs <outDir> <width>x<height> <name>=<path> [<name>=<path> ...]
+// Usage: node scripts/capture.mjs <outDir> <width>x<height> <name>=<path>[>>ButtonLabel] [<name>=<path> ...]
 // Needs the dev server on :5180 and Google Chrome installed. Add `full:` before a name for a full-page capture.
 import { spawn } from 'node:child_process'
 import { mkdtempSync, writeFileSync } from 'node:fs'
@@ -32,7 +32,17 @@ await send('Page.enable')
 await send('Emulation.setDeviceMetricsOverride', { width, height, deviceScaleFactor: 2, mobile: width < 640 })
 for (const shot of shots) {
   const [name, path] = shot.split(/=(.*)/s)
-  await send('Page.navigate', { url: `http://localhost:5180${path}` })
+  // `path>>Label` opens path, then clicks the first button or link whose text starts with Label (e.g. /cart>>Mua hàng).
+  const [route, ...clicks] = path.split('>>')
+  await send('Page.navigate', { url: `http://localhost:5180${route}` })
+  for (const label of clicks) {
+    for (let i = 0; i < 40; i++) {
+      const r = await send('Runtime.evaluate', { expression: `(() => { const b = [...document.querySelectorAll('button,a')].find((x) => x.textContent.trim().startsWith(${JSON.stringify(label)}) && !x.disabled); if (b) { b.click(); return true } return false })()`, returnByValue: true })
+      if (r?.result?.value) break
+      await sleep(250)
+    }
+    await sleep(1200)
+  }
   // The dataset loads with a top-level await; wait for the app to paint real content.
   for (let i = 0; i < 40; i++) {
     await sleep(250)

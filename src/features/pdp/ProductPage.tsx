@@ -6,7 +6,7 @@ import { activeProducts, ancestry } from '@/app/catalog'
 import { useLayout } from '@/app/layout'
 import { addToCart, productBySlug, shopById, startCheckout, toggleFavorite, useNow, useWorld } from '@/app/store'
 import { ProductRail } from '@/components/ProductCard'
-import { Button, cx, Img, PageTitle, QtyStepper, SectionHead, Sheet, Skeleton, toast, useLoaded } from '@/components/ui'
+import { Button, cx, Img, PageTitle, QtyStepper, SectionHead, Sheet, Skeleton, toast, useLoaded, RatingText } from '@/components/ui'
 import { compactCount } from '@/domain/money'
 import type { Category, Product } from '@/domain/types'
 import NotFound from '@/features/demo/NotFound'
@@ -152,7 +152,7 @@ function ProductView({ product }: { product: Product }) {
 
   const ratingLine = (
     <p className="mt-2 flex flex-wrap items-center gap-x-2 text-[13px] text-ink-2">
-      {product.ratingCount > 0 ? <a href="#pdp-reviews" className="no-underline hover:underline">{product.rating.toLocaleString('vi-VN')} ★ <span className="text-muted">({compactCount(product.ratingCount)})</span></a> : <span className="text-muted">Chưa có đánh giá</span>}
+      {product.ratingCount > 0 ? <a href="#pdp-reviews" className="no-underline hover:underline"><RatingText value={product.rating} count={compactCount(product.ratingCount)} /></a> : <span className="text-muted">Chưa có đánh giá</span>}
       <span aria-hidden className="text-muted">·</span>
       <span>Đã bán {compactCount(product.soldCount)}</span>
     </p>

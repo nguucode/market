@@ -246,12 +246,11 @@ export function seedWorld(now: number): World {
     bySrc[src.src] = addProduct(src, shop)
   }
   // Competing listings from a second shop of the same group, with marketplace-style long names.
-  const TAGS = ['Hàng có sẵn', 'Freeship đơn từ 0Đ', 'Mẫu mới 2026', 'Bán chạy', 'Chính hãng', 'Giao nhanh 2h']
   for (const src of source.products) {
     if (rnd() > 0.6) continue
     const pool = shopsByGroup(level1Of(src.categoryId)).filter((s) => s.id !== bySrc[src.src].shopId)
     if (!pool.length) continue
-    addProduct(src, pick(pool), { name: `[${pick(TAGS)}] ${src.name} ${pick(['loại 1', 'cao cấp', 'giá tốt', 'chuẩn đẹp', ''])}`.trim(), priceFactor: 0.88 + rnd() * 0.24 })
+    addProduct(src, pick(pool), { name: `${src.name} ${pick(['loại 1', 'cao cấp', 'mẫu mới', 'bản tiêu chuẩn', 'giá tốt'])}`, priceFactor: 0.88 + rnd() * 0.24 })
   }
 
   // ── Hand-made edge cases (mock-data.md) ──
