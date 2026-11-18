@@ -16,7 +16,7 @@ reserved = readme.scan(/^\| (US-[A-Z]{3}-\d{3}) \| (.+?) \|$/).to_h
 
 SECTIONS = ["## Story", "## Acceptance criteria", "## UI states", "## Design notes", "## FE notes", "## Mock data"]
 REQUIRED = %w[id title epic priority status size routes dependsOn]
-BANNED = [/\[verify\]/i, /pending verification/i, /\bEtsy\b/, /Star Seller/]
+BANNED = [/\[verify\]/i, /pending verification/i, /\bEtsy\b/, /Star Seller/, /taobao/i, /Tmall/i]
 
 stories = {}
 Dir.glob(File.join(ROOT, "epics/*/")).sort.each do |dir|

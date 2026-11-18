@@ -21,7 +21,7 @@ function Seg<T extends string>({ label, value, options, onChange }: { label: str
     <div role="radiogroup" aria-label={label} className="flex flex-wrap gap-1.5">
       {options.map(([v, l]) => (
         <button key={v} type="button" role="radio" aria-checked={value === v} onClick={() => onChange(v)}
-          className={cx('h-8 rounded-full px-3 text-[12px] font-medium ring-1 ring-inset', value === v ? 'bg-ink text-ground ring-ink' : 'bg-surface ring-line hover:ring-line-strong')}>{l}</button>
+          className={cx('h-8 rounded-full px-3 text-[12px] font-medium ring-1 ring-inset', value === v ? 'bg-ink text-white ring-ink' : 'bg-surface ring-line hover:ring-line-strong')}>{l}</button>
       ))}
     </div>
   )
@@ -52,7 +52,7 @@ export function DemoControlsPanel({ onDone }: { onDone?: () => void }) {
         {sorted.length === 0 && <p className="text-muted">Không có đơn đang xử lý.</p>}
         <ul className="space-y-2">
           {sorted.map((o) => (
-            <li key={o.id} className={cx('rounded-[10px] p-2.5 ring-1 ring-inset', o.id === ctxOrder ? 'bg-jade-soft/50 ring-jade' : 'ring-line')}>
+            <li key={o.id} className={cx('rounded-[10px] p-2.5 ring-1 ring-inset', o.id === ctxOrder ? 'bg-accent-soft/50 ring-accent' : 'ring-line')}>
               <p className="flex justify-between gap-2"><span className="truncate font-medium">{shopName(o.shopId)}</span><span className="shrink-0 text-muted">{STATUS_LABEL[o.status]}</span></p>
               <p className="tabular text-[12px] text-muted">{o.id} · {vnd(o.total)}</p>
               <div className="mt-2 flex flex-wrap gap-1.5">
@@ -90,7 +90,7 @@ export function DemoControlsPanel({ onDone }: { onDone?: () => void }) {
                 : r.status === 'inspecting' ? [['inspected', 'Kiểm tra đạt, hoàn tiền'], ['reject', 'Kiểm tra không đạt']]
                   : []
           return (
-            <div key={r.id} className={cx('rounded-[10px] p-2.5 ring-1 ring-inset', r.id === ctxReturn ? 'bg-jade-soft/50 ring-jade' : 'ring-line')}>
+            <div key={r.id} className={cx('rounded-[10px] p-2.5 ring-1 ring-inset', r.id === ctxReturn ? 'bg-accent-soft/50 ring-accent' : 'ring-line')}>
               <p className="flex justify-between"><span className="tabular">{r.orderId}</span><span className="text-muted">{RETURN_LABEL[r.status]}</span></p>
               <div className="mt-2 flex flex-wrap gap-1.5">{acts.map(([a, l]) => <Button key={a} size="sm" variant="secondary" onClick={() => { returnDemo(r.id, a); said(l) }}>{l}</Button>)}</div>
             </div>
@@ -129,7 +129,7 @@ export function DemoControlsButton() {
   const [open, setOpen] = useState(false)
   return (
     <>
-      <button type="button" onClick={() => setOpen(true)} className="flex h-8 shrink-0 items-center gap-1.5 rounded-full px-3 text-[13px] whitespace-nowrap text-ink-2 hover:bg-well"><SlidersHorizontal size={15} aria-hidden />Demo controls</button>
+      <button type="button" onClick={() => setOpen(true)} className="flex h-8 shrink-0 items-center gap-1 rounded-[6px] px-2 whitespace-nowrap hover:text-accent-ink"><SlidersHorizontal size={13} aria-hidden />Demo controls</button>
       <DemoControlsSheet open={open} onOpenChange={setOpen} />
     </>
   )

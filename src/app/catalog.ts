@@ -54,10 +54,10 @@ export const activeProducts = (w: World) => w.products.filter((p) => p.status ==
 export const siblingKey = (p: Product) => [...p.images].sort().join('|')
 /**
  * Keeps listings of the same source product at least `gap` positions apart (stable: an item moves down only as far
- * as needed). With gap 6 and grids of 2–5 columns, two siblings never share a row and never sit directly above one
+ * as needed). With gap 7 and grids of 2–6 columns, two siblings never share a row and never sit directly above one
  * another, whatever the breakpoint.
  */
-export function spreadSiblings<T>(items: T[], productOf: (x: T) => Product, gap = 6): T[] {
+export function spreadSiblings<T>(items: T[], productOf: (x: T) => Product, gap = 7): T[] {
   const out: T[] = []
   const waiting = [...items]
   while (waiting.length) {

@@ -8,7 +8,7 @@ web
 
 ## Stack
 
-Delegated (owner: "theo recommend của bạn", 2026-11-18): React 19 + Vite + TypeScript + React Router 7 + Tailwind v4 + Radix, Vitest, axe, the same stack as Fortify and Wallet. One app with two layouts on one route tree: web (≥ 1024px, header with search) and app shell (< 1024px, tab bar, sheets). A `/device` route renders the app shell in a 390×844 phone frame for desktop reviewers, as in Wallet. Deployed to Cloudflare Pages at market.ontheshore.biz [inferred: follows the Fortify/Wallet pattern].
+Delegated (owner: "theo recommend của bạn", 2026-11-18): React 19 + Vite + TypeScript + React Router 7 + Tailwind v4 + Radix, Vitest, axe, the same stack as Fortify and Wallet. One app with two layouts on one route tree: web (≥ 1024px, header with search) and app shell (< 1024px, tab bar, sheets). A `/device` route renders the app shell in a 390×844 phone frame for desktop reviewers, as in Wallet. Deployed to Cloudflare Workers static assets at market.ontheshore.biz; GitHub Actions deploys on push to main.
 
 ## Users
 
@@ -21,7 +21,7 @@ A front-end-only, buyer-side marketplace demo for the Vietnamese market, running
 
 ## Positioning
 
-A calm marketplace whose money math is always visible. Vietnamese marketplaces sell with red banners, stacked badges and countdowns on every card; Market keeps all of the same deals and rules but presents them in a quiet, image-led grammar, and shows every voucher by name and every đồng of the split between shops. The price you see is the price you can account for.
+A calm marketplace whose money math is always visible. Vietnamese marketplaces sell with red banners, stacked badges and countdowns on every card; Market keeps all of the same deals and rules but presents them in a clean, dense, price-led white grammar (one label per card, one accent), and shows every voucher by name and every đồng of the split between shops. The price you see is the price you can account for.
 
 ## Operating Context
 
@@ -41,7 +41,7 @@ A calm marketplace whose money math is always visible. Vietnamese marketplaces s
 ## Brand Commitments
 
 - Product name **Market** (working name, as Fortify and Wallet), platform voucher "Voucher Market".
-- UI follows the interface grammar measured in the vault note `10-projects/market/etsy-style-study.md` and borrows nothing of that brand: no logo, fonts (ABCOtto, ABCDiatype), exact colours (#F1641E, #FAF8F5, #312B36), program names, or the brand word. Taobao was the first reference and was dropped.
+- Redesign 2026-11-18 (owner: "dùng màu trắng hiện đại, giao diện học hỏi từ taobao.com"): UI follows the interface grammar measured in the vault note `10-projects/market/taobao-style-study.md` and borrows nothing of that brand: no logo, mascot, name, channel names, or exact colours (#FF5000, #FF4400). The earlier Etsy-grammar build (vault `etsy-style-study.md`) is superseded.
 - No real marketplace, wallet, bank or carrier logos. Shops, products, people, carriers and wallets in mock data are fictional ("Ví Sen", "Ví Mây", "Ngân hàng Sông Hàn").
 
 ## Evidence on Hand

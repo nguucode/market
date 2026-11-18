@@ -10,19 +10,19 @@ export const cx = (...xs: (string | false | null | undefined)[]) => xs.filter(Bo
 
 /* ── Buttons ──────────────────────────────────────────────────────── */
 
-type Variant = 'primary' | 'secondary' | 'ghost' | 'jade' | 'danger' | 'link'
+type Variant = 'primary' | 'secondary' | 'ghost' | 'accent' | 'danger' | 'link'
 type Size = 'sm' | 'md' | 'lg'
 const VARIANT: Record<Variant, string> = {
-  primary: 'bg-cta text-ground hover:bg-ink-2 disabled:bg-line-strong disabled:text-surface',
-  secondary: 'bg-surface text-ink ring-1 ring-inset ring-ink/80 hover:bg-well disabled:text-muted disabled:ring-line',
+  primary: 'bg-accent text-white hover:bg-accent-ink disabled:bg-line-strong disabled:text-surface',
+  secondary: 'bg-surface text-accent-ink ring-1 ring-inset ring-accent hover:bg-accent-soft disabled:text-muted disabled:ring-line disabled:bg-surface',
   ghost: 'text-ink hover:bg-well disabled:text-muted',
-  jade: 'bg-jade text-white hover:bg-jade-ink disabled:bg-line-strong',
+  accent: 'bg-accent-soft text-accent-ink hover:bg-[#fbdde3] disabled:bg-well disabled:text-muted',
   danger: 'bg-danger text-white hover:brightness-95 disabled:bg-line-strong',
-  link: 'text-jade-ink underline-offset-4 hover:underline px-0! h-auto! font-semibold',
+  link: 'text-accent-ink underline-offset-4 hover:underline px-0! h-auto! font-semibold',
 }
-const SIZE: Record<Size, string> = { sm: 'h-9 px-4 text-[13px]', md: 'h-11 px-5 text-[14px]', lg: 'h-12 px-6 text-[15px]' }
+const SIZE: Record<Size, string> = { sm: 'h-9 px-3.5 text-[13px]', md: 'h-11 px-5 text-[14px]', lg: 'h-12 px-6 text-[15px]' }
 export const buttonClass = (variant: Variant = 'primary', size: Size = 'md', full?: boolean) =>
-  cx('inline-flex items-center justify-center gap-2 rounded-full font-semibold whitespace-nowrap no-underline transition-[background-color,box-shadow,color] duration-150 disabled:cursor-not-allowed select-none', VARIANT[variant], SIZE[size], full && 'w-full')
+  cx('inline-flex items-center justify-center gap-2 rounded-[var(--radius-control)] font-semibold whitespace-nowrap no-underline transition-[background-color,box-shadow,color] duration-150 disabled:cursor-not-allowed select-none', VARIANT[variant], SIZE[size], full && 'w-full')
 
 export const Button = forwardRef<HTMLButtonElement, ButtonHTMLAttributes<HTMLButtonElement> & { variant?: Variant; size?: Size; full?: boolean; loading?: boolean }>(
   function Button({ variant, size, full, loading, className, children, disabled, type = 'button', ...rest }, ref) {
@@ -53,8 +53,8 @@ export function Chip({ selected, disabled, className, children, ...rest }: Butto
       aria-pressed={selected}
       disabled={disabled}
       className={cx(
-        'inline-flex min-h-9 items-center gap-1.5 rounded-full px-3.5 text-[13px] font-medium whitespace-nowrap transition-colors',
-        selected ? 'bg-jade-soft text-jade-ink ring-1 ring-inset ring-jade' : 'bg-surface text-ink ring-1 ring-inset ring-line hover:ring-line-strong',
+        'inline-flex min-h-9 items-center gap-1.5 rounded-[var(--radius-control)] px-3 text-[13px] font-medium whitespace-nowrap transition-colors',
+        selected ? 'bg-accent-soft text-accent-ink ring-1 ring-inset ring-accent' : 'bg-well text-ink ring-1 ring-inset ring-transparent hover:ring-line-strong',
         disabled && 'cursor-not-allowed text-muted line-through decoration-muted/60 opacity-70 hover:ring-line',
         className,
       )}
@@ -66,19 +66,19 @@ export function Chip({ selected, disabled, className, children, ...rest }: Butto
 }
 
 export function SampleBadge({ className, onClick }: { className?: string; onClick?: () => void }) {
-  const cls = cx('inline-flex h-6 items-center rounded-full bg-well px-2.5 text-[11px] font-semibold whitespace-nowrap text-ink-2', className)
+  const cls = cx('inline-flex h-6 items-center rounded-[6px] bg-well px-2 text-[11px] font-semibold whitespace-nowrap text-ink-2', className)
   return onClick ? <button type="button" onClick={onClick} className={cls} aria-label="Dữ liệu mẫu, mở Demo controls">Dữ liệu mẫu</button> : <span className={cls}>Dữ liệu mẫu</span>
 }
 
 /* ── Text & layout helpers ────────────────────────────────────────── */
 
 export function PageTitle({ children, className, serif = true }: { children: ReactNode; className?: string; serif?: boolean }) {
-  return <h1 data-page-title tabIndex={-1} className={cx(serif ? 'font-display text-[26px] leading-[1.15] font-semibold lg:text-[32px]' : 'text-[18px] font-semibold', className)}>{children}</h1>
+  return <h1 data-page-title tabIndex={-1} className={cx(serif ? 'font-display text-[22px] leading-[1.2] lg:text-[24px]' : 'text-[18px] font-semibold', className)}>{children}</h1>
 }
 export function SectionHead({ title, action, id, className }: { title: ReactNode; action?: ReactNode; id?: string; className?: string }) {
   return (
     <div className={cx('mb-3 flex items-end justify-between gap-4', className)}>
-      <h2 id={id} className="font-display text-[20px] leading-tight font-semibold lg:text-[24px]">{title}</h2>
+      <h2 id={id} className="font-display text-[18px] leading-tight lg:text-[20px]">{title}</h2>
       {action}
     </div>
   )
@@ -86,20 +86,20 @@ export function SectionHead({ title, action, id, className }: { title: ReactNode
 
 /* ── Price ────────────────────────────────────────────────────────── */
 
-/** Price with optional struck price and discount: rules.md#price-display (deal colour is jade, never red). */
+/** Price with optional struck price and discount: rules.md#price-display (every price wears the accent). */
 export function Price({ price, before, size = 'md', range, showStruck = true, className }: { price: number; before?: number; size?: 'sm' | 'md' | 'lg' | 'xl'; range?: [number, number]; showStruck?: boolean; className?: string }) {
   const pct = discountPct(price, before)
   const deal = pct > 0
-  const big = { sm: 'text-[14px]', md: 'text-[16px]', lg: 'text-[22px]', xl: 'text-[28px] lg:text-[30px]' }[size]
+  const big = { sm: 'text-[14px]', md: 'text-[18px]', lg: 'text-[22px]', xl: 'text-[28px] lg:text-[32px]' }[size]
   return (
     <span className={cx('inline-flex flex-wrap items-baseline gap-x-2 gap-y-0.5', className)}>
-      <span className={cx('tabular font-bold', big, deal ? 'text-jade' : 'text-ink')}>
+      <span className={cx('tabular font-bold tracking-[-0.01em] text-accent', big)}>
         {range && range[0] !== range[1] ? <>{vnd(range[0])}<span className="mx-1 font-normal text-muted">–</span>{vnd(range[1])}</> : vnd(price)}
       </span>
       {deal && showStruck && (
         <>
           <s className="tabular text-[13px] text-muted"><span className="sr-only">Giá trước khuyến mãi </span>{vnd(before!)}</s>
-          <span className="text-[13px] font-semibold text-jade-ink">-{pct}%</span>
+          <span className="rounded-[4px] bg-accent-soft px-1.5 py-px text-[12px] font-semibold text-accent-ink">-{pct}%</span>
         </>
       )}
     </span>
@@ -125,7 +125,7 @@ export function Stars({ value, size = 14, count, className }: { value: number; s
     <span className={cx('inline-flex items-center gap-1 text-[13px]', className)}>
       <span className="inline-flex" aria-hidden>
         {[1, 2, 3, 4, 5].map((i) => (
-          <Star key={i} size={size} strokeWidth={1.5} className={i <= Math.round(value) ? 'fill-ink text-ink' : 'fill-transparent text-line-strong'} />
+          <Star key={i} size={size} strokeWidth={1.5} className={i <= Math.round(value) ? 'fill-accent text-accent' : 'fill-transparent text-line-strong'} />
         ))}
       </span>
       <span className="sr-only">{value.toLocaleString('vi-VN')} trên 5 sao</span>
@@ -155,15 +155,15 @@ export function MoneyFold({ label = 'Tổng thanh toán', total, lines, split, d
           <ChevronDown size={16} aria-hidden className={cx('transition-transform duration-200', open && 'rotate-180')} />
           <span className="sr-only">{open ? 'Thu gọn chi tiết' : 'Xem chi tiết'}</span>
         </span>
-        <span className={cx('tabular font-bold', size === 'lg' ? 'text-[22px]' : 'text-[17px]')} aria-label={vndSpoken(total)}>{vnd(total)}</span>
+        <span className={cx('tabular font-bold text-accent', size === 'lg' ? 'text-[22px]' : 'text-[18px]')} aria-label={vndSpoken(total)}>{vnd(total)}</span>
       </button>
       {open && (
-        <div id={id} className="mt-3 border-t border-dashed border-line-strong pt-3 motion-safe:animate-[fold-open_220ms_var(--ease-out-expo)]">
+        <div id={id} className="mt-3 border-t border-dashed border-line-strong pt-3 motion-safe:animate-[fold-open_240ms_var(--ease-out-expo)]">
           <dl className="space-y-1.5 text-[13px]">
             {lines.map((l, i) => (
               <div key={i} className="flex items-start justify-between gap-4">
                 <dt className="min-w-0 text-ink-2">{l.label}{l.note && <span className="block text-[12px] text-muted">{l.note}</span>}</dt>
-                <dd className={cx('tabular shrink-0', l.tone === 'minus' ? 'text-jade-ink' : 'text-ink')}>{l.tone === 'minus' ? signedVnd(-Math.abs(l.amount)) : vnd(l.amount)}</dd>
+                <dd className={cx('tabular shrink-0', l.tone === 'minus' ? 'text-accent-ink' : 'text-ink')}>{l.tone === 'minus' ? signedVnd(-Math.abs(l.amount)) : vnd(l.amount)}</dd>
               </div>
             ))}
             <div className="flex justify-between gap-4 border-t border-line pt-2 font-semibold"><dt>{label}</dt><dd className="tabular">{vnd(total)}</dd></div>
@@ -172,7 +172,7 @@ export function MoneyFold({ label = 'Tổng thanh toán', total, lines, split, d
             <div className="mt-3">
               <p className="mb-1.5 text-[12px] text-muted">Chia thành {split.length} đơn, mỗi shop một đơn</p>
               <div className="flex h-1.5 overflow-hidden rounded-full bg-well" aria-hidden>
-                {split.map((s, i) => <span key={i} style={{ width: `${(s.amount / (sum || 1)) * 100}%` }} className={cx('h-full', i % 2 ? 'bg-jade/45' : 'bg-jade')} />)}
+                {split.map((s, i) => <span key={i} style={{ width: `${(s.amount / (sum || 1)) * 100}%` }} className={cx('h-full', i % 2 ? 'bg-accent/40' : 'bg-accent')} />)}
               </div>
               <ul className="mt-2 space-y-1 text-[12px]">
                 {split.map((s, i) => <li key={i} className="flex justify-between gap-3"><span className="truncate text-ink-2">{s.name}</span><span className="tabular">{vnd(s.amount)}</span></li>)}
@@ -196,10 +196,10 @@ export function QtyStepper({ value, min = 1, max, onChange, label = 'Số lượ
     setDraft(String(n)); if (n !== value) onChange(n)
   }
   return (
-    <div role="group" aria-label={label} className="inline-flex h-9 items-center rounded-full ring-1 ring-inset ring-line-strong">
-      <button type="button" aria-label="Giảm" disabled={disabled || value <= min} onClick={() => onChange(value - 1)} className="flex size-9 items-center justify-center rounded-full disabled:text-line-strong hover:enabled:bg-well"><Minus size={14} aria-hidden /></button>
+    <div role="group" aria-label={label} className="inline-flex h-9 items-center rounded-[var(--radius-control)] ring-1 ring-inset ring-line-strong">
+      <button type="button" aria-label="Giảm" disabled={disabled || value <= min} onClick={() => onChange(value - 1)} className="flex size-9 items-center justify-center rounded-[var(--radius-control)] disabled:text-line-strong hover:enabled:bg-well"><Minus size={14} aria-hidden /></button>
       <input aria-label={label} inputMode="numeric" disabled={disabled} value={draft} onChange={(e) => setDraft(e.target.value.replace(/\D/g, ''))} onBlur={(e) => commit(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && commit((e.target as HTMLInputElement).value)} className="tabular w-10 bg-transparent text-center text-[14px] outline-none" />
-      <button type="button" aria-label="Tăng" disabled={disabled || value >= max} onClick={() => onChange(value + 1)} className="flex size-9 items-center justify-center rounded-full disabled:text-line-strong hover:enabled:bg-well"><Plus size={14} aria-hidden /></button>
+      <button type="button" aria-label="Tăng" disabled={disabled || value >= max} onClick={() => onChange(value + 1)} className="flex size-9 items-center justify-center rounded-[var(--radius-control)] disabled:text-line-strong hover:enabled:bg-well"><Plus size={14} aria-hidden /></button>
     </div>
   )
 }
@@ -214,13 +214,13 @@ export function Field({ label, hint, error, children, htmlFor, required }: { lab
   )
 }
 export const inputClass = (invalid?: boolean) =>
-  cx('h-11 w-full rounded-[10px] bg-surface px-3.5 text-[14px] ring-1 ring-inset outline-none transition-shadow focus:ring-2 focus:ring-jade', invalid ? 'ring-danger' : 'ring-line-strong')
+  cx('h-11 w-full rounded-[var(--radius-control)] bg-surface px-3.5 text-[14px] ring-1 ring-inset outline-none transition-shadow focus:ring-2 focus:ring-accent', invalid ? 'ring-danger' : 'ring-line-strong')
 
 export function Checkbox({ checked, onChange, label, disabled, indeterminate, className }: { checked: boolean; onChange: (v: boolean) => void; label: ReactNode; disabled?: boolean; indeterminate?: boolean; className?: string }) {
   return (
     <label className={cx('inline-flex min-h-11 cursor-pointer items-center gap-2.5 select-none', disabled && 'cursor-not-allowed opacity-60', className)}>
       <span className="relative inline-flex size-5 shrink-0">
-        <input type="checkbox" className="peer absolute inset-0 m-0 cursor-pointer appearance-none rounded-[6px] bg-surface ring-1 ring-inset ring-line-strong checked:bg-jade checked:ring-jade disabled:cursor-not-allowed" checked={checked} disabled={disabled}
+        <input type="checkbox" className="peer absolute inset-0 m-0 cursor-pointer appearance-none rounded-full bg-surface ring-1 ring-inset ring-line-strong checked:bg-accent checked:ring-accent disabled:cursor-not-allowed" checked={checked} disabled={disabled}
           ref={(el) => { if (el) el.indeterminate = !!indeterminate }} onChange={(e) => onChange(e.target.checked)} />
         <Check size={14} strokeWidth={3} aria-hidden className="pointer-events-none absolute inset-[3px] text-white opacity-0 peer-checked:opacity-100" />
       </span>
@@ -231,8 +231,8 @@ export function Checkbox({ checked, onChange, label, disabled, indeterminate, cl
 
 export function Radio({ name, checked, onChange, children, disabled, className }: { name: string; checked: boolean; onChange: () => void; children: ReactNode; disabled?: boolean; className?: string }) {
   return (
-    <label className={cx('flex cursor-pointer items-start gap-3 rounded-[12px] p-3.5 ring-1 ring-inset transition-colors', checked ? 'bg-jade-soft/50 ring-jade' : 'bg-surface ring-line hover:ring-line-strong', disabled && 'cursor-not-allowed opacity-60 hover:ring-line', className)}>
-      <input type="radio" name={name} checked={checked} disabled={disabled} onChange={onChange} className="mt-0.5 size-[18px] shrink-0 accent-[var(--color-jade)]" />
+    <label className={cx('flex cursor-pointer items-start gap-3 rounded-[var(--radius-card)] p-3.5 ring-1 ring-inset transition-colors', checked ? 'bg-accent-soft/50 ring-accent' : 'bg-surface ring-line hover:ring-line-strong', disabled && 'cursor-not-allowed opacity-60 hover:ring-line', className)}>
+      <input type="radio" name={name} checked={checked} disabled={disabled} onChange={onChange} className="mt-0.5 size-[18px] shrink-0 accent-[var(--color-accent)]" />
       <span className="min-w-0 flex-1">{children}</span>
     </label>
   )
@@ -245,9 +245,9 @@ export function Tabs<T extends string>({ items, value, onChange, label, classNam
     <div role="tablist" aria-label={label} className={cx('no-scrollbar flex gap-1 overflow-x-auto border-b border-line', className)}>
       {items.map((t) => (
         <button key={t.id} role="tab" type="button" aria-selected={value === t.id} onClick={() => onChange(t.id)}
-          className={cx('relative flex h-11 shrink-0 items-center gap-1.5 px-3 text-[14px] whitespace-nowrap', value === t.id ? 'font-semibold text-ink after:absolute after:inset-x-3 after:bottom-0 after:h-[2px] after:rounded-full after:bg-ink' : 'text-muted hover:text-ink')}>
+          className={cx('relative flex h-11 shrink-0 items-center gap-1.5 px-3 text-[14px] whitespace-nowrap', value === t.id ? 'font-semibold text-accent-ink after:absolute after:inset-x-3 after:bottom-0 after:h-[2px] after:rounded-full after:bg-accent' : 'text-ink-2 hover:text-accent-ink')}>
           {t.label}
-          {t.count ? <span className="tabular rounded-full bg-well px-1.5 text-[11px] font-semibold text-ink-2">{t.count}</span> : null}
+          {t.count ? <span className="tabular rounded-full bg-accent-soft px-1.5 text-[11px] font-semibold text-accent-ink">{t.count}</span> : null}
         </button>
       ))}
     </div>
@@ -265,14 +265,14 @@ export function Sheet({ open, onOpenChange, title, description, children, footer
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 z-50 bg-ink/35 motion-safe:animate-[fade-in_160ms_ease-out]" />
+        <Dialog.Overlay className="fixed inset-0 z-50 bg-ink/45 motion-safe:animate-[fade-in_160ms_ease-out]" />
         <Dialog.Content
           aria-describedby={description ? undefined : undefined}
           className={cx(
             'fixed z-50 flex flex-col bg-surface outline-none',
-            mode === 'sheet' && 'inset-x-0 bottom-0 max-h-[88dvh] rounded-t-[20px] shadow-[var(--shadow-sheet)] motion-safe:animate-[sheet-up_280ms_var(--ease-out-expo)]',
+            mode === 'sheet' && 'inset-x-0 bottom-0 max-h-[88dvh] rounded-t-[16px] shadow-[var(--shadow-sheet)] motion-safe:animate-[sheet-up_280ms_var(--ease-out-expo)]',
             mode === 'panel' && cx('inset-y-0 right-0 w-full shadow-[var(--shadow-pop)] motion-safe:animate-[panel-in_280ms_var(--ease-out-expo)]', wide ? 'max-w-[640px]' : 'max-w-[480px]'),
-            mode === 'dialog' && cx('top-1/2 left-1/2 max-h-[85dvh] w-[calc(100%-32px)] -translate-x-1/2 -translate-y-1/2 rounded-[16px] shadow-[var(--shadow-pop)] motion-safe:animate-[pop-in_200ms_var(--ease-out-expo)]', wide ? 'max-w-[640px]' : 'max-w-[440px]'),
+            mode === 'dialog' && cx('top-1/2 left-1/2 max-h-[85dvh] w-[calc(100%-32px)] -translate-x-1/2 -translate-y-1/2 rounded-[var(--radius-card)] shadow-[var(--shadow-pop)] motion-safe:animate-[pop-in_200ms_var(--ease-out-expo)]', wide ? 'max-w-[640px]' : 'max-w-[440px]'),
           )}
         >
           {mode === 'sheet' && <span aria-hidden className="mx-auto mt-2 h-1 w-10 shrink-0 rounded-full bg-line-strong" />}
@@ -322,10 +322,10 @@ export function Toaster() {
   return (
     <div aria-live="polite" className={cx('pointer-events-none fixed z-[60] flex flex-col items-center gap-2', layout === 'app' ? 'inset-x-4 bottom-[88px]' : 'bottom-6 left-1/2 -translate-x-1/2')}>
       {list.map((t) => (
-        <div key={t.id} role={t.tone === 'error' ? 'alert' : 'status'} className="pointer-events-auto flex max-w-[480px] items-center gap-3 rounded-full bg-cta py-2.5 pr-2.5 pl-5 text-[14px] text-ground shadow-[var(--shadow-pop)] motion-safe:animate-[pop-in_220ms_var(--ease-out-expo)]">
-          {t.tone === 'error' ? <AlertCircle size={16} aria-hidden className="shrink-0 text-[#f3b0a8]" /> : <Check size={16} aria-hidden className="shrink-0 text-[#9fd8c6]" />}
+        <div key={t.id} role={t.tone === 'error' ? 'alert' : 'status'} className="pointer-events-auto flex max-w-[480px] items-center gap-3 rounded-[10px] bg-ink/92 py-2.5 pr-2.5 pl-4 text-[14px] text-white shadow-[var(--shadow-pop)] motion-safe:animate-[pop-in_220ms_var(--ease-out-expo)]">
+          {t.tone === 'error' ? <AlertCircle size={16} aria-hidden className="shrink-0 text-[#ff9fb1]" /> : <Check size={16} aria-hidden className="shrink-0 text-[#7fe0b6]" />}
           <span className="min-w-0">{t.text}</span>
-          {t.action ? <button type="button" onClick={() => { t.action!.onClick(); toasts = toasts.filter((x) => x.id !== t.id); toastListeners.forEach((l) => l()) }} className="h-8 shrink-0 rounded-full bg-ground/15 px-3 text-[13px] font-semibold hover:bg-ground/25">{t.action.label}</button> : <span className="w-2.5" />}
+          {t.action ? <button type="button" onClick={() => { t.action!.onClick(); toasts = toasts.filter((x) => x.id !== t.id); toastListeners.forEach((l) => l()) }} className="h-8 shrink-0 rounded-[6px] bg-white/15 px-3 text-[13px] font-semibold hover:bg-white/25">{t.action.label}</button> : <span className="w-2.5" />}
         </div>
       ))}
     </div>
@@ -337,8 +337,8 @@ export function Toaster() {
 export function EmptyState({ icon, title, body, action, className }: { icon?: ReactNode; title: ReactNode; body?: ReactNode; action?: ReactNode; className?: string }) {
   return (
     <div className={cx('mx-auto flex max-w-[420px] flex-col items-center px-4 py-12 text-center', className)}>
-      {icon && <div className="mb-4 flex size-14 items-center justify-center rounded-full bg-well text-ink-2" aria-hidden>{icon}</div>}
-      <h2 className="font-display text-[19px] font-semibold">{title}</h2>
+      {icon && <div className="mb-4 flex size-16 items-center justify-center rounded-full bg-accent-soft text-accent" aria-hidden>{icon}</div>}
+      <h2 className="font-display text-[18px]">{title}</h2>
       {body && <p className="mt-1.5 text-[14px] text-muted">{body}</p>}
       {action && <div className="mt-5">{action}</div>}
     </div>
@@ -352,9 +352,9 @@ export function Skeleton({ className }: { className?: string }) {
 }
 export function GridSkeleton({ n = 8 }: { n?: number }) {
   return (
-    <div className="grid grid-cols-2 gap-x-3 gap-y-6 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5" role="status" aria-busy="true" aria-label="Đang tải">
+    <div className="grid grid-cols-2 gap-2 md:grid-cols-3 md:gap-3 lg:grid-cols-5 xl:grid-cols-6" role="status" aria-busy="true" aria-label="Đang tải">
       {Array.from({ length: n }, (_, i) => (
-        <div key={i} className="space-y-2"><Skeleton className="aspect-[4/5] w-full" /><Skeleton className="h-4 w-4/5" /><Skeleton className="h-4 w-1/3" /></div>
+        <div key={i} className="panel space-y-2 p-2 pb-3"><Skeleton className="aspect-square w-full" /><Skeleton className="h-4 w-4/5" /><Skeleton className="h-5 w-1/3" /></div>
       ))}
     </div>
   )
@@ -375,7 +375,7 @@ export function useLoaded(deps: unknown[] = [], ms?: number) {
 /** First catalogue image → its ~6KB thumbnail (DummyJSON only ships a thumbnail for image 1). */
 export const thumbOf = (src?: string) => src?.replace(/\/1\.webp$/, '/thumbnail.webp')
 
-/** Product image with a warm well behind it and graceful failure. Thumbnails by default; `full` for the gallery. */
+/** Product image on a grey well and graceful failure. Thumbnails by default; `full` for the gallery. */
 export function Img({ src: raw, alt, className, eager, full }: { src?: string; alt: string; className?: string; eager?: boolean; full?: boolean }) {
   const src = full ? raw : thumbOf(raw)
   const [failed, setFailed] = useState(false)

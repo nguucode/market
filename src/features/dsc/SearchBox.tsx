@@ -14,8 +14,9 @@ export function SearchBox({ className }: { className?: string }) {
   const layout = useLayout()
   if (layout === 'app')
     return (
-      <Link to="/search" className={cx('flex h-11 items-center gap-2.5 rounded-full bg-surface px-4 text-[15px] text-muted no-underline ring-1 ring-inset ring-line-strong', className)}>
-        <Search size={18} aria-hidden className="text-ink" />{PLACEHOLDER}
+      <Link to="/search" className={cx('flex h-10 items-center gap-2 rounded-[var(--radius-control)] bg-surface pr-1 pl-3 text-[14px] text-muted no-underline ring-2 ring-inset ring-accent', className)}>
+        <Search size={17} aria-hidden className="shrink-0 text-muted" /><span className="min-w-0 flex-1 truncate">{PLACEHOLDER}</span>
+        <span aria-hidden className="flex h-8 shrink-0 items-center rounded-[6px] bg-accent px-3 text-[13px] font-semibold text-white">Tìm</span>
       </Link>
     )
   return <SearchCombo mode="dropdown" className={className} />
@@ -105,7 +106,7 @@ export function SearchCombo({ mode, className, autoFocus, onCancel, onDone }: { 
 
   const list = (
     <div id={listId} role="listbox" aria-label="Gợi ý tìm kiếm"
-      className={cx(mode === 'dropdown' ? 'absolute inset-x-0 top-[calc(100%+6px)] z-50 max-h-[70dvh] overflow-y-auto rounded-[16px] bg-surface py-2 shadow-[var(--shadow-pop)]' : 'pt-3')}>
+      className={cx(mode === 'dropdown' ? 'absolute inset-x-0 top-[calc(100%+6px)] z-50 max-h-[70dvh] overflow-y-auto rounded-[var(--radius-card)] bg-surface py-2 shadow-[var(--shadow-pop)]' : 'pt-3')}>
       {q ? rows.map((r, i) => {
         const s = r.s
         if (r.kind === 'raw') return opt(r, i, <><Search size={16} aria-hidden className="shrink-0 text-muted" /><span className="min-w-0 truncate">Tìm “{r.text}”</span></>, 'flex min-h-11 items-center gap-3 px-4 text-[14px]')
@@ -126,7 +127,7 @@ export function SearchCombo({ mode, className, autoFocus, onCancel, onDone }: { 
           <div role="group" aria-labelledby={`${id}-th`} className="px-4 pb-2">
             <span id={`${id}-th`} className="flex items-center gap-1.5 py-1.5 text-[13px] font-semibold text-ink-2"><TrendingUp size={14} aria-hidden />Tìm kiếm phổ biến</span>
             <div className="flex flex-wrap gap-2 pt-1">
-              {trending.map((r) => opt(r, rows.indexOf(r), r.text, 'inline-flex min-h-9 items-center rounded-full bg-well px-3.5 text-[13px] hover:bg-line'))}
+              {trending.map((r) => opt(r, rows.indexOf(r), r.text, 'inline-flex min-h-9 items-center rounded-[var(--radius-control)] bg-well px-3 text-[13px] hover:bg-accent-soft hover:text-accent-ink'))}
             </div>
           </div>
         </>
@@ -139,7 +140,7 @@ export function SearchCombo({ mode, className, autoFocus, onCancel, onDone }: { 
       onBlur={(e) => { if (!box.current?.contains(e.relatedTarget as Node)) setOpen(false) }}>
       <form role="search" className="flex items-center gap-1" onSubmit={(e) => { e.preventDefault(); go(text) }}>
         {onCancel && <button type="button" onClick={onCancel} aria-label="Quay lại" className="-ml-2 flex size-11 shrink-0 items-center justify-center rounded-full hover:bg-well"><ArrowLeft size={22} aria-hidden /></button>}
-        <div className="relative flex h-11 flex-1 items-center lg:h-12">
+        <div className="relative flex h-11 flex-1 items-center">
           <input
             ref={input}
             role="combobox"
@@ -158,9 +159,9 @@ export function SearchCombo({ mode, className, autoFocus, onCancel, onDone }: { 
             onFocus={(e) => { setOpen(true); e.target.select() }}
             onClick={() => setOpen(true)}
             onKeyDown={onKey}
-            className="h-full w-full rounded-full bg-surface pr-14 pl-5 text-[15px] ring-2 ring-inset ring-ink outline-none focus:ring-jade"
+            className="h-full w-full rounded-[var(--radius-card)] bg-surface pr-24 pl-4 text-[14px] ring-2 ring-inset ring-accent outline-none focus:ring-accent-ink"
           />
-          <button type="submit" aria-label="Tìm kiếm" className="absolute right-1 flex size-9 items-center justify-center rounded-full bg-jade text-white hover:bg-jade-ink lg:size-10"><Search size={18} aria-hidden /></button>
+          <button type="submit" className="absolute right-1 flex h-9 items-center justify-center gap-1.5 rounded-[var(--radius-control)] bg-accent px-4 text-[15px] font-semibold text-white hover:bg-accent-ink"><Search size={16} aria-hidden />Tìm kiếm</button>
         </div>
         {onCancel && <button type="button" onClick={onCancel} className="h-11 shrink-0 px-2 text-[15px] font-medium">Hủy</button>}
       </form>
