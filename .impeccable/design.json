@@ -1,0 +1,153 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-18T00:00:00+07:00",
+  "title": "Design System: Market",
+  "extensions": {
+    "colorMeta": {
+      "ground":      { "role": "neutral",  "displayName": "Warm Paper",      "canonical": "#f6f2ea", "tonalRamp": ["#2a2620","#4a443b","#6e675c","#948c7f","#bab2a4","#d9d2c5","#eee8dd","#f6f2ea"] },
+      "surface":     { "role": "neutral",  "displayName": "White Sheet",     "canonical": "#ffffff", "tonalRamp": ["#262626","#474747","#6b6b6b","#919191","#b5b5b5","#d6d6d6","#ededed","#ffffff"] },
+      "well":        { "role": "neutral",  "displayName": "Beige Well",      "canonical": "#eee8dd", "tonalRamp": ["#29251f","#49433a","#6c655a","#918a7d","#b5aea1","#d6cfc2","#eee8dd","#f7f3ec"] },
+      "ink":         { "role": "neutral",  "displayName": "Plum Ink",        "canonical": "#241f29", "tonalRamp": ["#241f29","#3d3644","#564d5e","#675f6d","#8a8291","#aea7b4","#d3cfd7","#efedf1"] },
+      "ink-2":       { "role": "neutral",  "displayName": "Plum Ink Soft",   "canonical": "#3d3644", "tonalRamp": ["#241f29","#3d3644","#564d5e","#675f6d","#8a8291","#aea7b4","#d3cfd7","#efedf1"] },
+      "muted":       { "role": "neutral",  "displayName": "Plum Grey",       "canonical": "#675f6d", "tonalRamp": ["#241f29","#3d3644","#564d5e","#675f6d","#8a8291","#aea7b4","#d3cfd7","#efedf1"] },
+      "line":        { "role": "neutral",  "displayName": "Hairline",        "canonical": "#e2dace", "tonalRamp": ["#2b261f","#4b443a","#6f675b","#958c7e","#c9bfb0","#e2dace","#eee8dd","#f7f3ec"] },
+      "line-strong": { "role": "neutral",  "displayName": "Hairline Strong", "canonical": "#c9bfb0", "tonalRamp": ["#2b261f","#4b443a","#6f675b","#958c7e","#c9bfb0","#e2dace","#eee8dd","#f7f3ec"] },
+      "cta":         { "role": "neutral",  "displayName": "Press Black",     "canonical": "#1d1921", "tonalRamp": ["#1d1921","#241f29","#3d3644","#564d5e","#8a8291","#aea7b4","#d3cfd7","#efedf1"] },
+      "jade":        { "role": "primary",  "displayName": "Ledger Jade",     "canonical": "#0c6a57", "tonalRamp": ["#04271f","#08503f","#0c6a57","#2f8a75","#5ea898","#95c8bb","#e1eee8","#f2f8f5"] },
+      "jade-ink":    { "role": "primary",  "displayName": "Deep Jade",       "canonical": "#08503f", "tonalRamp": ["#04271f","#08503f","#0c6a57","#2f8a75","#5ea898","#95c8bb","#e1eee8","#f2f8f5"] },
+      "jade-soft":   { "role": "primary",  "displayName": "Jade Mist",       "canonical": "#e1eee8", "tonalRamp": ["#04271f","#08503f","#0c6a57","#2f8a75","#5ea898","#95c8bb","#e1eee8","#f2f8f5"] },
+      "danger":      { "role": "status",   "displayName": "Brick",           "canonical": "#b02a1f", "tonalRamp": ["#3b0d09","#6e1a13","#b02a1f","#cc5248","#e08a82","#efbdb7","#fbe8e5","#fdf4f2"] },
+      "danger-soft": { "role": "status",   "displayName": "Brick Mist",      "canonical": "#fbe8e5", "tonalRamp": ["#3b0d09","#6e1a13","#b02a1f","#cc5248","#e08a82","#efbdb7","#fbe8e5","#fdf4f2"] },
+      "warn":        { "role": "status",   "displayName": "Amber Ink",       "canonical": "#835000", "tonalRamp": ["#2e1c00","#5a3700","#835000","#a8741f","#c99b52","#e4c891","#fbf0d9","#fdf8ec"] },
+      "warn-soft":   { "role": "status",   "displayName": "Amber Mist",      "canonical": "#fbf0d9", "tonalRamp": ["#2e1c00","#5a3700","#835000","#a8741f","#c99b52","#e4c891","#fbf0d9","#fdf8ec"] }
+    },
+    "typographyMeta": {
+      "display":  { "displayName": "Display",  "purpose": "Home headline only; 28px app, 48px lg, 60px xl." },
+      "headline": { "displayName": "Headline", "purpose": "Page titles; 26px app, 32px web." },
+      "title":    { "displayName": "Title",    "purpose": "Section heads; 20px app, 24px web. Empty-state titles at 19px." },
+      "body":     { "displayName": "Body",     "purpose": "Default text, card product names, inputs." },
+      "body-sm":  { "displayName": "Body small", "purpose": "Chips, field labels, ledger lines, small buttons, shortcut nav." },
+      "label":    { "displayName": "Label",    "purpose": "Hints, metadata, card labels, tab bar. Never uppercase." },
+      "price":    { "displayName": "Price",    "purpose": "Card and line prices; tabular; jade when a deal." },
+      "total":    { "displayName": "Total",    "purpose": "Money fold totals; tabular; spoken VND for screen readers." }
+    },
+    "shadows": [
+      { "name": "pop",   "value": "0 6px 16px rgb(32 20 8 / 0.08), 0 12px 32px rgb(32 20 8 / 0.08)", "purpose": "Dialogs, side panels, dropdown menus, toasts." },
+      { "name": "sheet", "value": "0 -8px 28px rgb(32 20 8 / 0.12)", "purpose": "App bottom sheets." },
+      { "name": "bar",   "value": "0 -1px 0 var(--color-line), 0 -6px 18px rgb(32 20 8 / 0.05)", "purpose": "Tab bar and sticky bottom action bars." }
+    ],
+    "motion": [
+      { "name": "ease-out-expo", "value": "cubic-bezier(0.16, 1, 0.3, 1)", "purpose": "Sheets (280ms), panels (280ms), dialogs (200ms), toasts (220ms), money fold (220ms)." },
+      { "name": "fade", "value": "160ms ease-out", "purpose": "Scrim fade." },
+      { "name": "state", "value": "150ms", "purpose": "Button colour transitions." },
+      { "name": "reduced-motion", "value": "1ms", "purpose": "All animation and transition durations collapse under prefers-reduced-motion." }
+    ],
+    "breakpoints": [
+      { "name": "md", "value": "768px" },
+      { "name": "layout-web", "value": "1024px" },
+      { "name": "xl", "value": "1280px" },
+      { "name": "container", "value": "1440px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Black pill for the main action of a view.",
+      "html": "<button class=\"ds-btn-primary\">Đặt hàng</button>",
+      "css": ".ds-btn-primary { display:inline-flex; align-items:center; justify-content:center; height:44px; padding:0 20px; border:0; border-radius:9999px; background:var(--color-cta,#1d1921); color:var(--color-ground,#f6f2ea); font:600 14px/1 'Be Vietnam Pro',system-ui,sans-serif; cursor:pointer; transition:background-color 150ms; } .ds-btn-primary:hover { background:var(--color-ink-2,#3d3644); } .ds-btn-primary:focus-visible { outline:2px solid var(--color-jade,#0c6a57); outline-offset:2px; }"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "White pill with an inset ink ring; cancel, retry, see-all.",
+      "html": "<button class=\"ds-btn-secondary\">Xem tất cả</button>",
+      "css": ".ds-btn-secondary { display:inline-flex; align-items:center; height:44px; padding:0 20px; border:0; border-radius:9999px; background:var(--color-surface,#fff); color:var(--color-ink,#241f29); box-shadow:inset 0 0 0 1px rgb(36 31 41 / 0.8); font:600 14px/1 'Be Vietnam Pro',system-ui,sans-serif; cursor:pointer; transition:background-color 150ms; } .ds-btn-secondary:hover { background:var(--color-well,#eee8dd); } .ds-btn-secondary:focus-visible { outline:2px solid var(--color-jade,#0c6a57); outline-offset:2px; }"
+    },
+    {
+      "name": "Filter Chip",
+      "kind": "chip",
+      "refersTo": "chip",
+      "description": "Toggle pill for filters and variant options.",
+      "html": "<button class=\"ds-chip\">Freeship</button> <button class=\"ds-chip\" aria-pressed=\"true\">Đỏ</button>",
+      "css": ".ds-chip { display:inline-flex; align-items:center; min-height:36px; padding:0 14px; border:0; border-radius:9999px; background:var(--color-surface,#fff); color:var(--color-ink,#241f29); box-shadow:inset 0 0 0 1px var(--color-line,#e2dace); font:500 13px/1 'Be Vietnam Pro',system-ui,sans-serif; cursor:pointer; } .ds-chip:hover { box-shadow:inset 0 0 0 1px var(--color-line-strong,#c9bfb0); } .ds-chip[aria-pressed=true] { background:var(--color-jade-soft,#e1eee8); color:var(--color-jade-ink,#08503f); box-shadow:inset 0 0 0 1px var(--color-jade,#0c6a57); } .ds-chip:focus-visible { outline:2px solid var(--color-jade,#0c6a57); outline-offset:2px; }"
+    },
+    {
+      "name": "Text Input",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "44px field, 10px corners, jade focus ring.",
+      "html": "<input class=\"ds-input\" placeholder=\"Họ và tên\">",
+      "css": ".ds-input { height:44px; width:100%; max-width:320px; padding:0 14px; border:0; border-radius:10px; background:var(--color-surface,#fff); color:var(--color-ink,#241f29); box-shadow:inset 0 0 0 1px var(--color-line-strong,#c9bfb0); font:400 14px 'Be Vietnam Pro',system-ui,sans-serif; caret-color:var(--color-jade,#0c6a57); outline:none; } .ds-input::placeholder { color:var(--color-muted,#675f6d); } .ds-input:focus { box-shadow:inset 0 0 0 2px var(--color-jade,#0c6a57); }"
+    },
+    {
+      "name": "Product Card",
+      "kind": "card",
+      "refersTo": "product-card-image",
+      "description": "Borderless 4:5 image on the beige well, one label, one-line name, lowest price.",
+      "html": "<article class=\"ds-card\"><span class=\"ds-card-img\"><span class=\"ds-card-label\">Freeship</span></span><h3 class=\"ds-card-name\">Thớt gỗ cao su</h3><span class=\"ds-card-price\">84.000₫</span><p class=\"ds-card-meta\">4,2 ★ · Đã bán 9,9k</p></article>",
+      "css": ".ds-card { width:200px; font-family:'Be Vietnam Pro',system-ui,sans-serif; } .ds-card-img { position:relative; display:block; aspect-ratio:4/5; border-radius:8px; background:var(--color-well,#eee8dd); transition:filter 200ms; } .ds-card:hover .ds-card-img { filter:brightness(0.97); } .ds-card-label { position:absolute; top:8px; left:8px; padding:4px 10px; border-radius:9999px; background:var(--color-surface,#fff); color:var(--color-ink-2,#3d3644); font-size:11px; font-weight:600; line-height:1; } .ds-card-name { margin:8px 0 0; font-size:14px; font-weight:400; line-height:20px; color:var(--color-ink,#241f29); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; } .ds-card-price { font-size:16px; font-weight:700; font-variant-numeric:tabular-nums; color:var(--color-ink,#241f29); } .ds-card-meta { margin:2px 0 0; font-size:12px; color:var(--color-muted,#675f6d); }"
+    },
+    {
+      "name": "Money Fold",
+      "kind": "custom",
+      "refersTo": "panel",
+      "description": "Signature: a total that opens into a named ledger and a per-shop split bar.",
+      "html": "<details class=\"ds-fold\" open><summary><span>Tổng thanh toán</span><b>330.448₫</b></summary><dl><div><dt>Tiền hàng</dt><dd>356.000₫</dd></div><div><dt>Voucher Market</dt><dd class=\"m\">−20.000₫</dd></div><div><dt>Phí vận chuyển</dt><dd>30.000₫</dd></div><div><dt>Freeship</dt><dd class=\"m\">−15.552₫</dd></div><div class=\"t\"><dt>Tổng thanh toán</dt><dd>330.448₫</dd></div></dl><p>Chia thành 2 đơn, mỗi shop một đơn</p><div class=\"bar\"><span style=\"width:62%\"></span><span style=\"width:38%\"></span></div></details>",
+      "css": ".ds-fold { width:340px; padding:20px; border-radius:16px; background:var(--color-surface,#fff); font-family:'Be Vietnam Pro',system-ui,sans-serif; color:var(--color-ink,#241f29); } .ds-fold summary { display:flex; justify-content:space-between; align-items:center; cursor:pointer; list-style:none; font-size:14px; font-weight:500; color:var(--color-ink-2,#3d3644); } .ds-fold summary b { font-size:22px; font-weight:700; font-variant-numeric:tabular-nums; color:var(--color-ink,#241f29); } .ds-fold summary:focus-visible { outline:2px solid var(--color-jade,#0c6a57); outline-offset:2px; border-radius:6px; } .ds-fold dl { margin:12px 0 0; padding-top:12px; border-top:1px dashed var(--color-line-strong,#c9bfb0); font-size:13px; } .ds-fold dl div { display:flex; justify-content:space-between; margin-bottom:6px; } .ds-fold dt { color:var(--color-ink-2,#3d3644); } .ds-fold dd { margin:0; font-variant-numeric:tabular-nums; } .ds-fold dd.m { color:var(--color-jade-ink,#08503f); } .ds-fold .t { border-top:1px solid var(--color-line,#e2dace); padding-top:8px; font-weight:600; } .ds-fold p { margin:12px 0 6px; font-size:12px; color:var(--color-muted,#675f6d); } .ds-fold .bar { display:flex; height:6px; border-radius:9999px; overflow:hidden; background:var(--color-well,#eee8dd); } .ds-fold .bar span:nth-child(1) { background:var(--color-jade,#0c6a57); } .ds-fold .bar span:nth-child(2) { background:rgb(12 106 87 / 0.45); }"
+    },
+    {
+      "name": "Tab Bar",
+      "kind": "nav",
+      "refersTo": "tab-bar",
+      "description": "App shell bottom navigation, five tabs.",
+      "html": "<nav class=\"ds-tabbar\"><a aria-current=\"page\"><svg width=\"22\" height=\"22\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M3 10l9-7 9 7v10a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z\"/></svg>Trang chủ</a><a><svg width=\"22\" height=\"22\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\"><rect x=\"3\" y=\"3\" width=\"7\" height=\"7\"/><rect x=\"14\" y=\"3\" width=\"7\" height=\"7\"/><rect x=\"3\" y=\"14\" width=\"7\" height=\"7\"/><rect x=\"14\" y=\"14\" width=\"7\" height=\"7\"/></svg>Danh mục</a><a><svg width=\"22\" height=\"22\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.6\"><path d=\"M12 21s-8-5-8-11a4.5 4.5 0 0 1 8-2.8A4.5 4.5 0 0 1 20 10c0 6-8 11-8 11z\"/></svg>Yêu thích</a></nav>",
+      "css": ".ds-tabbar { display:grid; grid-template-columns:repeat(3,1fr); width:360px; background:var(--color-surface,#fff); box-shadow:0 -1px 0 var(--color-line,#e2dace), 0 -6px 18px rgb(32 20 8 / 0.05); font-family:'Be Vietnam Pro',system-ui,sans-serif; } .ds-tabbar a { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; height:58px; font-size:11px; color:var(--color-muted,#675f6d); text-decoration:none; cursor:pointer; } .ds-tabbar a[aria-current] { color:var(--color-ink,#241f29); font-weight:600; } .ds-tabbar a:hover { color:var(--color-ink,#241f29); } .ds-tabbar a:focus-visible { outline:2px solid var(--color-jade,#0c6a57); outline-offset:-2px; }"
+    },
+    {
+      "name": "Toast",
+      "kind": "custom",
+      "refersTo": "toast",
+      "description": "Black pill confirmation with optional undo.",
+      "html": "<div class=\"ds-toast\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"#9fd8c6\" stroke-width=\"2\"><path d=\"M20 6 9 17l-5-5\"/></svg><span>Đã thêm vào Yêu thích</span><button>Hoàn tác</button></div>",
+      "css": ".ds-toast { display:inline-flex; align-items:center; gap:12px; padding:10px 10px 10px 20px; border-radius:9999px; background:var(--color-cta,#1d1921); color:var(--color-ground,#f6f2ea); font:400 14px 'Be Vietnam Pro',system-ui,sans-serif; box-shadow:0 6px 16px rgb(32 20 8 / 0.08), 0 12px 32px rgb(32 20 8 / 0.08); } .ds-toast button { height:32px; padding:0 12px; border:0; border-radius:9999px; background:rgb(246 242 234 / 0.15); color:inherit; font-size:13px; font-weight:600; cursor:pointer; } .ds-toast button:hover { background:rgb(246 242 234 / 0.25); } .ds-toast button:focus-visible { outline:2px solid var(--color-jade,#0c6a57); outline-offset:2px; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Open Ledger",
+    "overview": "Market sells with the full Vietnamese rule set (three voucher slots, flash sale, COD, one order per shop) and keeps all of it quiet. The system is warm paper under white working surfaces, one plum-black ink, and a single jade accent that carries the brand mark, search, deal prices, selection and focus. Products, not promotions, fill the viewport: borderless 4:5 image cards on a beige well, a serif voice for headings, a plain sans for everything that has to be read fast.\n\nThe defining device is the money fold. Every total in the product (cart bar, checkout summary, order, return refund) is a disclosure that opens into a ledger of named lines, with a thin jade bar showing how a session total splits across shops. The rest of the system is tuned so that this ledger reads as the most precise thing on the screen: tabular figures, hairline and dashed rules, no colour except jade for money that leaves the bill.\n\nDensity is Operate-grade: 13 and 14px carry most of the interface, pills carry every action, and depth exists only where something floats over the page. Two layouts share one route tree: web at 1024px and up, an app shell with tab bar and bottom sheets below it.",
+    "keyCharacteristics": [
+      "Warm paper ground, white surfaces, one ink, one jade accent.",
+      "Serif (Literata) for page titles, section heads and empty states; Be Vietnam Pro for everything else.",
+      "Borderless image-led product cards at 4:5 on a beige well, 8px corners.",
+      "Every button and chip is a pill; the primary action is a black pill.",
+      "Totals are folds that open into named ledgers.",
+      "Flat at rest; warm soft shadows only on overlays and fixed bars."
+    ],
+    "rules": [
+      { "name": "The Jade Deal Rule", "body": "A deal price is jade, never red. Red is reserved for failure; a discount is good news.", "section": "colors" },
+      { "name": "The One Accent Rule", "body": "Jade is the only hue that signals. Labels on cards are white pills with ink or jade text, not coloured badges.", "section": "colors" },
+      { "name": "The Tabular Money Rule", "body": "Every amount of money is tabular and set in the sans. Screen readers get the spoken VND form on totals.", "section": "typography" },
+      { "name": "The Serif Names Rule", "body": "Literata is for titles, section heads, the wordmark, shop monograms and empty-state titles. Sheet titles and app-bar titles stay in the sans.", "section": "typography" },
+      { "name": "The Overlay-Only Shadow Rule", "body": "If it does not float over content, it has no shadow. Headers separate with a hairline and a translucent paper backdrop blur (6px), not a shadow.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do show every total as a money fold, with each voucher on its own named line.",
+      "Do set every price in tabular sans; deal price in jade, struck price in muted 13px beside it.",
+      "Do keep product images on the beige well at 4:5 with 8px corners and no card border.",
+      "Do make every button and chip a pill, with the black pill reserved for the main action.",
+      "Do keep shadows to overlays and fixed bars, using the three tokens.",
+      "Do keep touch targets at 44px on the app shell, even when the visible control is smaller."
+    ],
+    "donts": [
+      "Don't colour deals red or use red for anything but errors.",
+      "Don't stack badges on a product card; one white pill label at most.",
+      "Don't put borders on cards or panels; separate with tone and hairline dividers.",
+      "Don't use the serif for prices, controls, sheet titles or the app bar.",
+      "Don't add a second accent hue; status colours are for status only.",
+      "Don't use the reference brand's fonts, exact colours, programme names or brand word."
+    ]
+  }
+}
