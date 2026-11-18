@@ -1,5 +1,5 @@
 // US-PDP-008: review summary on the product page and the review list items (reused by the reviews page).
-import { ChevronRight } from 'lucide-react'
+import { ChevronRight, UserRound } from 'lucide-react'
 import { useState } from 'react'
 import { Link } from 'react-router'
 import { useLayout } from '@/app/layout'
@@ -21,7 +21,7 @@ export function ReviewItem({ review: r, product }: { review: Review; product: Pr
   return (
     <article className="border-b border-line py-4 last:border-b-0">
       <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-        <span className="flex size-8 items-center justify-center rounded-full bg-well text-[12px] font-semibold text-ink-2" aria-hidden>{(r.anonymous ? '?' : r.buyerName[0] ?? '?').toUpperCase()}</span>
+        <span className="flex size-8 items-center justify-center rounded-full bg-well text-[12px] font-semibold text-ink-2" aria-hidden>{r.anonymous ? <UserRound size={16} /> : (r.buyerName[0] ?? '').toUpperCase()}</span>
         <span className="text-[14px] font-semibold">{r.anonymous ? maskName(r.buyerName) : r.buyerName}</span>
         {r.isMine && <span className="rounded-[4px] bg-accent-soft px-1.5 py-px text-[11px] font-semibold text-accent-ink">Đánh giá của bạn</span>}
       </div>
@@ -76,7 +76,7 @@ export function Distribution({ byStar, count }: { byStar: number[]; count: numbe
 /** Big accent average beside the accent star bars, on a tinted block (PDP and the reviews page). */
 export function RatingOverview({ avg, byStar, count }: { avg: number; byStar: number[]; count: number }) {
   return (
-    <div className="grid items-center gap-5 rounded-[var(--radius-control)] bg-accent-soft p-4 lg:grid-cols-[200px_minmax(0,360px)] lg:gap-10 lg:px-6">
+    <div className="grid items-center gap-5 rounded-[var(--radius-control)] bg-well p-4 lg:grid-cols-[200px_minmax(0,360px)] lg:gap-10 lg:px-6">
       <div>
         <p className="tabular font-display text-[36px] leading-none text-accent lg:text-[40px]">{avg.toLocaleString('vi-VN')}<span className="ml-1 font-sans text-[15px] font-normal text-accent-ink">trên 5</span></p>
         <Stars value={avg} size={16} count={count} className="mt-2" />

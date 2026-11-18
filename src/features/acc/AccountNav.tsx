@@ -6,7 +6,7 @@ const ITEMS: [string, string][] = [['Tổng quan', '/me'], ['Đơn mua', '/order
 
 export function AccountNav() {
   return (
-    <nav aria-labelledby="account-nav" className="panel sticky top-[128px] self-start p-2">
+    <nav aria-labelledby="account-nav" className="panel sticky top-[140px] self-start p-2">
       <p id="account-nav" className="px-3 pt-2 pb-2 text-[14px] font-bold text-ink">Tài khoản của tôi</p>
       <ul className="space-y-0.5">
         {ITEMS.map(([label, to]) => (

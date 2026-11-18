@@ -25,7 +25,7 @@ export function SortControl({ value, options, onChange }: { value: Sort; options
   if (layout === 'web') {
     const isPrice = value === 'price_asc' || value === 'price_desc'
     const seg = (on: boolean) => cx('inline-flex h-9 items-center gap-1 rounded-[var(--radius-control)] px-3.5 text-[13px] font-medium whitespace-nowrap transition-colors',
-      on ? 'bg-accent text-white' : 'bg-surface text-ink ring-1 ring-inset ring-line hover:text-accent-ink hover:ring-accent')
+      on ? 'bg-accent-soft font-semibold text-accent-ink ring-1 ring-inset ring-accent' : 'bg-surface text-ink ring-1 ring-inset ring-line hover:text-accent-ink hover:ring-accent')
     const PriceIcon = value === 'price_asc' ? ArrowUp : value === 'price_desc' ? ArrowDown : ArrowUpDown
     return (
       <div role="group" aria-label="Sắp xếp" className="flex shrink-0 items-center gap-1.5">

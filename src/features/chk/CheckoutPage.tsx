@@ -221,7 +221,7 @@ function Checkout({ d, onPlaced }: { d: CheckoutDraft; onPlaced: () => void }) {
                         {r.shippingDiscount > 0 && <s className="mr-1.5 text-[12px] text-muted">{vnd(r.shippingFee)}</s>}
                         <span className="font-semibold text-accent">{vnd(r.shippingFee - r.shippingDiscount)}</span>
                       </span>}>
-                      <span className="block truncate text-[14px]">{OPTION_LABEL[s.option]} · {s.quote.carrier}</span>
+                      <span className="block text-[14px]">{OPTION_LABEL[s.option]} · {s.quote.carrier}</span>
                       <span className="block text-[12px] text-muted">{etaText(s.quote.eta, t)}</span>
                     </ChangeRow>
                     {fellBack && <p className="pb-1 text-[12px] text-warn" role="status">Hỏa tốc chỉ áp dụng khi Shop và địa chỉ nhận cùng tỉnh. Đã chuyển sang Nhanh.</p>}
@@ -330,8 +330,9 @@ function ChangeRow({ icon, title, children, aside, action, onClick, web }: {
       <span className="min-w-0 flex-1">
         <span className="block text-[15px] font-semibold text-ink">{title}</span>
         {children}
+        {!web && aside && <span className="mt-0.5 block">{aside}</span>}
       </span>
-      {aside && <span className="shrink-0 self-center">{aside}</span>}
+      {web && aside && <span className="shrink-0 self-center">{aside}</span>}
       {web && action ? <span className="shrink-0 self-center text-[13px] font-semibold text-accent-ink">{action}</span> : <ChevronRight size={18} aria-hidden className="shrink-0 self-center text-muted" />}
     </button>
   )

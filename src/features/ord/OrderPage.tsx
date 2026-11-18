@@ -232,7 +232,7 @@ function OrderDetail({ o, w }: { o: Order; w: World }) {
       <PageTitle className="mb-4">Chi tiết đơn hàng</PageTitle>
       <div className="grid grid-cols-[minmax(0,1fr)_360px] items-start gap-4">
         <div className="space-y-3">{status}{reviewBanner}{tracking}{lines}</div>
-        <aside className="sticky top-[132px] space-y-3">
+        <aside className="sticky top-[140px] space-y-3">
           {actions.length > 0 && <div className={cx(block, 'space-y-2')}>{primary && btn(primary, 'primary', true)}{rest.map((a) => btn(a, 'secondary', true))}</div>}
           {address}
           {money}

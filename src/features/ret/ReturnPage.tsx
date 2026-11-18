@@ -134,7 +134,7 @@ function ReturnDetail({ r, o, w }: { r: ReturnRequest; o: Order; w: World }) {
       <PageTitle className="mb-4">Chi tiết trả hàng</PageTitle>
       <div className="grid grid-cols-[minmax(0,1fr)_360px] items-start gap-4">
         <div className="space-y-3">{status}{panel}{timeline}</div>
-        <aside className="sticky top-[132px]">{summary}</aside>
+        <aside className="sticky top-[140px]">{summary}</aside>
       </div>
     </div>
   )

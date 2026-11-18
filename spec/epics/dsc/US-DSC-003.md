@@ -33,7 +33,7 @@ As a buyer, I want the search field to remember what I searched, show what other
 
 ## Design notes
 
-- Web (≥ 1024): the header search pill (48px, 2px ink border, round search button inside, the brand colour's only use besides the logo). Focus opens a dropdown panel under the pill, same width, soft shadow: history list on top, trending pills below; suggestions replace both while typing. Arrow keys move through rows, Enter picks, Esc closes.
+- Web (≥ 1024): the header search field (44px, 2px accent border, 12px corners, a "Tìm kiếm" button inside on the right), with a line of popular searches beneath it. Focus opens a dropdown panel under the field, same width, soft shadow: history list on top, trending chips below; suggestions replace both while typing. Arrow keys move through rows, Enter picks, Esc closes.
 - App (< 1024): tapping the search pill on any screen opens `/search` in input state full screen: back arrow, the field autofocused, "Hủy" on the right; history and trending stacked; the soft keyboard's search key submits (`enterkeyhint="search"`).
 - Bold-on-match uses weight only, never a highlight colour.
 

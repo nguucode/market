@@ -19,7 +19,7 @@ header: # web; the app layout shows logo + search + cart on Home and a back/titl
   - { id: device, label: Xem trên điện thoại, route: "/device", demo: true }
   - { id: demo-controls, label: Demo controls, demo: true }
 
-categoryRow: # web only, under the header; editorial entry points, not the tree (Etsy grammar)
+categoryRow: # web only, under the header; editorial entry points, not the tree
   - { id: flash-sale, label: Flash sale, route: "/flash-sale" }
   - { id: vouchers, label: Mã giảm giá, route: "/vouchers" }
   - { id: official, label: Shop chính hãng, route: "/search?official=1" }

@@ -39,7 +39,7 @@ export default function ShopPage() {
     <div className="pb-10">
       {ready ? <ShopHeader shop={shop} productCount={rows.length} /> : <HeaderSkeleton />}
       <Tabs label="Mục của Shop" value={tab} onChange={setTab} items={SHOP_TABS.map((id) => ({ id, label: TAB_LABEL[id] }))}
-        className={cx('sticky z-30 mb-3 bg-surface', layout === 'web' ? 'top-[116px] rounded-[var(--radius-card)] border-b-0! px-3' : '-mx-3 top-14 px-1')} />
+        className={cx('sticky z-30 mb-3 bg-surface', layout === 'web' ? 'top-[128px] rounded-[var(--radius-card)] border-b-0! px-3' : '-mx-3 top-14 px-1')} />
       <div role="tabpanel" aria-label={TAB_LABEL[tab]}>
         {tab === 'shop' && <ShopHome shop={shop} rows={rows} />}
         {tab === 'products' && <ProductsTab shop={shop} rows={rows} />}
@@ -266,7 +266,7 @@ function ProductsTab({ shop, rows }: { shop: Shop; rows: Row[] }) {
   }
 
   const catList = (
-    <nav aria-label="Danh mục của Shop" className="panel sticky top-[176px] w-[220px] shrink-0 self-start p-2">
+    <nav aria-label="Danh mục của Shop" className="panel sticky top-[188px] w-[220px] shrink-0 self-start p-2">
       <ul className="max-h-[calc(100dvh-200px)] space-y-0.5 overflow-y-auto">
         {[{ id: '', name: 'Tất cả sản phẩm', n: rows.length }, ...counts].map((c) => {
           const on = (cat?.id ?? '') === c.id

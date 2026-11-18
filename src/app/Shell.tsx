@@ -11,6 +11,7 @@ import { cx, IconButton, SampleBadge, toast, Toaster } from '@/components/ui'
 import { DemoControlsButton, DemoControlsSheet } from '@/features/demo/DemoControls'
 import { CategoryMenu } from '@/features/dsc/CategoryMenu'
 import { SearchBox } from '@/features/dsc/SearchBox'
+import { TRENDING } from '@/features/dsc/search'
 
 const TAB_ICON: Record<string, typeof Home> = { home: Home, categories: Grid2x2, favorites: Heart, notifications: Bell, me: User }
 
@@ -18,7 +19,7 @@ export function Wordmark({ className, size = 'md' }: { className?: string; size?
   return (
     <Link to="/" aria-label="Market, về trang chủ" className={cx('inline-flex shrink-0 items-center gap-2 no-underline', className)}>
       <img src="/icon.svg" alt="" width={32} height={32} className={size === 'lg' ? 'size-9' : 'size-7'} />
-      <span className={cx('leading-none font-extrabold tracking-[-0.03em] text-accent', size === 'lg' ? 'text-[26px]' : 'text-[21px]')}>Market</span>
+      <span className={cx('leading-none font-bold tracking-[-0.03em] text-accent', size === 'lg' ? 'text-[26px]' : 'text-[21px]')}>Market</span>
     </Link>
   )
 }
@@ -120,8 +121,18 @@ function UtilityBar() {
   )
 }
 
+/** A shortcut with a query (e.g. /search?official=1) is active only when its query matches too. */
+function routeActive(route: string, pathname: string, search: string) {
+  const [path, q] = route.split('?')
+  if (path !== pathname) return false
+  if (!q) return true
+  const want = new URLSearchParams(q), have = new URLSearchParams(search)
+  return [...want].every(([k, v]) => have.get(k) === v)
+}
+
 function WebHeader({ focused }: { focused: boolean }) {
   const w = useWorld()
+  const { pathname, search } = useLocation()
   const top = childrenOf(w).slice(0, 8)
   if (focused) return (
     <header className="border-b border-line bg-surface">
@@ -132,16 +143,21 @@ function WebHeader({ focused }: { focused: boolean }) {
     <>
       <UtilityBar />
       <header className="sticky top-0 z-40 bg-surface shadow-[0_1px_0_var(--color-line)]">
-        <div className="mx-auto flex h-[76px] max-w-[1440px] items-center gap-5 px-8">
+        <div className="mx-auto flex h-[88px] max-w-[1440px] items-center gap-5 px-8">
           <Wordmark size="lg" />
           <CategoryMenu />
-          <SearchBox className="max-w-[820px] flex-1" />
+          <div className="max-w-[820px] min-w-0 flex-1 pt-3">
+            <SearchBox />
+            <nav aria-label="Tìm kiếm phổ biến" className="flex h-7 items-center gap-3 overflow-hidden px-1 text-[12px] whitespace-nowrap">
+              {TRENDING.slice(0, 7).map((k, i) => <Link key={k} to={`/search?q=${encodeURIComponent(k)}`} className={cx('no-underline hover:text-accent-ink', i === 0 ? 'text-accent-ink' : 'text-muted')}>{k}</Link>)}
+            </nav>
+          </div>
           <span className="flex-1" />
           <WebCartButton />
         </div>
         <nav aria-label="Lối tắt" className="mx-auto flex h-10 max-w-[1440px] items-center gap-1 overflow-hidden px-6">
           {categoryRow.filter((c) => c.route).map((c) => (
-            <NavLink key={c.id} to={c.route!} className={({ isActive }) => cx('flex h-8 items-center rounded-[var(--radius-control)] px-2.5 text-[14px] font-semibold no-underline whitespace-nowrap hover:text-accent-ink', isActive ? 'text-accent-ink' : 'text-ink')}>{c.label}</NavLink>
+            <Link key={c.id} to={c.route!} aria-current={routeActive(c.route!, pathname, search) ? 'page' : undefined} className={cx('flex h-8 items-center rounded-[var(--radius-control)] px-2.5 text-[14px] font-semibold no-underline whitespace-nowrap hover:text-accent-ink', routeActive(c.route!, pathname, search) ? 'text-accent-ink' : 'text-ink')}>{c.label}</Link>
           ))}
           <span className="mx-2 h-4 w-px bg-line-strong" aria-hidden />
           {top.map((c, i) => <NavLink key={c.id} to={`/c/${c.slug}`} className={({ isActive }) => cx('h-8 items-center rounded-[var(--radius-control)] px-2.5 text-[13px] no-underline whitespace-nowrap hover:text-accent-ink', i < 4 ? 'flex' : i < 6 ? 'hidden xl:flex' : 'hidden 2xl:flex', isActive ? 'text-accent-ink' : 'text-ink-2')}>{c.name}</NavLink>)}

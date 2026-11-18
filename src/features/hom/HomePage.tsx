@@ -1,5 +1,5 @@
 // US-HOM-001…005: three-column hero (categories, deal banner, buyer card), deal modules, themed rails, "Gợi ý hôm nay".
-import { ChevronRight, LayoutGrid, Ticket, Zap } from 'lucide-react'
+import { ChevronRight, LayoutGrid, Ticket, Truck, Zap } from 'lucide-react'
 import { Component, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { Link, useNavigationType } from 'react-router'
 import { childrenOf, leavesUnder, priceView } from '@/app/catalog'
@@ -10,7 +10,7 @@ import { Button, ButtonLink, Chip, cx, GridSkeleton, Img, PageTitle, SectionHead
 import { voucherLabel } from '@/domain/pricing'
 import { orderTabCounts } from '@/features/acc/account'
 import { reviewPrompt } from '@/features/ord/logic'
-import { hubList, pickHomeVouchers } from '@/features/prm/vouchers'
+import { hubList, pickHomeVouchers, voucherExpiry, voucherStubValue } from '@/features/prm/vouchers'
 import { VoucherTile } from '@/features/prm/VoucherTile'
 import { flashSlotState, formatCountdown, startLabel } from './flash'
 import { FlashCard, flashEntries, PriceChip } from './FlashCard'
@@ -186,7 +186,8 @@ function BuyerCard() {
   const t = useNow()
   const counts = orderTabCounts(w.orders)
   const toReview = w.orders.filter((o) => ['open', 'partial'].includes(reviewPrompt(o, t).kind)).length
-  const saved = hubList(w.vouchers, w.savedVouchers, 'all', t).filter((x) => x.state === 'saved').length
+  const savedList = hubList(w.vouchers, w.savedVouchers, 'all', t).filter((x) => x.state === 'saved')
+  const saved = savedList.length
   const shortcuts: [string, number, string][] = [
     ['Chờ thanh toán', counts.awaiting_payment, 'awaiting_payment'],
     ['Chờ lấy hàng', counts.to_ship, 'to_ship'],
@@ -216,12 +217,30 @@ function BuyerCard() {
           </li>
         ))}
       </ul>
-      <Link to="/vouchers" className="mt-auto flex items-center gap-2.5 rounded-[var(--radius-control)] px-1 pt-4 text-[14px] text-ink no-underline hover:text-accent-ink">
-        <Ticket size={18} aria-hidden className="text-accent" />
-        <span className="flex-1">Voucher đã lưu</span>
-        <span className="tabular font-bold text-accent">{saved}</span>
-        <ChevronRight size={15} aria-hidden className="text-muted" />
-      </Link>
+      <div className="mt-4 flex items-center justify-between">
+        <h3 className="text-[14px] font-semibold">Voucher đã lưu</h3>
+        <Link to="/vouchers" className="flex items-center gap-0.5 text-[13px] font-semibold text-accent-ink no-underline hover:underline">
+          <span className="tabular">{saved}</span><span className="sr-only"> voucher đã lưu, xem tất cả</span><ChevronRight size={15} aria-hidden />
+        </Link>
+      </div>
+      {savedList.length > 0 ? (
+        <ul role="list" className="mt-2 space-y-2">
+          {savedList.slice(0, 2).map(({ voucher: v }) => {
+            const stub = voucherStubValue(v)
+            return (
+              <li key={v.id}>
+                <Link to="/vouchers" className="flex overflow-hidden rounded-[var(--radius-control)] no-underline ring-1 ring-inset ring-accent/30 hover:ring-accent">
+                  <span aria-hidden className="flex w-14 shrink-0 items-center justify-center border-r border-dashed border-accent/40 bg-accent-soft text-[15px] font-bold text-accent">{stub ?? <Truck size={18} />}</span>
+                  <span className="min-w-0 flex-1 px-2.5 py-1.5">
+                    <span className="block truncate text-[13px] font-semibold text-ink">{voucherLabel(v)}</span>
+                    <span className="block truncate text-[11px] text-muted">{voucherExpiry(v, t)}</span>
+                  </span>
+                </Link>
+              </li>
+            )
+          })}
+        </ul>
+      ) : <p className="mt-2 flex items-center gap-2 text-[13px] text-muted"><Ticket size={16} aria-hidden />Chưa lưu voucher nào</p>}
     </aside>
   )
 }

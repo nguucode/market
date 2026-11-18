@@ -79,13 +79,13 @@ export default function MePage() {
           <section aria-labelledby="me-follows" className="panel p-4 lg:p-5">
             <h2 id="me-follows" className="font-display text-[16px]">Shop đang theo dõi</h2>
             {follows.length ? (
-              <ul className="mt-3 flex flex-wrap gap-2">
+              <ul className="mt-3 grid grid-cols-4 gap-2 lg:grid-cols-8">
                 {follows.slice(0, 8).map((s) => (
                   <li key={s.id}>
-                    <Link to={`/s/${s.handle}`} title={s.name} className="flex size-11 items-center justify-center rounded-full bg-well text-[13px] font-semibold text-ink-2 no-underline hover:bg-accent-soft hover:text-accent-ink"><span aria-hidden>{initials(s.name)}</span><span className="sr-only">{s.name}</span></Link>
+                    <Link to={`/s/${s.handle}`} className="group flex flex-col items-center gap-1.5 rounded-[var(--radius-control)] py-1 text-center no-underline"><span aria-hidden className="flex size-11 items-center justify-center rounded-full bg-well text-[13px] font-semibold text-ink-2 group-hover:bg-accent-soft group-hover:text-accent-ink">{initials(s.name)}</span><span className="line-clamp-2 text-[12px] leading-4 text-ink-2 group-hover:text-accent-ink">{s.name}</span></Link>
                   </li>
                 ))}
-                {follows.length > 8 && <li className="flex size-11 items-center justify-center rounded-full text-[13px] text-muted">+{follows.length - 8}</li>}
+                {follows.length > 8 && <li className="flex items-center justify-center text-[13px] text-muted">+{follows.length - 8}</li>}
               </ul>
             ) : <p className="mt-1 text-[13px] text-muted">Bạn chưa theo dõi shop nào</p>}
           </section>

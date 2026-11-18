@@ -25,7 +25,7 @@ export function ProductCard({ product: p, eager, className, showShopLocation }: 
     <article className={cx('group panel relative h-full min-w-0 overflow-hidden transition-shadow duration-200 hover:shadow-[var(--shadow-hover)]', className)}>
       <Link to={`/p/${p.slug}`} className="flex h-full flex-col no-underline">
         <span className="relative block">
-          <Img src={p.images[0]} alt={p.name} eager={eager} className={cx('aspect-square w-full transition-transform duration-300 group-hover:scale-[1.02]', out && 'opacity-55')} />
+          <Img src={p.images[0]} alt={p.name} eager={eager} className={cx('aspect-square w-full bg-surface! transition-transform duration-300 group-hover:scale-[1.02]', out && 'opacity-55')} />
           {out && <span className="absolute inset-x-0 bottom-0 bg-ink/70 py-1 text-center text-[12px] font-semibold text-white">{label.text}</span>}
         </span>
         <span className="flex flex-1 flex-col px-2.5 pt-2 pb-2.5">
@@ -33,7 +33,7 @@ export function ProductCard({ product: p, eager, className, showShopLocation }: 
           <span className="mt-1.5 flex h-[18px] items-center">
             {label && !out && <span className={cx('inline-flex h-[18px] items-center rounded-[4px] px-1.5 text-[11px] leading-none font-semibold', LABEL_TONE[label.tone])}>{label.text}</span>}
           </span>
-          <span className="mt-1.5 flex items-baseline justify-between gap-2">
+          <span className="mt-1.5 flex flex-wrap items-baseline justify-between gap-x-2">
             <Price price={pv.min} size="md" showStruck={false} />
             <span className="shrink-0 text-[12px] text-muted">Đã bán {compactCount(p.soldCount)}</span>
           </span>
