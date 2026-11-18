@@ -11,7 +11,7 @@ import type {
 } from '@/domain/types'
 
 /** Bump whenever seed logic changes, so saved demo state from an older seed is discarded. */
-export const SEED_VERSION = 4
+export const SEED_VERSION = 5
 
 export type World = {
   buyer: Buyer
@@ -279,6 +279,7 @@ export function seedWorld(now: number): World {
     })
   })
   floral.soldCount = 10_800
+  for (const c of products) if (c.id !== floral.id && c.images.slice().sort().join() === floral.images.slice().sort().join()) c.soldCount = 1_640 // its competing listing
   // Overflow names.
   const longName = pin(162)
   longName.name = 'Đầm xòe xanh dương cổ vuông tay phồng dáng dài qua gối, vải đũi lụa mềm mát, phong cách tiểu thư Hàn Quốc đi biển dạo phố'

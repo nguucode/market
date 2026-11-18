@@ -53,16 +53,16 @@ export const activeProducts = (w: World) => w.products.filter((p) => p.status ==
 /** Listings of the same source product share their photo set; this is their family key. */
 export const siblingKey = (p: Product) => [...p.images].sort().join('|')
 /**
- * Keeps listings of the same source product out of the same row of `row` cards (competing shops read as
- * duplication when they sit side by side). Stable: an item moves down only as far as needed.
+ * Keeps listings of the same source product at least `gap` positions apart (stable: an item moves down only as far
+ * as needed). With gap 6 and grids of 2–5 columns, two siblings never share a row and never sit directly above one
+ * another, whatever the breakpoint.
  */
-export function spreadSiblings<T>(items: T[], productOf: (x: T) => Product, row = 5): T[] {
+export function spreadSiblings<T>(items: T[], productOf: (x: T) => Product, gap = 6): T[] {
   const out: T[] = []
   const waiting = [...items]
   while (waiting.length) {
-    const rowStart = out.length - (out.length % row)
-    const inRow = new Set(out.slice(rowStart).map((x) => siblingKey(productOf(x))))
-    const i = waiting.findIndex((x) => !inRow.has(siblingKey(productOf(x))))
+    const recent = new Set(out.slice(-(gap - 1)).map((x) => siblingKey(productOf(x))))
+    const i = waiting.findIndex((x) => !recent.has(siblingKey(productOf(x))))
     out.push(waiting.splice(i === -1 ? 0 : i, 1)[0])
   }
   return out
